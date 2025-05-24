@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('clients_index') }}">Clients</a></li>
+                {% if client %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('clients_detail', id=client.id) }}">{{ client.nom_complet }}</a></li>
+                    <li class="breadcrumb-item active">Modifier</li>
+                {% else %}
+                    <li class="breadcrumb-item active">Ajouter</li>
+                {% endif %}
+            </ol>
+        </nav>
+        <h1 class="h2">{{ title }}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Informations personnelles -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.nom.label(class="form-label") }}
+                            {{ form.nom(class="form-control") }}
+                            {% if form.nom.errors %}
+                                {% for error in form.nom.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.prenom.label(class="form-label") }}
+                            {{ form.prenom(class="form-control") }}
+                            {% if form.prenom.errors %}
+                                {% for error in form.prenom.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Contact -->
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.telephone.label(class="form-label") }}
+                            {{ form.telephone(class="form-control") }}
+                            {% if form.telephone.errors %}
+                                {% for error in form.telephone.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Type de client -->
+                    <div class="mb-3">
+                        {{ form.type_client.label(class="form-label") }}
+                        {{ form.type_client(class="form-select") }}
+                        {% if form.type_client.errors %}
+                            {% for error in form.type_client.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Adresse -->
+                    <div class="mb-3">
+                        {{ form.adresse.label(class="form-label") }}
+                        {{ form.adresse(class="form-control") }}
+                        {% if form.adresse.errors %}
+                            {% for error in form.adresse.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            {{ form.ville.label(class="form-label") }}
+                            {{ form.ville(class="form-control") }}
+                            {% if form.ville.errors %}
+                                {% for error in form.ville.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.code_postal.label(class="form-label") }}
+                            {{ form.code_postal(class="form-control") }}
+                            {% if form.code_postal.errors %}
+                                {% for error in form.code_postal.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('clients_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            {{ 'Modifier' if client else 'Ajouter' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

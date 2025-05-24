@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Paiements de Loyer - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h2">
+            <i class="fas fa-euro-sign me-2"></i>
+            Paiements de Loyer
+        </h1>
+        <p class="text-muted">Suivez tous les paiements et gérez les impayés</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('paiements_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>
+            Nouveau paiement
+        </a>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2"></i>
+            Filtres
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('paiements_index') }}">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select class="form-select" id="statut" name="statut">
+                        <option value="">Tous statuts</option>
+                        <option value="paye" {{ 'selected' if statut_filter == 'paye' }}>Payé</option>
+                        <option value="en_attente" {{ 'selected' if statut_filter == 'en_attente' }}>En attente</option>
+                        <option value="retard" {{ 'selected' if statut_filter == 'retard' }}>En retard</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="mois" class="form-label">Mois</label>
+                    <select class="form-select" id="mois" name="mois">
+                        <option value="">Tous mois</option>
+                        {% for i in range(1, 13) %}
+                            <option value="{{ i }}" {{ 'selected' if mois_filter == i|string }}>
+                                {{ ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'][i-1] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="annee" class="form-label">Année</label>
+                    <select class="form-select" id="annee" name="annee">
+                        <option value="">Toutes années</option>
+                        {% for year in range(2020, 2031) %}
+                            <option value="{{ year }}" {{ 'selected' if annee_filter == year|string }}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i>
+                        Filtrer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des paiements -->
+{% if paiements.items %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Période</th>
+                            <th>Bien</th>
+                            <th>Locataire</th>
+                            <th>Montant</th>
+                            <th>Échéance</th>
+                            <th>Paiement</th>
+                            <th>Mode</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paiement in paiements.items %}
+                            <tr class="{{ 'table-danger' if paiement.est_en_retard else 'table-success' if paiement.statut == 'paye' }}">
+                                <td>
+                                    <strong>{{ paiement.periode }}</strong>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if paiement.contrat.bien.photo_principale %}
+                                            <img src="{{ url_for('static', filename='uploads/' + paiement.contrat.bien.photo_principale) }}" 
+                                                 class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="fas fa-home text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ paiement.contrat.bien.titre }}</strong>
+                                            <br><small class="text-muted">{{ paiement.contrat.bien.ville }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ paiement.contrat.locataire.nom_complet }}</strong>
+                                        {% if paiement.contrat.locataire.telephone %}
+                                            <br><small class="text-muted">{{ paiement.contrat.locataire.telephone }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ "%.2f"|format(paiement.montant_total) }} €</strong>
+                                        <br><small class="text-muted">
+                                            Loyer: {{ "%.0f"|format(paiement.montant_loyer) }} €
+                                            {% if paiement.montant_charges > 0 %}
+                                                + {{ "%.0f"|format(paiement.montant_charges) }} € charges
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        {{ paiement.date_echeance.strftime('%d/%m/%Y') }}
+                                        {% if paiement.est_en_retard %}
+                                            <br><small class="text-danger">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                En retard
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if paiement.date_paiement %}
+                                        {{ paiement.date_paiement.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if paiement.mode_paiement %}
+                                        <span class="badge bg-secondary">{{ paiement.mode_paiement }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if paiement.statut == 'paye' else 'danger' if paiement.statut == 'retard' else 'warning' }}">
+                                        {{ paiement.statut }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('paiements_edit', id=paiement.id) }}" 
+                                           class="btn btn-outline-primary" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{{ url_for('contrats_detail', id=paiement.contrat.id) }}" 
+                                           class="btn btn-outline-secondary" title="Voir contrat">
+                                            <i class="fas fa-file-contract"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    {% if paiements.pages > 1 %}
+        <nav aria-label="Navigation des paiements" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if paiements.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('paiements_index', page=paiements.prev_num, **request.args) }}">
+                            Précédent
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in paiements.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != paiements.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('paiements_index', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if paiements.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('paiements_index', page=paiements.next_num, **request.args) }}">
+                            Suivant
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-euro-sign fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucun paiement trouvé</h4>
+        <p class="text-muted">Commencez par enregistrer vos premiers paiements de loyer.</p>
+        <a href="{{ url_for('paiements_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>
+            Nouveau paiement
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

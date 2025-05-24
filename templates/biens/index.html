@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Biens Immobiliers - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h2">
+            <i class="fas fa-home me-2"></i>
+            Biens Immobiliers
+        </h1>
+        <p class="text-muted">Gérez votre portefeuille de biens immobiliers</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('biens_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>
+            Ajouter un bien
+        </a>
+    </div>
+</div>
+
+<!-- Formulaire de recherche -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-search me-2"></i>
+            Recherche et filtres
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('biens_index') }}">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    {{ form.q.label(class="form-label") }}
+                    {{ form.q(class="form-control", placeholder="Titre, adresse, ville...") }}
+                </div>
+                <div class="col-md-2 mb-3">
+                    {{ form.type_bien.label(class="form-label") }}
+                    {{ form.type_bien(class="form-select") }}
+                </div>
+                <div class="col-md-2 mb-3">
+                    {{ form.ville.label(class="form-label") }}
+                    {{ form.ville(class="form-control", placeholder="Ville") }}
+                </div>
+                <div class="col-md-2 mb-3">
+                    {{ form.prix_min.label(class="form-label") }}
+                    {{ form.prix_min(class="form-control", placeholder="Prix min") }}
+                </div>
+                <div class="col-md-2 mb-3">
+                    {{ form.prix_max.label(class="form-label") }}
+                    {{ form.prix_max(class="form-control", placeholder="Prix max") }}
+                </div>
+                <div class="col-md-1 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    {{ form.surface_min.label(class="form-label") }}
+                    {{ form.surface_min(class="form-control", placeholder="Surface min") }}
+                </div>
+                <div class="col-md-2 mb-3">
+                    {{ form.surface_max.label(class="form-label") }}
+                    {{ form.surface_max(class="form-control", placeholder="Surface max") }}
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.disponible_uniquement(class="form-check-input") }}
+                        {{ form.disponible_uniquement.label(class="form-check-label") }}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des biens -->
+{% if biens.items %}
+    <div class="row">
+        {% for bien in biens.items %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    {% if bien.photo_principale %}
+                        <img src="{{ url_for('static', filename='uploads/' + bien.photo_principale) }}" 
+                             class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ bien.titre }}">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                             style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ bien.titre }}</h5>
+                        <p class="card-text text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ bien.adresse_complete }}
+                        </p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <small class="text-muted">Surface</small><br>
+                                <strong>{{ bien.surface }} m²</strong>
+                            </div>
+                            {% if bien.nombre_pieces %}
+                                <div class="col-4">
+                                    <small class="text-muted">Pièces</small><br>
+                                    <strong>{{ bien.nombre_pieces }}</strong>
+                                </div>
+                            {% endif %}
+                            {% if bien.prix_location_mensuel %}
+                                <div class="col-4">
+                                    <small class="text-muted">Loyer</small><br>
+                                    <strong>{{ bien.prix_location_mensuel }} €</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <div>
+                                <span class="badge bg-{{ 'success' if bien.disponible else 'secondary' }}">
+                                    {{ 'Disponible' if bien.disponible else 'Loué' }}
+                                </span>
+                                <span class="badge bg-info">{{ bien.type_bien }}</span>
+                            </div>
+                            <a href="{{ url_for('biens_detail', id=bien.id) }}" class="btn btn-sm btn-outline-primary">
+                                Voir détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if biens.pages > 1 %}
+        <nav aria-label="Navigation des biens">
+            <ul class="pagination justify-content-center">
+                {% if biens.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('biens_index', page=biens.prev_num, **request.args) }}">
+                            Précédent
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in biens.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != biens.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('biens_index', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if biens.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('biens_index', page=biens.next_num, **request.args) }}">
+                            Suivant
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucun bien trouvé</h4>
+        <p class="text-muted">Essayez de modifier vos critères de recherche ou ajoutez un nouveau bien.</p>
+        <a href="{{ url_for('biens_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>
+            Ajouter un bien
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

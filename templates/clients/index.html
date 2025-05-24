@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Clients - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h2">
+            <i class="fas fa-users me-2"></i>
+            Clients
+        </h1>
+        <p class="text-muted">Gérez vos clients, propriétaires et locataires</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('clients_add') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-1"></i>
+            Ajouter un client
+        </a>
+    </div>
+</div>
+
+<!-- Filtres et recherche -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2"></i>
+            Filtres et recherche
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('clients_index') }}">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           value="{{ search }}" placeholder="Nom, prénom, email...">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="type" class="form-label">Type de client</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">Tous types</option>
+                        <option value="proprietaire" {{ 'selected' if type_filter == 'proprietaire' }}>Propriétaire</option>
+                        <option value="locataire" {{ 'selected' if type_filter == 'locataire' }}>Locataire</option>
+                        <option value="acheteur" {{ 'selected' if type_filter == 'acheteur' }}>Acheteur</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i>
+                        Rechercher
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des clients -->
+{% if clients.items %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Type</th>
+                            <th>Ville</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients.items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-3">
+                                            {{ client.prenom[0]|upper }}{{ client.nom[0]|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ client.nom_complet }}</strong>
+                                            {% if client.adresse %}
+                                                <br><small class="text-muted">{{ client.adresse }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="mailto:{{ client.email }}" class="text-decoration-none">
+                                        {{ client.email }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if client.telephone %}
+                                        <a href="tel:{{ client.telephone }}" class="text-decoration-none">
+                                            {{ client.telephone }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'primary' if client.type_client == 'proprietaire' else 'success' if client.type_client == 'locataire' else 'info' }}">
+                                        {{ client.type_client }}
+                                    </span>
+                                </td>
+                                <td>{{ client.ville or '-' }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('clients_detail', id=client.id) }}" 
+                                           class="btn btn-outline-primary" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('clients_edit', id=client.id) }}" 
+                                           class="btn btn-outline-secondary" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                title="Supprimer" 
+                                                onclick="confirmDelete({{ client.id }}, '{{ client.nom_complet }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    {% if clients.pages > 1 %}
+        <nav aria-label="Navigation des clients" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if clients.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('clients_index', page=clients.prev_num, **request.args) }}">
+                            Précédent
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in clients.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != clients.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('clients_index', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if clients.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('clients_index', page=clients.next_num, **request.args) }}">
+                            Suivant
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucun client trouvé</h4>
+        <p class="text-muted">Commencez par ajouter vos premiers clients.</p>
+        <a href="{{ url_for('clients_add') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-1"></i>
+            Ajouter un client
+        </a>
+    </div>
+{% endif %}
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le client <strong id="clientName"></strong> ?</p>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(clientId, clientName) {
+    document.getElementById('clientName').textContent = clientName;
+    document.getElementById('deleteForm').action = `/clients/${clientId}/delete`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

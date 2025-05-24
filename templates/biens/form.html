@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('biens_index') }}">Biens</a></li>
+                {% if bien %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('biens_detail', id=bien.id) }}">{{ bien.titre }}</a></li>
+                    <li class="breadcrumb-item active">Modifier</li>
+                {% else %}
+                    <li class="breadcrumb-item active">Ajouter</li>
+                {% endif %}
+            </ol>
+        </nav>
+        <h1 class="h2">{{ title }}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Informations de base -->
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            {{ form.titre.label(class="form-label") }}
+                            {{ form.titre(class="form-control") }}
+                            {% if form.titre.errors %}
+                                {% for error in form.titre.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.type_bien.label(class="form-label") }}
+                            {{ form.type_bien(class="form-select") }}
+                            {% if form.type_bien.errors %}
+                                {% for error in form.type_bien.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Adresse -->
+                    <div class="mb-3">
+                        {{ form.adresse.label(class="form-label") }}
+                        {{ form.adresse(class="form-control") }}
+                        {% if form.adresse.errors %}
+                            {% for error in form.adresse.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            {{ form.ville.label(class="form-label") }}
+                            {{ form.ville(class="form-control") }}
+                            {% if form.ville.errors %}
+                                {% for error in form.ville.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.code_postal.label(class="form-label") }}
+                            {{ form.code_postal(class="form-control") }}
+                            {% if form.code_postal.errors %}
+                                {% for error in form.code_postal.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Caractéristiques -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.surface.label(class="form-label") }}
+                            {{ form.surface(class="form-control") }}
+                            {% if form.surface.errors %}
+                                {% for error in form.surface.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.nombre_pieces.label(class="form-label") }}
+                            {{ form.nombre_pieces(class="form-control") }}
+                            {% if form.nombre_pieces.errors %}
+                                {% for error in form.nombre_pieces.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.nombre_chambres.label(class="form-label") }}
+                            {{ form.nombre_chambres(class="form-control") }}
+                            {% if form.nombre_chambres.errors %}
+                                {% for error in form.nombre_chambres.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Prix -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.prix_achat.label(class="form-label") }}
+                            {{ form.prix_achat(class="form-control") }}
+                            {% if form.prix_achat.errors %}
+                                {% for error in form.prix_achat.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.prix_location_mensuel.label(class="form-label") }}
+                            {{ form.prix_location_mensuel(class="form-control") }}
+                            {% if form.prix_location_mensuel.errors %}
+                                {% for error in form.prix_location_mensuel.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.charges_mensuelles.label(class="form-label") }}
+                            {{ form.charges_mensuelles(class="form-control") }}
+                            {% if form.charges_mensuelles.errors %}
+                                {% for error in form.charges_mensuelles.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Détails supplémentaires -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.etage.label(class="form-label") }}
+                            {{ form.etage(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.annee_construction.label(class="form-label") }}
+                            {{ form.annee_construction(class="form-control") }}
+                        </div>
+                    </div>
+                    
+                    <!-- Équipements -->
+                    <div class="mb-3">
+                        <label class="form-label">Équipements</label>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    {{ form.meuble(class="form-check-input") }}
+                                    {{ form.meuble.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    {{ form.balcon(class="form-check-input") }}
+                                    {{ form.balcon.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    {{ form.parking(class="form-check-input") }}
+                                    {{ form.parking.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    {{ form.ascenseur(class="form-check-input") }}
+                                    {{ form.ascenseur.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Propriétaire -->
+                    <div class="mb-3">
+                        {{ form.proprietaire_id.label(class="form-label") }}
+                        {{ form.proprietaire_id(class="form-select") }}
+                        {% if form.proprietaire_id.errors %}
+                            {% for error in form.proprietaire_id.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        {% if not form.proprietaire_id.choices or form.proprietaire_id.choices|length <= 0 %}
+                            <div class="alert alert-warning mt-2">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Aucun propriétaire disponible. 
+                                <a href="{{ url_for('clients_add') }}" class="alert-link">Ajouter un propriétaire</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="4") }}
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('biens_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            {{ 'Modifier' if bien else 'Ajouter' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

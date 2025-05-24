@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Contrats de Location - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h2">
+            <i class="fas fa-file-contract me-2"></i>
+            Contrats de Location
+        </h1>
+        <p class="text-muted">Gérez tous les contrats de location de vos biens</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('contrats_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>
+            Nouveau contrat
+        </a>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2"></i>
+            Filtres
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('contrats_index') }}">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select class="form-select" id="statut" name="statut">
+                        <option value="">Tous statuts</option>
+                        <option value="actif" {{ 'selected' if statut_filter == 'actif' }}>Actif</option>
+                        <option value="termine" {{ 'selected' if statut_filter == 'termine' }}>Terminé</option>
+                        <option value="suspendu" {{ 'selected' if statut_filter == 'suspendu' }}>Suspendu</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i>
+                        Filtrer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des contrats -->
+{% if contrats.items %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Bien</th>
+                            <th>Locataire</th>
+                            <th>Période</th>
+                            <th>Loyer</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contrat in contrats.items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if contrat.bien.photo_principale %}
+                                            <img src="{{ url_for('static', filename='uploads/' + contrat.bien.photo_principale) }}" 
+                                                 class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 50px;">
+                                                <i class="fas fa-home text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ contrat.bien.titre }}</strong>
+                                            <br><small class="text-muted">{{ contrat.bien.ville }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ contrat.locataire.nom_complet }}</strong>
+                                        {% if contrat.locataire.email %}
+                                            <br><small class="text-muted">{{ contrat.locataire.email }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ contrat.date_debut.strftime('%d/%m/%Y') }}</strong>
+                                        {% if contrat.date_fin %}
+                                            <br><small class="text-muted">au {{ contrat.date_fin.strftime('%d/%m/%Y') }}</small>
+                                        {% else %}
+                                            <br><small class="text-muted">Durée indéterminée</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ "%.0f"|format(contrat.loyer_total) }} €</strong>
+                                        <br><small class="text-muted">
+                                            Loyer: {{ "%.0f"|format(contrat.loyer_mensuel) }} €
+                                            {% if contrat.charges_mensuelles > 0 %}
+                                                + {{ "%.0f"|format(contrat.charges_mensuelles) }} € charges
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if contrat.statut == 'actif' else 'secondary' if contrat.statut == 'termine' else 'warning' }}">
+                                        {{ contrat.statut }}
+                                    </span>
+                                    {% if contrat.est_actif %}
+                                        <br><small class="text-success">En cours</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('contrats_detail', id=contrat.id) }}" 
+                                           class="btn btn-outline-primary" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('contrats_edit', id=contrat.id) }}" 
+                                           class="btn btn-outline-secondary" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if contrat.statut == 'actif' %}
+                                            <a href="{{ url_for('paiements_add', contrat_id=contrat.id) }}" 
+                                               class="btn btn-outline-success" title="Enregistrer paiement">
+                                                <i class="fas fa-euro-sign"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    {% if contrats.pages > 1 %}
+        <nav aria-label="Navigation des contrats" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if contrats.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('contrats_index', page=contrats.prev_num, **request.args) }}">
+                            Précédent
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in contrats.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != contrats.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('contrats_index', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if contrats.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('contrats_index', page=contrats.next_num, **request.args) }}">
+                            Suivant
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucun contrat trouvé</h4>
+        <p class="text-muted">Commencez par créer votre premier contrat de location.</p>
+        <a href="{{ url_for('contrats_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>
+            Nouveau contrat
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

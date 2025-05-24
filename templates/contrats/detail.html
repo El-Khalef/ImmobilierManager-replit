@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Contrat #{{ contrat.id }} - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('contrats_index') }}">Contrats</a></li>
+                <li class="breadcrumb-item active">Contrat #{{ contrat.id }}</li>
+            </ol>
+        </nav>
+        <h1 class="h2">Contrat de Location #{{ contrat.id }}</h1>
+        <p class="text-muted">
+            <span class="badge bg-{{ 'success' if contrat.statut == 'actif' else 'secondary' if contrat.statut == 'termine' else 'warning' }} me-2">
+                {{ contrat.statut }}
+            </span>
+            Créé le {{ contrat.date_creation.strftime('%d/%m/%Y') }}
+        </p>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <a href="{{ url_for('contrats_edit', id=contrat.id) }}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-1"></i>
+                Modifier
+            </a>
+            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" 
+                    data-bs-toggle="dropdown">
+                <span class="visually-hidden">Autres actions</span>
+            </button>
+            <ul class="dropdown-menu">
+                {% if contrat.statut == 'actif' %}
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('paiements_add', contrat_id=contrat.id) }}">
+                            <i class="fas fa-euro-sign me-1"></i>
+                            Enregistrer un paiement
+                        </a>
+                    </li>
+                {% endif %}
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('biens_detail', id=contrat.bien.id) }}">
+                        <i class="fas fa-home me-1"></i>
+                        Voir le bien
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('clients_detail', id=contrat.locataire.id) }}">
+                        <i class="fas fa-user me-1"></i>
+                        Voir le locataire
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations du contrat -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-contract me-2"></i>
+                    Détails du contrat
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Date de début :</strong></td>
+                                <td>{{ contrat.date_debut.strftime('%d/%m/%Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date de fin :</strong></td>
+                                <td>
+                                    {% if contrat.date_fin %}
+                                        {{ contrat.date_fin.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        Durée indéterminée
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Statut :</strong></td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if contrat.statut == 'actif' else 'secondary' if contrat.statut == 'termine' else 'warning' }}">
+                                        {{ contrat.statut }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Loyer mensuel :</strong></td>
+                                <td>{{ "%.2f"|format(contrat.loyer_mensuel) }} €</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Charges :</strong></td>
+                                <td>{{ "%.2f"|format(contrat.charges_mensuelles) }} €</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total mensuel :</strong></td>
+                                <td><strong>{{ "%.2f"|format(contrat.loyer_total) }} €</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dépôt de garantie :</strong></td>
+                                <td>{{ "%.2f"|format(contrat.depot_garantie) }} €</td>
+                            </tr>
+                            {% if contrat.frais_agence > 0 %}
+                                <tr>
+                                    <td><strong>Frais d'agence :</strong></td>
+                                    <td>{{ "%.2f"|format(contrat.frais_agence) }} €</td>
+                                </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+                
+                {% if contrat.conditions_particulieres %}
+                    <hr>
+                    <h6>Conditions particulières :</h6>
+                    <p class="text-muted">{{ contrat.conditions_particulieres }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Historique des paiements -->
+        {% if contrat.paiements %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-euro-sign me-2"></i>
+                        Historique des paiements ({{ contrat.paiements|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Période</th>
+                                    <th>Montant</th>
+                                    <th>Date d'échéance</th>
+                                    <th>Date de paiement</th>
+                                    <th>Mode</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paiement in contrat.paiements|sort(attribute='annee,mois', reverse=true) %}
+                                    <tr class="{{ 'table-danger' if paiement.est_en_retard }}">
+                                        <td>{{ paiement.periode }}</td>
+                                        <td>{{ "%.2f"|format(paiement.montant_total) }} €</td>
+                                        <td>{{ paiement.date_echeance.strftime('%d/%m/%Y') }}</td>
+                                        <td>
+                                            {% if paiement.date_paiement %}
+                                                {{ paiement.date_paiement.strftime('%d/%m/%Y') }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ paiement.mode_paiement or '-' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if paiement.statut == 'paye' else 'danger' if paiement.statut == 'retard' else 'warning' }}">
+                                                {{ paiement.statut }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('paiements_edit', id=paiement.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-euro-sign fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucun paiement enregistré</h5>
+                    <p class="text-muted">Commencez par enregistrer le premier paiement de loyer.</p>
+                    {% if contrat.statut == 'actif' %}
+                        <a href="{{ url_for('paiements_add', contrat_id=contrat.id) }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>
+                            Enregistrer un paiement
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Informations du bien et du locataire -->
+    <div class="col-md-4">
+        <!-- Bien immobilier -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-home me-2"></i>
+                    Bien immobilier
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if contrat.bien.photo_principale %}
+                    <img src="{{ url_for('static', filename='uploads/' + contrat.bien.photo_principale) }}" 
+                         class="img-fluid rounded mb-3" alt="{{ contrat.bien.titre }}">
+                {% endif %}
+                <h6>{{ contrat.bien.titre }}</h6>
+                <p class="text-muted mb-2">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ contrat.bien.adresse_complete }}
+                </p>
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Surface</small><br>
+                        <strong>{{ contrat.bien.surface }} m²</strong>
+                    </div>
+                    {% if contrat.bien.nombre_pieces %}
+                        <div class="col-6">
+                            <small class="text-muted">Pièces</small><br>
+                            <strong>{{ contrat.bien.nombre_pieces }}</strong>
+                        </div>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('biens_detail', id=contrat.bien.id) }}" class="btn btn-sm btn-outline-primary w-100">
+                    Voir le bien
+                </a>
+            </div>
+        </div>
+        
+        <!-- Locataire -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user me-2"></i>
+                    Locataire
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="avatar-circle-large mx-auto mb-2">
+                        {{ contrat.locataire.prenom[0]|upper }}{{ contrat.locataire.nom[0]|upper }}
+                    </div>
+                    <h6>{{ contrat.locataire.nom_complet }}</h6>
+                </div>
+                
+                <table class="table table-borderless table-sm">
+                    <tr>
+                        <td><i class="fas fa-envelope text-muted me-2"></i></td>
+                        <td>
+                            <a href="mailto:{{ contrat.locataire.email }}" class="text-decoration-none">
+                                {{ contrat.locataire.email }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% if contrat.locataire.telephone %}
+                        <tr>
+                            <td><i class="fas fa-phone text-muted me-2"></i></td>
+                            <td>
+                                <a href="tel:{{ contrat.locataire.telephone }}" class="text-decoration-none">
+                                    {{ contrat.locataire.telephone }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% if contrat.locataire.adresse %}
+                        <tr>
+                            <td><i class="fas fa-map-marker-alt text-muted me-2"></i></td>
+                            <td>{{ contrat.locataire.adresse }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+                
+                <a href="{{ url_for('clients_detail', id=contrat.locataire.id) }}" class="btn btn-sm btn-outline-primary w-100">
+                    Voir le profil
+                </a>
+            </div>
+        </div>
+        
+        <!-- Propriétaire -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-tie me-2"></i>
+                    Propriétaire
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ contrat.bien.proprietaire.nom_complet }}</h6>
+                {% if contrat.bien.proprietaire.email %}
+                    <p class="mb-1">
+                        <i class="fas fa-envelope me-1"></i>
+                        <a href="mailto:{{ contrat.bien.proprietaire.email }}" class="text-decoration-none">
+                            {{ contrat.bien.proprietaire.email }}
+                        </a>
+                    </p>
+                {% endif %}
+                {% if contrat.bien.proprietaire.telephone %}
+                    <p class="mb-3">
+                        <i class="fas fa-phone me-1"></i>
+                        <a href="tel:{{ contrat.bien.proprietaire.telephone }}" class="text-decoration-none">
+                            {{ contrat.bien.proprietaire.telephone }}
+                        </a>
+                    </p>
+                {% endif %}
+                <a href="{{ url_for('clients_detail', id=contrat.bien.proprietaire.id) }}" class="btn btn-sm btn-outline-primary w-100">
+                    Voir le profil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,449 @@
+import os
+import uuid
+from datetime import datetime, date
+from flask import render_template, request, redirect, url_for, flash, jsonify, current_app
+from werkzeug.utils import secure_filename
+from sqlalchemy import or_, and_
+from app import db
+from models import (
+    Client, BienImmobilier, PhotoBien, ContratLocation, 
+    PaiementLoyer, get_dashboard_stats
+)
+from forms import (
+    ClientForm, BienForm, PhotoForm, ContratForm, 
+    PaiementForm, SearchForm
+)
+
+
+def register_routes(app):
+    """Enregistre toutes les routes de l'application"""
+    
+    @app.route('/')
+    def index():
+        """Page d'accueil avec dashboard"""
+        stats = get_dashboard_stats()
+        recent_contrats = ContratLocation.query.filter_by(statut='actif').limit(5).all()
+        paiements_en_retard = PaiementLoyer.query.filter(
+            PaiementLoyer.statut != 'paye',
+            PaiementLoyer.date_echeance < date.today()
+        ).limit(5).all()
+        
+        return render_template('dashboard.html', 
+                             stats=stats, 
+                             recent_contrats=recent_contrats,
+                             paiements_en_retard=paiements_en_retard)
+    
+    # Routes pour les clients
+    @app.route('/clients/')
+    def clients_index():
+        """Liste des clients"""
+        page = request.args.get('page', 1, type=int)
+        type_filter = request.args.get('type', '')
+        search = request.args.get('search', '')
+        
+        query = Client.query
+        
+        if type_filter:
+            query = query.filter_by(type_client=type_filter)
+        
+        if search:
+            query = query.filter(
+                or_(
+                    Client.nom.ilike(f'%{search}%'),
+                    Client.prenom.ilike(f'%{search}%'),
+                    Client.email.ilike(f'%{search}%')
+                )
+            )
+        
+        clients = query.order_by(Client.nom, Client.prenom).paginate(
+            page=page, per_page=20, error_out=False
+        )
+        
+        return render_template('clients/index.html', 
+                             clients=clients, 
+                             type_filter=type_filter,
+                             search=search)
+    
+    @app.route('/clients/<int:id>')
+    def clients_detail(id):
+        """Détail d'un client"""
+        client = Client.query.get_or_404(id)
+        return render_template('clients/detail.html', client=client)
+    
+    @app.route('/clients/add', methods=['GET', 'POST'])
+    def clients_add():
+        """Ajouter un client"""
+        form = ClientForm()
+        if form.validate_on_submit():
+            # Vérifier que l'email n'existe pas déjà
+            existing_client = Client.query.filter_by(email=form.email.data).first()
+            if existing_client:
+                flash('Un client avec cet email existe déjà.', 'danger')
+                return render_template('clients/form.html', form=form, title='Ajouter un client')
+            
+            client = Client(
+                nom=form.nom.data,
+                prenom=form.prenom.data,
+                email=form.email.data,
+                telephone=form.telephone.data,
+                adresse=form.adresse.data,
+                ville=form.ville.data,
+                code_postal=form.code_postal.data,
+                type_client=form.type_client.data
+            )
+            db.session.add(client)
+            db.session.commit()
+            flash(f'Client {client.nom_complet} ajouté avec succès.', 'success')
+            return redirect(url_for('clients_index'))
+        
+        return render_template('clients/form.html', form=form, title='Ajouter un client')
+    
+    @app.route('/clients/<int:id>/edit', methods=['GET', 'POST'])
+    def clients_edit(id):
+        """Éditer un client"""
+        client = Client.query.get_or_404(id)
+        form = ClientForm(obj=client)
+        
+        if form.validate_on_submit():
+            # Vérifier que l'email n'existe pas déjà (sauf pour ce client)
+            existing_client = Client.query.filter(
+                and_(Client.email == form.email.data, Client.id != id)
+            ).first()
+            if existing_client:
+                flash('Un autre client avec cet email existe déjà.', 'danger')
+                return render_template('clients/form.html', form=form, client=client, title='Modifier le client')
+            
+            form.populate_obj(client)
+            db.session.commit()
+            flash(f'Client {client.nom_complet} modifié avec succès.', 'success')
+            return redirect(url_for('clients_detail', id=client.id))
+        
+        return render_template('clients/form.html', form=form, client=client, title='Modifier le client')
+    
+    @app.route('/clients/<int:id>/delete', methods=['POST'])
+    def clients_delete(id):
+        """Supprimer un client"""
+        client = Client.query.get_or_404(id)
+        
+        # Vérifier qu'il n'y a pas de contraintes
+        if client.biens_proprietaire or client.contrats_locataire:
+            flash('Impossible de supprimer ce client car il a des biens ou contrats associés.', 'danger')
+            return redirect(url_for('clients_detail', id=id))
+        
+        nom_complet = client.nom_complet
+        db.session.delete(client)
+        db.session.commit()
+        flash(f'Client {nom_complet} supprimé avec succès.', 'success')
+        return redirect(url_for('clients_index'))
+    
+    # Routes pour les biens immobiliers
+    @app.route('/biens/')
+    def biens_index():
+        """Liste des biens immobiliers"""
+        page = request.args.get('page', 1, type=int)
+        form = SearchForm(request.args)
+        
+        query = BienImmobilier.query
+        
+        # Appliquer les filtres de recherche
+        if form.q.data:
+            search_term = f'%{form.q.data}%'
+            query = query.filter(
+                or_(
+                    BienImmobilier.titre.ilike(search_term),
+                    BienImmobilier.adresse.ilike(search_term),
+                    BienImmobilier.ville.ilike(search_term),
+                    BienImmobilier.description.ilike(search_term)
+                )
+            )
+        
+        if form.type_bien.data:
+            query = query.filter_by(type_bien=form.type_bien.data)
+        
+        if form.ville.data:
+            query = query.filter(BienImmobilier.ville.ilike(f'%{form.ville.data}%'))
+        
+        if form.prix_min.data:
+            query = query.filter(BienImmobilier.prix_location_mensuel >= form.prix_min.data)
+        
+        if form.prix_max.data:
+            query = query.filter(BienImmobilier.prix_location_mensuel <= form.prix_max.data)
+        
+        if form.surface_min.data:
+            query = query.filter(BienImmobilier.surface >= form.surface_min.data)
+        
+        if form.surface_max.data:
+            query = query.filter(BienImmobilier.surface <= form.surface_max.data)
+        
+        if form.disponible_uniquement.data:
+            query = query.filter_by(disponible=True)
+        
+        biens = query.order_by(BienImmobilier.date_creation.desc()).paginate(
+            page=page, per_page=20, error_out=False
+        )
+        
+        return render_template('biens/index.html', biens=biens, form=form)
+    
+    @app.route('/biens/<int:id>')
+    def biens_detail(id):
+        """Détail d'un bien immobilier"""
+        bien = BienImmobilier.query.get_or_404(id)
+        return render_template('biens/detail.html', bien=bien)
+    
+    @app.route('/biens/add', methods=['GET', 'POST'])
+    def biens_add():
+        """Ajouter un bien immobilier"""
+        form = BienForm()
+        if form.validate_on_submit():
+            bien = BienImmobilier(
+                titre=form.titre.data,
+                type_bien=form.type_bien.data,
+                adresse=form.adresse.data,
+                ville=form.ville.data,
+                code_postal=form.code_postal.data,
+                surface=form.surface.data,
+                nombre_pieces=form.nombre_pieces.data,
+                nombre_chambres=form.nombre_chambres.data,
+                prix_achat=form.prix_achat.data,
+                prix_location_mensuel=form.prix_location_mensuel.data,
+                charges_mensuelles=form.charges_mensuelles.data,
+                description=form.description.data,
+                meuble=form.meuble.data,
+                balcon=form.balcon.data,
+                parking=form.parking.data,
+                ascenseur=form.ascenseur.data,
+                etage=form.etage.data,
+                annee_construction=form.annee_construction.data,
+                proprietaire_id=form.proprietaire_id.data
+            )
+            db.session.add(bien)
+            db.session.commit()
+            flash(f'Bien "{bien.titre}" ajouté avec succès.', 'success')
+            return redirect(url_for('biens_detail', id=bien.id))
+        
+        return render_template('biens/form.html', form=form, title='Ajouter un bien')
+    
+    @app.route('/biens/<int:id>/edit', methods=['GET', 'POST'])
+    def biens_edit(id):
+        """Éditer un bien immobilier"""
+        bien = BienImmobilier.query.get_or_404(id)
+        form = BienForm(obj=bien)
+        
+        if form.validate_on_submit():
+            form.populate_obj(bien)
+            db.session.commit()
+            flash(f'Bien "{bien.titre}" modifié avec succès.', 'success')
+            return redirect(url_for('biens_detail', id=bien.id))
+        
+        return render_template('biens/form.html', form=form, bien=bien, title='Modifier le bien')
+    
+    @app.route('/biens/<int:id>/photos', methods=['GET', 'POST'])
+    def biens_photos(id):
+        """Gérer les photos d'un bien"""
+        bien = BienImmobilier.query.get_or_404(id)
+        form = PhotoForm()
+        
+        if form.validate_on_submit():
+            file = form.photo.data
+            if file:
+                # Générer un nom de fichier unique
+                filename = str(uuid.uuid4()) + '.' + file.filename.rsplit('.', 1)[1].lower()
+                filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                
+                # Si c'est défini comme photo principale, désactiver les autres
+                if form.principale.data:
+                    PhotoBien.query.filter_by(bien_id=bien.id, principale=True).update({'principale': False})
+                
+                photo = PhotoBien(
+                    nom_fichier=filename,
+                    nom_original=file.filename,
+                    principale=form.principale.data,
+                    bien_id=bien.id
+                )
+                db.session.add(photo)
+                db.session.commit()
+                flash('Photo ajoutée avec succès.', 'success')
+                return redirect(url_for('biens_photos', id=id))
+        
+        return render_template('biens/detail.html', bien=bien, photo_form=form)
+    
+    @app.route('/biens/<int:bien_id>/photos/<int:photo_id>/delete', methods=['POST'])
+    def photo_delete(bien_id, photo_id):
+        """Supprimer une photo"""
+        photo = PhotoBien.query.get_or_404(photo_id)
+        if photo.bien_id != bien_id:
+            flash('Photo non trouvée.', 'danger')
+            return redirect(url_for('biens_detail', id=bien_id))
+        
+        # Supprimer le fichier physique
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], photo.nom_fichier)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        
+        db.session.delete(photo)
+        db.session.commit()
+        flash('Photo supprimée avec succès.', 'success')
+        return redirect(url_for('biens_detail', id=bien_id))
+    
+    # Routes pour les contrats
+    @app.route('/contrats/')
+    def contrats_index():
+        """Liste des contrats de location"""
+        page = request.args.get('page', 1, type=int)
+        statut_filter = request.args.get('statut', '')
+        
+        query = ContratLocation.query
+        
+        if statut_filter:
+            query = query.filter_by(statut=statut_filter)
+        
+        contrats = query.order_by(ContratLocation.date_creation.desc()).paginate(
+            page=page, per_page=20, error_out=False
+        )
+        
+        return render_template('contrats/index.html', contrats=contrats, statut_filter=statut_filter)
+    
+    @app.route('/contrats/<int:id>')
+    def contrats_detail(id):
+        """Détail d'un contrat de location"""
+        contrat = ContratLocation.query.get_or_404(id)
+        return render_template('contrats/detail.html', contrat=contrat)
+    
+    @app.route('/contrats/add', methods=['GET', 'POST'])
+    def contrats_add():
+        """Ajouter un contrat de location"""
+        form = ContratForm()
+        if form.validate_on_submit():
+            # Marquer le bien comme non disponible
+            bien = BienImmobilier.query.get(form.bien_id.data)
+            bien.disponible = False
+            
+            contrat = ContratLocation(
+                bien_id=form.bien_id.data,
+                locataire_id=form.locataire_id.data,
+                date_debut=form.date_debut.data,
+                date_fin=form.date_fin.data,
+                loyer_mensuel=form.loyer_mensuel.data,
+                charges_mensuelles=form.charges_mensuelles.data,
+                depot_garantie=form.depot_garantie.data,
+                frais_agence=form.frais_agence.data,
+                statut=form.statut.data,
+                conditions_particulieres=form.conditions_particulieres.data
+            )
+            db.session.add(contrat)
+            db.session.commit()
+            flash('Contrat de location créé avec succès.', 'success')
+            return redirect(url_for('contrats_detail', id=contrat.id))
+        
+        return render_template('contrats/form.html', form=form, title='Nouveau contrat')
+    
+    @app.route('/contrats/<int:id>/edit', methods=['GET', 'POST'])
+    def contrats_edit(id):
+        """Éditer un contrat de location"""
+        contrat = ContratLocation.query.get_or_404(id)
+        form = ContratForm(obj=contrat)
+        
+        if form.validate_on_submit():
+            # Gérer la disponibilité du bien
+            if contrat.statut == 'actif' and form.statut.data != 'actif':
+                contrat.bien.disponible = True
+            elif contrat.statut != 'actif' and form.statut.data == 'actif':
+                contrat.bien.disponible = False
+            
+            form.populate_obj(contrat)
+            db.session.commit()
+            flash('Contrat modifié avec succès.', 'success')
+            return redirect(url_for('contrats_detail', id=contrat.id))
+        
+        return render_template('contrats/form.html', form=form, contrat=contrat, title='Modifier le contrat')
+    
+    # Routes pour les paiements
+    @app.route('/paiements/')
+    def paiements_index():
+        """Liste des paiements de loyer"""
+        page = request.args.get('page', 1, type=int)
+        statut_filter = request.args.get('statut', '')
+        mois_filter = request.args.get('mois', '', type=str)
+        annee_filter = request.args.get('annee', '', type=str)
+        
+        query = PaiementLoyer.query
+        
+        if statut_filter:
+            query = query.filter_by(statut=statut_filter)
+        
+        if mois_filter:
+            query = query.filter_by(mois=int(mois_filter))
+        
+        if annee_filter:
+            query = query.filter_by(annee=int(annee_filter))
+        
+        paiements = query.order_by(
+            PaiementLoyer.annee.desc(), 
+            PaiementLoyer.mois.desc()
+        ).paginate(page=page, per_page=20, error_out=False)
+        
+        return render_template('paiements/index.html', 
+                             paiements=paiements,
+                             statut_filter=statut_filter,
+                             mois_filter=mois_filter,
+                             annee_filter=annee_filter)
+    
+    @app.route('/paiements/add', methods=['GET', 'POST'])
+    def paiements_add():
+        """Ajouter un paiement de loyer"""
+        contrat_id = request.args.get('contrat_id', type=int)
+        form = PaiementForm()
+        
+        if contrat_id:
+            form.contrat_id.data = contrat_id
+            contrat = ContratLocation.query.get(contrat_id)
+            if contrat:
+                form.montant_loyer.data = contrat.loyer_mensuel
+                form.montant_charges.data = contrat.charges_mensuelles
+        
+        if form.validate_on_submit():
+            # Vérifier qu'il n'y a pas déjà un paiement pour cette période
+            existing = PaiementLoyer.query.filter_by(
+                contrat_id=form.contrat_id.data,
+                mois=form.mois.data,
+                annee=form.annee.data
+            ).first()
+            
+            if existing:
+                flash('Un paiement existe déjà pour cette période.', 'danger')
+                return render_template('paiements/form.html', form=form, title='Nouveau paiement')
+            
+            paiement = PaiementLoyer(
+                contrat_id=form.contrat_id.data,
+                mois=form.mois.data,
+                annee=form.annee.data,
+                montant_loyer=form.montant_loyer.data,
+                montant_charges=form.montant_charges.data,
+                date_paiement=form.date_paiement.data,
+                date_echeance=form.date_echeance.data,
+                statut=form.statut.data,
+                mode_paiement=form.mode_paiement.data,
+                reference_paiement=form.reference_paiement.data,
+                remarques=form.remarques.data
+            )
+            db.session.add(paiement)
+            db.session.commit()
+            flash('Paiement enregistré avec succès.', 'success')
+            return redirect(url_for('paiements_index'))
+        
+        return render_template('paiements/form.html', form=form, title='Nouveau paiement')
+    
+    @app.route('/paiements/<int:id>/edit', methods=['GET', 'POST'])
+    def paiements_edit(id):
+        """Éditer un paiement de loyer"""
+        paiement = PaiementLoyer.query.get_or_404(id)
+        form = PaiementForm(obj=paiement)
+        
+        if form.validate_on_submit():
+            form.populate_obj(paiement)
+            db.session.commit()
+            flash('Paiement modifié avec succès.', 'success')
+            return redirect(url_for('paiements_index'))
+        
+        return render_template('paiements/form.html', form=form, paiement=paiement, title='Modifier le paiement')

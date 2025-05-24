@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="fas fa-tachometer-alt me-2"></i>
+            Dashboard
+        </h1>
+        <p class="text-muted">Vue d'ensemble de votre portefeuille immobilier</p>
+    </div>
+</div>
+
+<!-- Statistiques principales -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_biens }}</h4>
+                        <p class="card-text">Total Biens</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-building fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.biens_loues }}</h4>
+                        <p class="card-text">Biens Loués</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-home fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.biens_disponibles }}</h4>
+                        <p class="card-text">Disponibles</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-key fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ stats.total_clients }}</h4>
+                        <p class="card-text">Total Clients</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Revenus et alertes -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-euro-sign me-2"></i>
+                    Revenus du mois
+                </h5>
+            </div>
+            <div class="card-body">
+                <h3 class="text-success">{{ "%.2f"|format(stats.revenus_mois) }} €</h3>
+                <p class="text-muted mb-0">Paiements reçus ce mois</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Paiements en retard
+                </h5>
+            </div>
+            <div class="card-body">
+                <h3 class="text-danger">{{ stats.paiements_en_retard }}</h3>
+                <p class="text-muted mb-0">Paiements non reçus</p>
+                {% if stats.paiements_en_retard > 0 %}
+                    <a href="{{ url_for('paiements_index', statut='retard') }}" class="btn btn-sm btn-outline-danger mt-2">
+                        Voir les détails
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row mb-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Actions rapides
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('biens_add') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-1"></i>
+                            Ajouter un bien
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('clients_add') }}" class="btn btn-success w-100">
+                            <i class="fas fa-user-plus me-1"></i>
+                            Nouveau client
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('contrats_add') }}" class="btn btn-info w-100">
+                            <i class="fas fa-file-contract me-1"></i>
+                            Nouveau contrat
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('paiements_add') }}" class="btn btn-warning w-100">
+                            <i class="fas fa-euro-sign me-1"></i>
+                            Enregistrer paiement
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contrats récents et paiements en retard -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file-contract me-2"></i>
+                    Contrats récents
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_contrats %}
+                    <div class="list-group list-group-flush">
+                        {% for contrat in recent_contrats %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ contrat.bien.titre }}</h6>
+                                        <p class="mb-1 text-muted">{{ contrat.locataire.nom_complet }}</p>
+                                        <small class="text-muted">{{ contrat.loyer_total }} €/mois</small>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">{{ contrat.statut }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('contrats_index') }}" class="btn btn-sm btn-outline-primary">
+                            Voir tous les contrats
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">Aucun contrat actif</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Paiements en retard
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if paiements_en_retard %}
+                    <div class="list-group list-group-flush">
+                        {% for paiement in paiements_en_retard %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ paiement.contrat.bien.titre }}</h6>
+                                        <p class="mb-1 text-muted">{{ paiement.contrat.locataire.nom_complet }}</p>
+                                        <small class="text-muted">{{ paiement.periode }} - {{ paiement.montant_total }} €</small>
+                                    </div>
+                                    <span class="badge bg-danger rounded-pill">{{ paiement.statut }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('paiements_index', statut='retard') }}" class="btn btn-sm btn-outline-danger">
+                            Voir tous les retards
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">Aucun paiement en retard</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

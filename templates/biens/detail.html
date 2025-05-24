@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}{{ bien.titre }} - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('biens_index') }}">Biens</a></li>
+                <li class="breadcrumb-item active">{{ bien.titre }}</li>
+            </ol>
+        </nav>
+        <h1 class="h2">{{ bien.titre }}</h1>
+        <p class="text-muted">
+            <i class="fas fa-map-marker-alt me-1"></i>
+            {{ bien.adresse_complete }}
+        </p>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <a href="{{ url_for('biens_edit', id=bien.id) }}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-1"></i>
+                Modifier
+            </a>
+            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" 
+                    data-bs-toggle="dropdown">
+                <span class="visually-hidden">Autres actions</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#photoModal">
+                        <i class="fas fa-camera me-1"></i>
+                        Ajouter une photo
+                    </a>
+                </li>
+                {% if bien.disponible %}
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('contrats_add', bien_id=bien.id) }}">
+                            <i class="fas fa-file-contract me-1"></i>
+                            Créer un contrat
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Photos -->
+    <div class="col-md-8">
+        {% if bien.photos %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-images me-2"></i>
+                        Photos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for photo in bien.photos %}
+                            <div class="col-md-4 mb-3">
+                                <div class="position-relative">
+                                    <img src="{{ url_for('static', filename='uploads/' + photo.nom_fichier) }}" 
+                                         class="img-fluid rounded" style="height: 200px; width: 100%; object-fit: cover;">
+                                    {% if photo.principale %}
+                                        <span class="badge bg-primary position-absolute top-0 start-0 m-2">
+                                            Principale
+                                        </span>
+                                    {% endif %}
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <form method="POST" action="{{ url_for('photo_delete', bien_id=bien.id, photo_id=photo.id) }}" 
+                                              style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" 
+                                                    onclick="return confirm('Supprimer cette photo ?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Description -->
+        {% if bien.description %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-text me-2"></i>
+                        Description
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ bien.description }}</p>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Contrats associés -->
+        {% if bien.contrats %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-contract me-2"></i>
+                        Contrats de location
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Locataire</th>
+                                    <th>Période</th>
+                                    <th>Loyer</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contrat in bien.contrats %}
+                                    <tr>
+                                        <td>{{ contrat.locataire.nom_complet }}</td>
+                                        <td>
+                                            {{ contrat.date_debut.strftime('%d/%m/%Y') }}
+                                            {% if contrat.date_fin %}
+                                                - {{ contrat.date_fin.strftime('%d/%m/%Y') }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ contrat.loyer_total }} €</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if contrat.statut == 'actif' else 'secondary' }}">
+                                                {{ contrat.statut }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('contrats_detail', id=contrat.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Informations du bien -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Informations
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Type :</strong></td>
+                        <td>{{ bien.type_bien }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Surface :</strong></td>
+                        <td>{{ bien.surface }} m²</td>
+                    </tr>
+                    {% if bien.nombre_pieces %}
+                        <tr>
+                            <td><strong>Pièces :</strong></td>
+                            <td>{{ bien.nombre_pieces }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if bien.nombre_chambres %}
+                        <tr>
+                            <td><strong>Chambres :</strong></td>
+                            <td>{{ bien.nombre_chambres }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if bien.etage %}
+                        <tr>
+                            <td><strong>Étage :</strong></td>
+                            <td>{{ bien.etage }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if bien.annee_construction %}
+                        <tr>
+                            <td><strong>Année :</strong></td>
+                            <td>{{ bien.annee_construction }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td><strong>Disponibilité :</strong></td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if bien.disponible else 'secondary' }}">
+                                {{ 'Disponible' if bien.disponible else 'Loué' }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Prix -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-euro-sign me-2"></i>
+                    Prix
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if bien.prix_achat %}
+                    <p><strong>Prix d'achat :</strong> {{ "%.2f"|format(bien.prix_achat) }} €</p>
+                {% endif %}
+                {% if bien.prix_location_mensuel %}
+                    <p><strong>Loyer mensuel :</strong> {{ "%.2f"|format(bien.prix_location_mensuel) }} €</p>
+                {% endif %}
+                {% if bien.charges_mensuelles %}
+                    <p><strong>Charges :</strong> {{ "%.2f"|format(bien.charges_mensuelles) }} €</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Équipements -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tools me-2"></i>
+                    Équipements
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" disabled {{ 'checked' if bien.meuble }}>
+                            <label class="form-check-label">Meublé</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" disabled {{ 'checked' if bien.balcon }}>
+                            <label class="form-check-label">Balcon</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" disabled {{ 'checked' if bien.parking }}>
+                            <label class="form-check-label">Parking</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" disabled {{ 'checked' if bien.ascenseur }}>
+                            <label class="form-check-label">Ascenseur</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Propriétaire -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user me-2"></i>
+                    Propriétaire
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>{{ bien.proprietaire.nom_complet }}</strong></p>
+                {% if bien.proprietaire.email %}
+                    <p class="mb-1"><i class="fas fa-envelope me-1"></i> {{ bien.proprietaire.email }}</p>
+                {% endif %}
+                {% if bien.proprietaire.telephone %}
+                    <p class="mb-1"><i class="fas fa-phone me-1"></i> {{ bien.proprietaire.telephone }}</p>
+                {% endif %}
+                <a href="{{ url_for('clients_detail', id=bien.proprietaire.id) }}" 
+                   class="btn btn-sm btn-outline-primary mt-2">
+                    Voir le profil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour ajouter une photo -->
+<div class="modal fade" id="photoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter une photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('biens_photos', id=bien.id) }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% if photo_form %}
+                        {{ photo_form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ photo_form.photo.label(class="form-label") }}
+                            {{ photo_form.photo(class="form-control") }}
+                        </div>
+                        <div class="form-check">
+                            {{ photo_form.principale(class="form-check-input") }}
+                            {{ photo_form.principale.label(class="form-check-label") }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

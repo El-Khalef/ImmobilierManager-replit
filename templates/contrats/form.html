@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('contrats_index') }}">Contrats</a></li>
+                {% if contrat %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('contrats_detail', id=contrat.id) }}">Contrat #{{ contrat.id }}</a></li>
+                    <li class="breadcrumb-item active">Modifier</li>
+                {% else %}
+                    <li class="breadcrumb-item active">Nouveau</li>
+                {% endif %}
+            </ol>
+        </nav>
+        <h1 class="h2">{{ title }}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Bien et locataire -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.bien_id.label(class="form-label") }}
+                            {{ form.bien_id(class="form-select") }}
+                            {% if form.bien_id.errors %}
+                                {% for error in form.bien_id.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if not form.bien_id.choices or form.bien_id.choices|length <= 0 %}
+                                <div class="alert alert-warning mt-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Aucun bien disponible. 
+                                    <a href="{{ url_for('biens_add') }}" class="alert-link">Ajouter un bien</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.locataire_id.label(class="form-label") }}
+                            {{ form.locataire_id(class="form-select") }}
+                            {% if form.locataire_id.errors %}
+                                {% for error in form.locataire_id.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if not form.locataire_id.choices or form.locataire_id.choices|length <= 0 %}
+                                <div class="alert alert-warning mt-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Aucun locataire disponible. 
+                                    <a href="{{ url_for('clients_add') }}" class="alert-link">Ajouter un locataire</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Dates -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.date_debut.label(class="form-label") }}
+                            {{ form.date_debut(class="form-control") }}
+                            {% if form.date_debut.errors %}
+                                {% for error in form.date_debut.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.date_fin.label(class="form-label") }}
+                            {{ form.date_fin(class="form-control") }}
+                            <small class="form-text text-muted">Laisser vide pour une durée indéterminée</small>
+                            {% if form.date_fin.errors %}
+                                {% for error in form.date_fin.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Montants -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.loyer_mensuel.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.loyer_mensuel(class="form-control") }}
+                                <span class="input-group-text">€</span>
+                            </div>
+                            {% if form.loyer_mensuel.errors %}
+                                {% for error in form.loyer_mensuel.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.charges_mensuelles.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.charges_mensuelles(class="form-control") }}
+                                <span class="input-group-text">€</span>
+                            </div>
+                            {% if form.charges_mensuelles.errors %}
+                                {% for error in form.charges_mensuelles.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.depot_garantie.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.depot_garantie(class="form-control") }}
+                                <span class="input-group-text">€</span>
+                            </div>
+                            {% if form.depot_garantie.errors %}
+                                {% for error in form.depot_garantie.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.frais_agence.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.frais_agence(class="form-control") }}
+                                <span class="input-group-text">€</span>
+                            </div>
+                            {% if form.frais_agence.errors %}
+                                {% for error in form.frais_agence.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Statut -->
+                    <div class="mb-3">
+                        {{ form.statut.label(class="form-label") }}
+                        {{ form.statut(class="form-select") }}
+                        {% if form.statut.errors %}
+                            {% for error in form.statut.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Conditions particulières -->
+                    <div class="mb-3">
+                        {{ form.conditions_particulieres.label(class="form-label") }}
+                        {{ form.conditions_particulieres(class="form-control", rows="4") }}
+                        {% if form.conditions_particulieres.errors %}
+                            {% for error in form.conditions_particulieres.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('contrats_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            {{ 'Modifier' if contrat else 'Créer' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

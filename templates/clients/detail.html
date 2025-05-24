@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.nom_complet }} - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('clients_index') }}">Clients</a></li>
+                <li class="breadcrumb-item active">{{ client.nom_complet }}</li>
+            </ol>
+        </nav>
+        <h1 class="h2">{{ client.nom_complet }}</h1>
+        <p class="text-muted">
+            <span class="badge bg-{{ 'primary' if client.type_client == 'proprietaire' else 'success' if client.type_client == 'locataire' else 'info' }} me-2">
+                {{ client.type_client }}
+            </span>
+            Client depuis le {{ client.date_creation.strftime('%d/%m/%Y') }}
+        </p>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <a href="{{ url_for('clients_edit', id=client.id) }}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-1"></i>
+                Modifier
+            </a>
+            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" 
+                    data-bs-toggle="dropdown">
+                <span class="visually-hidden">Autres actions</span>
+            </button>
+            <ul class="dropdown-menu">
+                {% if client.type_client == 'proprietaire' %}
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('biens_add', proprietaire_id=client.id) }}">
+                            <i class="fas fa-plus me-1"></i>
+                            Ajouter un bien
+                        </a>
+                    </li>
+                {% endif %}
+                {% if client.type_client == 'locataire' %}
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('contrats_add', locataire_id=client.id) }}">
+                            <i class="fas fa-file-contract me-1"></i>
+                            Nouveau contrat
+                        </a>
+                    </li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button class="dropdown-item text-danger" 
+                            onclick="confirmDelete({{ client.id }}, '{{ client.nom_complet }}')">
+                        <i class="fas fa-trash me-1"></i>
+                        Supprimer
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations personnelles -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user me-2"></i>
+                    Informations personnelles
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="avatar-circle-large mx-auto mb-2">
+                        {{ client.prenom[0]|upper }}{{ client.nom[0]|upper }}
+                    </div>
+                    <h5>{{ client.nom_complet }}</h5>
+                </div>
+                
+                <table class="table table-borderless">
+                    <tr>
+                        <td><i class="fas fa-envelope text-muted me-2"></i> Email :</td>
+                        <td>
+                            <a href="mailto:{{ client.email }}" class="text-decoration-none">
+                                {{ client.email }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% if client.telephone %}
+                        <tr>
+                            <td><i class="fas fa-phone text-muted me-2"></i> Téléphone :</td>
+                            <td>
+                                <a href="tel:{{ client.telephone }}" class="text-decoration-none">
+                                    {{ client.telephone }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% if client.adresse %}
+                        <tr>
+                            <td><i class="fas fa-map-marker-alt text-muted me-2"></i> Adresse :</td>
+                            <td>
+                                {{ client.adresse }}
+                                {% if client.code_postal and client.ville %}
+                                    <br>{{ client.code_postal }} {{ client.ville }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td><i class="fas fa-tag text-muted me-2"></i> Type :</td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if client.type_client == 'proprietaire' else 'success' if client.type_client == 'locataire' else 'info' }}">
+                                {{ client.type_client }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-calendar text-muted me-2"></i> Depuis :</td>
+                        <td>{{ client.date_creation.strftime('%d/%m/%Y') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Biens et contrats -->
+    <div class="col-md-8">
+        <!-- Biens (si propriétaire) -->
+        {% if client.type_client == 'proprietaire' and client.biens_proprietaire %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>
+                        Biens immobiliers ({{ client.biens_proprietaire|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Type</th>
+                                    <th>Ville</th>
+                                    <th>Loyer</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bien in client.biens_proprietaire %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ bien.titre }}</strong>
+                                            <br><small class="text-muted">{{ bien.surface }} m²</small>
+                                        </td>
+                                        <td>{{ bien.type_bien }}</td>
+                                        <td>{{ bien.ville }}</td>
+                                        <td>
+                                            {% if bien.prix_location_mensuel %}
+                                                {{ "%.0f"|format(bien.prix_location_mensuel) }} €
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if bien.disponible else 'secondary' }}">
+                                                {{ 'Disponible' if bien.disponible else 'Loué' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('biens_detail', id=bien.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Contrats (si locataire) -->
+        {% if client.type_client == 'locataire' and client.contrats_locataire %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-contract me-2"></i>
+                        Contrats de location ({{ client.contrats_locataire|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Bien</th>
+                                    <th>Période</th>
+                                    <th>Loyer</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contrat in client.contrats_locataire %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ contrat.bien.titre }}</strong>
+                                            <br><small class="text-muted">{{ contrat.bien.adresse_complete }}</small>
+                                        </td>
+                                        <td>
+                                            {{ contrat.date_debut.strftime('%d/%m/%Y') }}
+                                            {% if contrat.date_fin %}
+                                                <br>au {{ contrat.date_fin.strftime('%d/%m/%Y') }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ "%.0f"|format(contrat.loyer_total) }} €</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if contrat.statut == 'actif' else 'secondary' }}">
+                                                {{ contrat.statut }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('contrats_detail', id=contrat.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Messages si pas de biens ou contrats -->
+        {% if client.type_client == 'proprietaire' and not client.biens_proprietaire %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucun bien enregistré</h5>
+                    <p class="text-muted">Ce propriétaire n'a pas encore de biens dans le système.</p>
+                    <a href="{{ url_for('biens_add', proprietaire_id=client.id) }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        Ajouter un bien
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if client.type_client == 'locataire' and not client.contrats_locataire %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucun contrat</h5>
+                    <p class="text-muted">Ce locataire n'a pas encore de contrat de location.</p>
+                    <a href="{{ url_for('contrats_add', locataire_id=client.id) }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        Créer un contrat
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if client.type_client == 'acheteur' %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Client acheteur</h5>
+                    <p class="text-muted">Ce client est intéressé par l'achat de biens immobiliers.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le client <strong id="clientName"></strong> ?</p>
+                <p class="text-muted">Cette action est irréversible et supprimera toutes les données associées.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(clientId, clientName) {
+    document.getElementById('clientName').textContent = clientName;
+    document.getElementById('deleteForm').action = `/clients/${clientId}/delete`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}
