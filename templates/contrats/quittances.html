@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Quittances - {{ contrat.bien.titre }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Quittances du contrat</h1>
+                <a href="{{ url_for('contrats_detail', id=contrat.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour au contrat
+                </a>
+            </div>
+
+            <!-- Informations du contrat -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Bien loué</h5>
+                            <p class="mb-1"><strong>{{ contrat.bien.titre }}</strong> ({{ contrat.bien.type_bien }})</p>
+                            <p class="text-muted mb-0">{{ contrat.bien.adresse_complete() }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Locataire</h5>
+                            <p class="mb-1"><strong>{{ contrat.locataire.nom_complet() }}</strong></p>
+                            <p class="text-muted mb-0">{{ contrat.locataire.email }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des quittances -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quittances disponibles</h5>
+                </div>
+                <div class="card-body">
+                    {% if paiements %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Période</th>
+                                        <th>Montant</th>
+                                        <th>Date de paiement</th>
+                                        <th>Mode de paiement</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for paiement in paiements %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-info fs-6">{{ paiement.periode() }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ "{:,.0f}".format(paiement.montant_total()).replace(',', ' ') }} €</strong>
+                                            {% if paiement.montant_charges > 0 %}
+                                                <br><small class="text-muted">
+                                                    Loyer: {{ "{:,.0f}".format(paiement.montant_loyer).replace(',', ' ') }} € + 
+                                                    Charges: {{ "{:,.0f}".format(paiement.montant_charges).replace(',', ' ') }} €
+                                                </small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if paiement.date_paiement %}
+                                                {{ paiement.date_paiement.strftime('%d/%m/%Y') }}
+                                            {% else %}
+                                                <span class="text-muted">Non renseignée</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if paiement.mode_paiement %}
+                                                {% set modes = {
+                                                    'virement': 'Virement',
+                                                    'cheque': 'Chèque',
+                                                    'especes': 'Espèces',
+                                                    'prelevement': 'Prélèvement'
+                                                } %}
+                                                <span class="badge bg-secondary">{{ modes.get(paiement.mode_paiement, paiement.mode_paiement) }}</span>
+                                            {% else %}
+                                                <span class="text-muted">Non spécifié</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('generer_quittance', id=paiement.id) }}" 
+                                               class="btn btn-sm btn-success" title="Télécharger la quittance PDF">
+                                                <i class="bi bi-download"></i> Télécharger PDF
+                                            </a>
+                                            {% if paiement.reference_paiement %}
+                                                <br><small class="text-muted mt-1">Réf: {{ paiement.reference_paiement }}</small>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-receipt display-1 text-muted"></i>
+                            <h4 class="mt-3">Aucune quittance disponible</h4>
+                            <p class="text-muted">Il n'y a pas encore de paiements payés pour ce contrat.</p>
+                            <a href="{{ url_for('paiements_add') }}?contrat_id={{ contrat.id }}" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i> Ajouter un paiement
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

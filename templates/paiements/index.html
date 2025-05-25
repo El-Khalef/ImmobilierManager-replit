@@ -171,6 +171,12 @@
                                            class="btn btn-outline-secondary" title="Voir contrat">
                                             <i class="fas fa-file-contract"></i>
                                         </a>
+                                        {% if paiement.statut == 'paye' %}
+                                            <a href="{{ url_for('generer_quittance', id=paiement.id) }}" 
+                                               class="btn btn-outline-success" title="Télécharger la quittance">
+                                                <i class="fas fa-receipt"></i>
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
