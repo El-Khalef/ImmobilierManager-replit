@@ -1,7 +1,7 @@
 import os
 import uuid
 from datetime import datetime, date
-from flask import render_template, request, redirect, url_for, flash, jsonify, current_app
+from flask import render_template, request, redirect, url_for, flash, jsonify, current_app, send_file, make_response
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, and_
 from app import db
@@ -13,6 +13,7 @@ from forms import (
     ClientForm, BienForm, PhotoForm, ContratForm, 
     PaiementForm, SearchForm, DocumentContratForm
 )
+from quittances import generer_quittance_pdf, generer_nom_fichier_quittance
 
 
 def register_routes(app):
@@ -582,3 +583,83 @@ def register_routes(app):
             })
         
         return jsonify(biens_data)
+    
+    # === ROUTES POUR LES QUITTANCES ===
+    
+    @app.route('/paiements/<int:id>/quittance')
+    def generer_quittance(id):
+        """Générer et télécharger la quittance pour un paiement"""
+        paiement = PaiementLoyer.query.get_or_404(id)
+        
+        # Vérifier que le paiement est bien payé
+        if paiement.statut != 'paye':
+            flash('Une quittance ne peut être générée que pour un paiement effectué.', 'warning')
+            return redirect(url_for('paiements_index'))
+        
+        try:
+            # Générer le PDF
+            pdf_buffer = generer_quittance_pdf(paiement)
+            nom_fichier = generer_nom_fichier_quittance(paiement)
+            
+            # Créer la réponse avec le PDF
+            response = make_response(pdf_buffer.getvalue())
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = f'attachment; filename="{nom_fichier}"'
+            
+            return response
+            
+        except Exception as e:
+            flash(f'Erreur lors de la génération de la quittance: {str(e)}', 'danger')
+            return redirect(url_for('paiements_index'))
+    
+    @app.route('/contrats/<int:id>/quittances')
+    def contrats_quittances(id):
+        """Liste des quittances disponibles pour un contrat"""
+        contrat = ContratLocation.query.get_or_404(id)
+        
+        # Récupérer tous les paiements payés de ce contrat
+        paiements_payes = PaiementLoyer.query.filter_by(
+            contrat_id=id,
+            statut='paye'
+        ).order_by(PaiementLoyer.annee.desc(), PaiementLoyer.mois.desc()).all()
+        
+        return render_template('contrats/quittances.html', 
+                             contrat=contrat, 
+                             paiements=paiements_payes)
+    
+    @app.route('/quittances')
+    def quittances_index():
+        """Liste de toutes les quittances disponibles"""
+        page = request.args.get('page', 1, type=int)
+        client_filter = request.args.get('client', '')
+        annee_filter = request.args.get('annee', '', type=str)
+        
+        # Construire la requête de base
+        query = PaiementLoyer.query.filter_by(statut='paye')
+        
+        # Appliquer les filtres
+        if client_filter:
+            query = query.join(ContratLocation).join(Client).filter(
+                or_(
+                    Client.nom.ilike(f'%{client_filter}%'),
+                    Client.prenom.ilike(f'%{client_filter}%')
+                )
+            )
+        
+        if annee_filter:
+            try:
+                annee = int(annee_filter)
+                query = query.filter(PaiementLoyer.annee == annee)
+            except ValueError:
+                pass
+        
+        # Pagination
+        paiements = query.order_by(
+            PaiementLoyer.annee.desc(),
+            PaiementLoyer.mois.desc()
+        ).paginate(page=page, per_page=20, error_out=False)
+        
+        return render_template('quittances/index.html', 
+                             paiements=paiements,
+                             client_filter=client_filter,
+                             annee_filter=annee_filter)
