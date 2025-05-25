@@ -64,10 +64,12 @@
                                             <small class="text-muted">{{ paiement.contrat.bien.adresse }}</small>
                                         </td>
                                         <td>
-                                            <span class="badge bg-info">{{ paiement.periode }}</span>
+                                            {% set mois_noms = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                                            <span class="badge bg-info">{{ mois_noms[paiement.mois - 1] }} {{ paiement.annee }}</span>
                                         </td>
                                         <td>
-                                            <strong>{{ "{:,.0f}".format(paiement.montant_total).replace(',', ' ') }} €</strong>
+                                            {% set total = paiement.montant_loyer + paiement.montant_charges %}
+                                            <strong>{{ "{:,.0f}".format(total).replace(',', ' ') }} €</strong>
                                             {% if paiement.montant_charges > 0 %}
                                                 <br><small class="text-muted">
                                                     Loyer: {{ "{:,.0f}".format(paiement.montant_loyer).replace(',', ' ') }} € + 
