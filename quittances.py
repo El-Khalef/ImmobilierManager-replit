@@ -93,7 +93,7 @@ def generer_quittance_pdf(paiement):
     bien = contrat.bien
     story.append(Paragraph("<b>BIEN LOUÉ :</b>", header_style))
     story.append(Paragraph(f"Désignation : {bien.titre} ({bien.type_bien})", content_style))
-    story.append(Paragraph(f"Adresse : {bien.adresse_complete()}", content_style))
+    story.append(Paragraph(f"Adresse : {bien.adresse_complete}", content_style))
     if bien.surface:
         story.append(Paragraph(f"Surface : {bien.surface} m²", content_style))
     
@@ -114,7 +114,7 @@ def generer_quittance_pdf(paiement):
     if paiement.montant_charges and paiement.montant_charges > 0:
         data.append(['Charges', f"{paiement.montant_charges:,.0f} €".replace(',', ' ')])
     
-    total = paiement.montant_total()
+    total = paiement.montant_total
     data.append(['TOTAL', f"{total:,.0f} €".replace(',', ' ')])
     
     if paiement.date_paiement:
