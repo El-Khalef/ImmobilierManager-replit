@@ -404,6 +404,28 @@ def register_routes(app):
                 form.montant_loyer.data = contrat.loyer_mensuel
                 form.montant_charges.data = contrat.charges_mensuelles
         
+        # Validation personnalisée pour les champs dynamiques
+        if request.method == 'POST':
+            client_id = form.client_id.data
+            bien_id = form.bien_id.data
+            
+            if client_id and bien_id:
+                # Vérifier qu'il existe un contrat actif entre ce client et ce bien
+                contrat = ContratLocation.query.filter_by(
+                    locataire_id=client_id,
+                    bien_id=bien_id,
+                    statut='actif'
+                ).first()
+                
+                if contrat:
+                    form.contrat_id.data = contrat.id
+                    # Mettre à jour les choix valides pour éviter l'erreur "Not a valid choice"
+                    form.bien_id.choices = [(bien_id, "Bien sélectionné")]
+                    form.client_id.choices = [(client_id, "Client sélectionné")]
+                else:
+                    flash('Aucun contrat actif trouvé pour ce client et ce bien.', 'danger')
+                    return render_template('paiements/form.html', form=form, title='Ajouter un paiement')
+        
         if form.validate_on_submit():
             # Vérifier qu'il n'y a pas déjà un paiement pour cette période
             existing = PaiementLoyer.query.filter_by(
