@@ -1,4 +1,5 @@
 from datetime import datetime, date
+import os
 from app import db
 from sqlalchemy import func
 
@@ -116,6 +117,7 @@ class ContratLocation(db.Model):
     
     # Relations
     paiements = db.relationship('PaiementLoyer', backref='contrat', lazy=True)
+    documents = db.relationship('DocumentContrat', backref='contrat', lazy=True, cascade='all, delete-orphan')
     
     def __repr__(self):
         return f'<ContratLocation {self.id} - {self.bien.titre}>'
@@ -201,3 +203,71 @@ def get_dashboard_stats():
         'revenus_mois': float(revenus_mois),
         'paiements_en_retard': paiements_en_retard
     }
+
+
+class DocumentContrat(db.Model):
+    """Modèle pour les documents attachés aux contrats"""
+    __tablename__ = 'documents_contrat'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    nom_fichier = db.Column(db.String(255), nullable=False)
+    nom_original = db.Column(db.String(255), nullable=False)
+    type_document = db.Column(db.String(50), nullable=False)  # piece_identite, photo, video, audio, autre
+    format_fichier = db.Column(db.String(10), nullable=False)  # pdf, jpg, mp4, mp3, etc.
+    taille_fichier = db.Column(db.Integer, nullable=False)  # en bytes
+    chemin_stockage = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.Text)
+    date_ajout = db.Column(db.DateTime, default=datetime.utcnow)
+    ajoute_par = db.Column(db.String(100))
+    
+    # Relation avec ContratLocation
+    contrat_id = db.Column(db.Integer, db.ForeignKey('contrats_location.id'), nullable=False)
+    
+    def __repr__(self):
+        return f'<DocumentContrat {self.nom_original}>'
+    
+    @property
+    def taille_lisible(self):
+        """Retourne la taille du fichier dans un format lisible"""
+        bytes_size = self.taille_fichier
+        if bytes_size < 1024:
+            return f"{bytes_size} B"
+        elif bytes_size < 1024 * 1024:
+            return f"{bytes_size / 1024:.1f} KB"
+        elif bytes_size < 1024 * 1024 * 1024:
+            return f"{bytes_size / (1024 * 1024):.1f} MB"
+        else:
+            return f"{bytes_size / (1024 * 1024 * 1024):.1f} GB"
+    
+    @property
+    def est_image(self):
+        """Vérifie si le fichier est une image"""
+        return self.format_fichier.lower() in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
+    
+    @property
+    def est_video(self):
+        """Vérifie si le fichier est une vidéo"""
+        return self.format_fichier.lower() in ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm']
+    
+    @property
+    def est_audio(self):
+        """Vérifie si le fichier est un audio"""
+        return self.format_fichier.lower() in ['mp3', 'wav', 'ogg', 'm4a', 'aac']
+    
+    @property
+    def icone_type(self):
+        """Retourne l'icône Font Awesome appropriée selon le type de fichier"""
+        if self.est_image:
+            return 'fas fa-image'
+        elif self.est_video:
+            return 'fas fa-video'
+        elif self.est_audio:
+            return 'fas fa-volume-up'
+        elif self.format_fichier.lower() == 'pdf':
+            return 'fas fa-file-pdf'
+        elif self.format_fichier.lower() in ['doc', 'docx']:
+            return 'fas fa-file-word'
+        elif self.format_fichier.lower() in ['xls', 'xlsx']:
+            return 'fas fa-file-excel'
+        else:
+            return 'fas fa-file'

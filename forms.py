@@ -7,7 +7,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
 from wtforms.widgets import TextArea
-from models import Client, BienImmobilier
+from models import Client, BienImmobilier, ContratLocation
 
 
 class ClientForm(FlaskForm):
