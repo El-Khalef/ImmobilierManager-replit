@@ -465,6 +465,38 @@ def register_routes(app):
         paiement = PaiementLoyer.query.get_or_404(id)
         form = PaiementForm(obj=paiement)
         
+        # Initialiser les choix pour éviter l'erreur "Not a valid choice"
+        contrat = paiement.contrat
+        form.client_id.data = contrat.locataire_id
+        form.bien_id.data = contrat.bien_id
+        form.contrat_id.data = contrat.id
+        
+        # Définir les choix valides
+        form.client_id.choices = [(contrat.locataire_id, f"{contrat.locataire.prenom} {contrat.locataire.nom}")]
+        form.bien_id.choices = [(contrat.bien_id, contrat.bien.titre)]
+        
+        # Validation personnalisée pour les champs dynamiques
+        if request.method == 'POST':
+            client_id = form.client_id.data
+            bien_id = form.bien_id.data
+            
+            if client_id and bien_id:
+                # Vérifier qu'il existe un contrat actif entre ce client et ce bien
+                contrat_check = ContratLocation.query.filter_by(
+                    locataire_id=client_id,
+                    bien_id=bien_id,
+                    statut='actif'
+                ).first()
+                
+                if contrat_check:
+                    form.contrat_id.data = contrat_check.id
+                    # Mettre à jour les choix valides pour éviter l'erreur "Not a valid choice"
+                    form.bien_id.choices = [(bien_id, "Bien sélectionné")]
+                    form.client_id.choices = [(client_id, "Client sélectionné")]
+                else:
+                    flash('Aucun contrat actif trouvé pour ce client et ce bien.', 'danger')
+                    return render_template('paiements/form.html', form=form, paiement=paiement, title='Modifier le paiement')
+        
         if form.validate_on_submit():
             form.populate_obj(paiement)
             db.session.commit()
