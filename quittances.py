@@ -55,15 +55,39 @@ def generer_quittance_pdf(paiement):
     # Contenu du document
     story = []
     
+    # Informations de la société bailleuse en en-tête
+    bailleur_style = ParagraphStyle(
+        'Bailleur',
+        parent=styles['Normal'],
+        fontSize=12,
+        alignment=TA_CENTER,
+        spaceAfter=6,
+        fontName='Helvetica-Bold'
+    )
+    
+    contact_style = ParagraphStyle(
+        'Contact',
+        parent=styles['Normal'],
+        fontSize=10,
+        alignment=TA_CENTER,
+        spaceAfter=4
+    )
+    
+    story.append(Paragraph("SOCIÉTÉ LASER SERVICES", bailleur_style))
+    story.append(Paragraph("Représentant : Mariem CHEIKH BRAHIM", contact_style))
+    story.append(Paragraph("Téléphone : 36317881", contact_style))
+    story.append(Paragraph("Email : hadramimr84@gmail.com", contact_style))
+    story.append(Spacer(1, 20))
+    
     # Titre
     story.append(Paragraph("QUITTANCE DE LOYER", title_style))
     story.append(Spacer(1, 20))
     
-    # Informations du propriétaire/bailleur
+    # Informations du propriétaire du bien (pour référence)
     contrat = paiement.contrat
     proprietaire = contrat.bien.proprietaire
     
-    story.append(Paragraph("<b>BAILLEUR :</b>", header_style))
+    story.append(Paragraph("<b>PROPRIÉTAIRE DU BIEN :</b>", header_style))
     story.append(Paragraph(f"{proprietaire.nom} {proprietaire.prenom}", content_style))
     if proprietaire.adresse:
         story.append(Paragraph(f"{proprietaire.adresse}", content_style))
