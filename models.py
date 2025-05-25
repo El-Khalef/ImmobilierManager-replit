@@ -16,6 +16,8 @@ class Client(db.Model):
     ville = db.Column(db.String(100))
     code_postal = db.Column(db.String(10))
     type_client = db.Column(db.String(20), nullable=False)  # proprietaire, locataire, acheteur
+    type_piece_identite = db.Column(db.String(20), nullable=False)  # carte_identite, passeport
+    numero_piece_identite = db.Column(db.String(50), nullable=False)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relations

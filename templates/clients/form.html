@@ -82,6 +82,28 @@
                         {% endif %}
                     </div>
                     
+                    <!-- Pièce d'identité -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.type_piece_identite.label(class="form-label") }}
+                            {{ form.type_piece_identite(class="form-select") }}
+                            {% if form.type_piece_identite.errors %}
+                                {% for error in form.type_piece_identite.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.numero_piece_identite.label(class="form-label") }}
+                            {{ form.numero_piece_identite(class="form-control") }}
+                            {% if form.numero_piece_identite.errors %}
+                                {% for error in form.numero_piece_identite.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                     <!-- Adresse -->
                     <div class="mb-3">
                         {{ form.adresse.label(class="form-label") }}

@@ -26,6 +26,14 @@ class ClientForm(FlaskForm):
                                  ('acheteur', 'Acheteur')
                              ],
                              validators=[DataRequired()])
+    type_piece_identite = SelectField('Type de pièce d\'identité',
+                                     choices=[
+                                         ('carte_identite', 'Carte d\'identité'),
+                                         ('passeport', 'Passeport')
+                                     ],
+                                     validators=[DataRequired()])
+    numero_piece_identite = StringField('Numéro de pièce d\'identité', 
+                                       validators=[DataRequired(), Length(max=50)])
     submit = SubmitField('Enregistrer')
 
 

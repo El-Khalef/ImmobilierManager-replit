@@ -89,7 +89,9 @@ def register_routes(app):
                 adresse=form.adresse.data,
                 ville=form.ville.data,
                 code_postal=form.code_postal.data,
-                type_client=form.type_client.data
+                type_client=form.type_client.data,
+                type_piece_identite=form.type_piece_identite.data,
+                numero_piece_identite=form.numero_piece_identite.data
             )
             db.session.add(client)
             db.session.commit()
