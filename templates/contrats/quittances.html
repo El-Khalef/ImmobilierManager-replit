@@ -53,10 +53,10 @@
                                     {% for paiement in paiements %}
                                     <tr>
                                         <td>
-                                            <span class="badge bg-info fs-6">{{ paiement.periode() }}</span>
+                                            <span class="badge bg-info fs-6">{{ paiement.periode }}</span>
                                         </td>
                                         <td>
-                                            <strong>{{ "{:,.0f}".format(paiement.montant_total()).replace(',', ' ') }} €</strong>
+                                            <strong>{{ "{:,.0f}".format(paiement.montant_total).replace(',', ' ') }} €</strong>
                                             {% if paiement.montant_charges > 0 %}
                                                 <br><small class="text-muted">
                                                     Loyer: {{ "{:,.0f}".format(paiement.montant_loyer).replace(',', ' ') }} € + 

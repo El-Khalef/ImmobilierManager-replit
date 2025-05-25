@@ -64,10 +64,10 @@
                                             <small class="text-muted">{{ paiement.contrat.bien.adresse }}</small>
                                         </td>
                                         <td>
-                                            <span class="badge bg-info">{{ paiement.periode() }}</span>
+                                            <span class="badge bg-info">{{ paiement.periode }}</span>
                                         </td>
                                         <td>
-                                            <strong>{{ "{:,.0f}".format(paiement.montant_total()).replace(',', ' ') }} €</strong>
+                                            <strong>{{ "{:,.0f}".format(paiement.montant_total).replace(',', ' ') }} €</strong>
                                             {% if paiement.montant_charges > 0 %}
                                                 <br><small class="text-muted">
                                                     Loyer: {{ "{:,.0f}".format(paiement.montant_loyer).replace(',', ' ') }} € + 
