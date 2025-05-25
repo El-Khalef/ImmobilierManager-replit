@@ -132,6 +132,8 @@ class ContratForm(FlaskForm):
 
 class PaiementForm(FlaskForm):
     """Formulaire pour enregistrer un paiement de loyer"""
+    client_id = SelectField('Client qui paie', coerce=int, validators=[DataRequired()])
+    bien_id = SelectField('Bien payé', coerce=int, validators=[DataRequired()])
     contrat_id = HiddenField('Contrat ID', validators=[DataRequired()])
     mois = SelectField('Mois',
                       choices=[
@@ -166,6 +168,16 @@ class PaiementForm(FlaskForm):
     reference_paiement = StringField('Référence de paiement', validators=[Length(max=100)])
     remarques = TextAreaField('Remarques', widget=TextArea())
     submit = SubmitField('Enregistrer')
+    
+    def __init__(self, *args, **kwargs):
+        super(PaiementForm, self).__init__(*args, **kwargs)
+        # Charger les clients locataires
+        self.client_id.choices = [(0, 'Sélectionnez un client')] + [
+            (client.id, f"{client.prenom} {client.nom}") 
+            for client in Client.query.filter_by(type_client='locataire').all()
+        ]
+        # Initialiser les biens vides (sera rempli via JavaScript)
+        self.bien_id.choices = [(0, 'Sélectionnez d\'abord un client')]
 
 
 class SearchForm(FlaskForm):

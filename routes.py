@@ -535,3 +535,28 @@ def register_routes(app):
         contrat = ContratLocation.query.get_or_404(id)
         documents = DocumentContrat.query.filter_by(contrat_id=id).order_by(DocumentContrat.date_ajout.desc()).all()
         return render_template('contrats/documents.html', contrat=contrat, documents=documents)
+    
+    # === API ROUTES ===
+    
+    @app.route('/api/clients/<int:client_id>/biens')
+    def api_client_biens(client_id):
+        """API pour récupérer les biens d'un client (pour les paiements)"""
+        # Récupérer les contrats actifs du client
+        contrats = ContratLocation.query.filter_by(
+            locataire_id=client_id, 
+            statut='actif'
+        ).all()
+        
+        biens_data = []
+        for contrat in contrats:
+            bien = contrat.bien
+            biens_data.append({
+                'id': bien.id,
+                'titre': bien.titre,
+                'adresse': bien.adresse_complete,
+                'contrat_id': contrat.id,
+                'loyer_mensuel': float(contrat.loyer_mensuel),
+                'charges_mensuelles': float(contrat.charges_mensuelles)
+            })
+        
+        return jsonify(biens_data)

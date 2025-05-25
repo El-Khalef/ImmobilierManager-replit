@@ -27,13 +27,33 @@
                     {{ form.hidden_tag() }}
                     
                     <!-- Contrat (caché si déjà défini) -->
-                    {% if form.contrat_id.data %}
-                        {{ form.contrat_id() }}
-                        <div class="alert alert-info mb-3">
+                    {{ form.contrat_id() }}
+                    
+                    <!-- Sélection du client -->
+                    <div class="mb-3">
+                        {{ form.client_id.label(class="form-label") }}
+                        {{ form.client_id(class="form-select", id="client_select") }}
+                        {% if form.client_id.errors %}
+                            {% for error in form.client_id.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Sélection du bien -->
+                    <div class="mb-3">
+                        {{ form.bien_id.label(class="form-label") }}
+                        {{ form.bien_id(class="form-select", id="bien_select") }}
+                        {% if form.bien_id.errors %}
+                            {% for error in form.bien_id.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-text" id="bien_info" style="display: none;">
                             <i class="fas fa-info-circle me-1"></i>
-                            Paiement pour le contrat sélectionné
+                            <span id="bien_details"></span>
                         </div>
-                    {% endif %}
+                    </div>
                     
                     <!-- Période -->
                     <div class="row mb-3">
@@ -169,4 +189,78 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const clientSelect = document.getElementById('client_select');
+    const bienSelect = document.getElementById('bien_select');
+    const bienInfo = document.getElementById('bien_info');
+    const bienDetails = document.getElementById('bien_details');
+    const contratIdField = document.querySelector('input[name="contrat_id"]');
+    const loyerField = document.querySelector('input[name="montant_loyer"]');
+    const chargesField = document.querySelector('input[name="montant_charges"]');
+    
+    // Gérer le changement de client
+    clientSelect.addEventListener('change', function() {
+        const clientId = this.value;
+        
+        if (clientId && clientId !== '0') {
+            // Récupérer les biens du client via API
+            fetch(`/api/clients/${clientId}/biens`)
+                .then(response => response.json())
+                .then(data => {
+                    // Vider la liste des biens
+                    bienSelect.innerHTML = '<option value="0">Sélectionnez un bien</option>';
+                    
+                    // Ajouter les biens du client
+                    data.forEach(bien => {
+                        const option = document.createElement('option');
+                        option.value = bien.id;
+                        option.textContent = `${bien.titre} - ${bien.adresse}`;
+                        option.dataset.contratId = bien.contrat_id;
+                        option.dataset.loyerMensuel = bien.loyer_mensuel;
+                        option.dataset.chargesMensuelles = bien.charges_mensuelles;
+                        bienSelect.appendChild(option);
+                    });
+                    
+                    bienSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des biens:', error);
+                    bienSelect.innerHTML = '<option value="0">Erreur de chargement</option>';
+                });
+        } else {
+            // Réinitialiser la liste des biens
+            bienSelect.innerHTML = '<option value="0">Sélectionnez d\'abord un client</option>';
+            bienSelect.disabled = true;
+            bienInfo.style.display = 'none';
+        }
+    });
+    
+    // Gérer le changement de bien
+    bienSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (this.value && this.value !== '0') {
+            // Afficher les informations du bien
+            const loyerMensuel = parseFloat(selectedOption.dataset.loyerMensuel);
+            const chargesMensuelles = parseFloat(selectedOption.dataset.chargesMensuelles);
+            const contratId = selectedOption.dataset.contratId;
+            
+            bienDetails.textContent = `Loyer: ${loyerMensuel.toFixed(2)}€ + Charges: ${chargesMensuelles.toFixed(2)}€ = Total: ${(loyerMensuel + chargesMensuelles).toFixed(2)}€`;
+            bienInfo.style.display = 'block';
+            
+            // Pré-remplir les montants
+            if (loyerField) loyerField.value = loyerMensuel.toFixed(2);
+            if (chargesField) chargesField.value = chargesMensuelles.toFixed(2);
+            if (contratIdField) contratIdField.value = contratId;
+        } else {
+            bienInfo.style.display = 'none';
+            if (loyerField) loyerField.value = '';
+            if (chargesField) chargesField.value = '';
+            if (contratIdField) contratIdField.value = '';
+        }
+    });
+});
+</script>
 {% endblock %}
