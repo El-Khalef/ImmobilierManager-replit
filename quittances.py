@@ -83,21 +83,10 @@ def generer_quittance_pdf(paiement):
     story.append(Paragraph("QUITTANCE DE LOYER", title_style))
     story.append(Spacer(1, 20))
     
-    # Informations du propriétaire du bien (pour référence)
+    # Récupération du contrat pour les informations suivantes
     contrat = paiement.contrat
-    proprietaire = contrat.bien.proprietaire
     
-    story.append(Paragraph("<b>PROPRIÉTAIRE DU BIEN :</b>", header_style))
-    story.append(Paragraph(f"{proprietaire.nom} {proprietaire.prenom}", content_style))
-    if proprietaire.adresse:
-        story.append(Paragraph(f"{proprietaire.adresse}", content_style))
-        story.append(Paragraph(f"{proprietaire.code_postal or ''} {proprietaire.ville or 'Nouakchott'}", content_style))
-    if proprietaire.telephone:
-        story.append(Paragraph(f"Tél : {proprietaire.telephone}", content_style))
-    if proprietaire.email:
-        story.append(Paragraph(f"Email : {proprietaire.email}", content_style))
-    
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 10))
     
     # Informations du locataire
     locataire = contrat.locataire
