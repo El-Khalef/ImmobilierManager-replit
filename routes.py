@@ -7,11 +7,11 @@ from sqlalchemy import or_, and_
 from app import db
 from models import (
     Client, BienImmobilier, PhotoBien, ContratLocation, 
-    PaiementLoyer, get_dashboard_stats
+    PaiementLoyer, DocumentContrat, get_dashboard_stats
 )
 from forms import (
     ClientForm, BienForm, PhotoForm, ContratForm, 
-    PaiementForm, SearchForm
+    PaiementForm, SearchForm, DocumentContratForm
 )
 
 
@@ -449,3 +449,89 @@ def register_routes(app):
             return redirect(url_for('paiements_index'))
         
         return render_template('paiements/form.html', form=form, paiement=paiement, title='Modifier le paiement')
+    
+    # === ROUTES POUR LES DOCUMENTS ===
+    
+    @app.route('/documents/')
+    def documents_index():
+        """Liste des documents"""
+        documents = DocumentContrat.query.order_by(DocumentContrat.date_ajout.desc()).all()
+        return render_template('documents/index.html', documents=documents)
+    
+    @app.route('/documents/add', methods=['GET', 'POST'])
+    def documents_add():
+        """Ajouter un document"""
+        form = DocumentContratForm()
+        if form.validate_on_submit():
+            fichier = form.fichier.data
+            
+            # Sécuriser le nom du fichier
+            nom_original = secure_filename(fichier.filename)
+            extension = nom_original.rsplit('.', 1)[1].lower() if '.' in nom_original else ''
+            nom_unique = f"{uuid.uuid4().hex}.{extension}"
+            
+            # Définir le chemin de stockage
+            dossier_documents = os.path.join(current_app.static_folder, 'documents')
+            os.makedirs(dossier_documents, exist_ok=True)
+            chemin_fichier = os.path.join(dossier_documents, nom_unique)
+            
+            try:
+                # Sauvegarder le fichier
+                fichier.save(chemin_fichier)
+                
+                # Obtenir la taille du fichier
+                taille_fichier = os.path.getsize(chemin_fichier)
+                
+                # Créer l'enregistrement en base
+                document = DocumentContrat(
+                    contrat_id=form.contrat_id.data,
+                    nom_fichier=nom_unique,
+                    nom_original=nom_original,
+                    type_document=form.type_document.data,
+                    format_fichier=extension,
+                    taille_fichier=taille_fichier,
+                    chemin_stockage=f"static/documents/{nom_unique}",
+                    description=form.description.data,
+                    ajoute_par="Admin"  # À adapter selon votre système d'authentification
+                )
+                
+                db.session.add(document)
+                db.session.commit()
+                
+                flash(f'Document {nom_original} ajouté avec succès.', 'success')
+                return redirect(url_for('documents_index'))
+                
+            except Exception as e:
+                flash(f'Erreur lors de l\'upload du fichier: {str(e)}', 'danger')
+                # Supprimer le fichier si l'enregistrement en base a échoué
+                if os.path.exists(chemin_fichier):
+                    os.remove(chemin_fichier)
+        
+        return render_template('documents/form.html', form=form, title='Ajouter un document')
+    
+    @app.route('/documents/<int:id>/delete', methods=['POST'])
+    def documents_delete(id):
+        """Supprimer un document"""
+        document = DocumentContrat.query.get_or_404(id)
+        
+        try:
+            # Supprimer le fichier physique
+            if os.path.exists(document.chemin_stockage):
+                os.remove(document.chemin_stockage)
+            
+            # Supprimer l'enregistrement en base
+            db.session.delete(document)
+            db.session.commit()
+            
+            flash('Document supprimé avec succès.', 'success')
+        except Exception as e:
+            flash(f'Erreur lors de la suppression: {str(e)}', 'danger')
+        
+        return redirect(url_for('documents_index'))
+    
+    @app.route('/contrats/<int:id>/documents')
+    def contrats_documents(id):
+        """Voir les documents d'un contrat"""
+        contrat = ContratLocation.query.get_or_404(id)
+        documents = DocumentContrat.query.filter_by(contrat_id=id).order_by(DocumentContrat.date_ajout.desc()).all()
+        return render_template('contrats/documents.html', contrat=contrat, documents=documents)

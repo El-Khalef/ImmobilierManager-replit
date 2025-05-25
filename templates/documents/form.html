@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('documents_index') }}">Documents</a></li>
+                <li class="breadcrumb-item active">Ajouter</li>
+            </ol>
+        </nav>
+        <h1 class="h2">{{ title }}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-upload me-2"></i>
+                    Téléchargement de document
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Sélection du contrat -->
+                    <div class="mb-3">
+                        {{ form.contrat_id.label(class="form-label") }}
+                        {{ form.contrat_id(class="form-select") }}
+                        {% if form.contrat_id.errors %}
+                            {% for error in form.contrat_id.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Type de document -->
+                    <div class="mb-3">
+                        {{ form.type_document.label(class="form-label") }}
+                        {{ form.type_document(class="form-select") }}
+                        {% if form.type_document.errors %}
+                            {% for error in form.type_document.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Fichier à uploader -->
+                    <div class="mb-3">
+                        {{ form.fichier.label(class="form-label") }}
+                        {{ form.fichier(class="form-control", accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.mp4,.avi,.mov,.mp3,.wav,.ogg,.m4a") }}
+                        {% if form.fichier.errors %}
+                            {% for error in form.fichier.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-text">
+                            Formats autorisés : Images (JPG, PNG, GIF), Documents (PDF, DOC), Vidéos (MP4, AVI, MOV), Audio (MP3, WAV, OGG)
+                            <br>Taille maximale : 50 MB
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3", placeholder="Description optionnelle du document...") }}
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('documents_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-1"></i>
+                            Télécharger le document
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Informations de sécurité -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Sécurité et confidentialité
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Les documents sont stockés de manière sécurisée</li>
+                    <li>Seuls les utilisateurs autorisés peuvent accéder aux fichiers</li>
+                    <li>Les métadonnées sont conservées pour un suivi complet</li>
+                    <li>Suppression automatique des fichiers lors de la suppression du contrat</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prévisualisation du fichier sélectionné
+    const fileInput = document.querySelector('input[type="file"]');
+    const fileLabel = document.querySelector('.form-control[type="file"] + .form-text');
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+            fileLabel.innerHTML = `
+                Fichier sélectionné: <strong>${file.name}</strong> (${fileSize} MB)
+                <br>Formats autorisés : Images (JPG, PNG, GIF), Documents (PDF, DOC), Vidéos (MP4, AVI, MOV), Audio (MP3, WAV, OGG)
+                <br>Taille maximale : 50 MB
+            `;
+        }
+    });
+});
+</script>
+{% endblock %}

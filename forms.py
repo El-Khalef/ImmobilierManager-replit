@@ -189,3 +189,36 @@ class SearchForm(FlaskForm):
     surface_max = FloatField('Surface max (m²)', validators=[Optional(), NumberRange(min=0)])
     disponible_uniquement = BooleanField('Disponibles uniquement')
     submit = SubmitField('Rechercher')
+
+
+class DocumentContratForm(FlaskForm):
+    """Formulaire pour ajouter des documents aux contrats"""
+    contrat_id = SelectField('Contrat', coerce=int, validators=[DataRequired()])
+    type_document = SelectField('Type de document',
+                               choices=[
+                                   ('piece_identite', 'Pièce d\'identité'),
+                                   ('photo', 'Photo'),
+                                   ('video', 'Vidéo'),
+                                   ('audio', 'Audio (WhatsApp, etc.)'),
+                                   ('contrat_signe', 'Contrat signé'),
+                                   ('justificatif', 'Justificatif'),
+                                   ('autre', 'Autre')
+                               ],
+                               validators=[DataRequired()])
+    fichier = FileField('Fichier', validators=[
+        FileRequired('Veuillez sélectionner un fichier'),
+        FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 
+                    'mp4', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'm4a'], 
+                   'Format de fichier non autorisé!')
+    ])
+    description = TextAreaField('Description', validators=[Optional(), Length(max=500)])
+    submit = SubmitField('Ajouter le document')
+    
+    def __init__(self, *args, **kwargs):
+        super(DocumentContratForm, self).__init__(*args, **kwargs)
+        # Charger les contrats actifs
+        contrats = ContratLocation.query.filter_by(statut='actif').all()
+        self.contrat_id.choices = [
+            (contrat.id, f"Contrat #{contrat.id} - {contrat.locataire.nom_complet}") 
+            for contrat in contrats
+        ]

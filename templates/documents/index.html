@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Documents - Gestion Immobilière{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Documents</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Documents des contrats
+                </h1>
+                <p class="text-muted">Gestion des documents liés aux contrats de location</p>
+            </div>
+            <a href="{{ url_for('documents_add') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>
+                Ajouter un document
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4>{{ documents|length }}</h4>
+                <p class="mb-0">Total documents</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4>{{ documents|selectattr('type_document', 'equalto', 'piece_identite')|list|length }}</h4>
+                <p class="mb-0">Pièces d'identité</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4>{{ documents|selectattr('est_image')|list|length }}</h4>
+                <p class="mb-0">Photos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body text-center">
+                <h4>{{ documents|selectattr('est_video')|list|length + documents|selectattr('est_audio')|list|length }}</h4>
+                <p class="mb-0">Vidéos/Audio</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des documents -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list me-2"></i>
+            Liste des documents
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if documents %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th>Type</th>
+                            <th>Contrat</th>
+                            <th>Taille</th>
+                            <th>Date d'ajout</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in documents %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="{{ document.icone_type }} text-primary me-2"></i>
+                                    <div>
+                                        <strong>{{ document.nom_original }}</strong>
+                                        {% if document.description %}
+                                            <br><small class="text-muted">{{ document.description }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    {{ document.type_document.replace('_', ' ').title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('contrats_detail', id=document.contrat.id) }}" class="text-decoration-none">
+                                    Contrat #{{ document.contrat.id }}
+                                    <br><small class="text-muted">{{ document.contrat.locataire.nom_complet }}</small>
+                                </a>
+                            </td>
+                            <td>{{ document.taille_lisible }}</td>
+                            <td>{{ document.date_ajout.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    {% if document.est_image %}
+                                        <a href="{{ url_for('static', filename='documents/' + document.nom_fichier) }}" 
+                                           target="_blank" class="btn btn-outline-primary" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('static', filename='documents/' + document.nom_fichier) }}" 
+                                           download="{{ document.nom_original }}" class="btn btn-outline-primary" title="Télécharger">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    {% endif %}
+                                    <form method="POST" action="{{ url_for('documents_delete', id=document.id) }}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?')">
+                                        <button type="submit" class="btn btn-outline-danger" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun document</h5>
+                <p class="text-muted">Commencez par ajouter des documents aux contrats.</p>
+                <a href="{{ url_for('documents_add') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>
+                    Ajouter le premier document
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
