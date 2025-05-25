@@ -43,8 +43,8 @@ class BienForm(FlaskForm):
                            ],
                            validators=[DataRequired()])
     adresse = StringField('Adresse', validators=[DataRequired(), Length(max=200)])
-    ville = StringField('Ville', validators=[DataRequired(), Length(max=100)])
-    code_postal = StringField('Code postal', validators=[DataRequired(), Length(max=10)])
+    ville = StringField('Ville', validators=[DataRequired(), Length(max=100)], default='Nouakchott')
+    code_postal = StringField('Code postal', validators=[Optional(), Length(max=10)])
     surface = FloatField('Surface (m²)', validators=[DataRequired(), NumberRange(min=0)])
     nombre_pieces = IntegerField('Nombre de pièces', validators=[Optional(), NumberRange(min=0)])
     nombre_chambres = IntegerField('Nombre de chambres', validators=[Optional(), NumberRange(min=0)])
@@ -64,10 +64,17 @@ class BienForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(BienForm, self).__init__(*args, **kwargs)
         # Charger les propriétaires
+        proprietaires = Client.query.filter_by(type_client='proprietaire').all()
         self.proprietaire_id.choices = [
             (client.id, f"{client.prenom} {client.nom}") 
-            for client in Client.query.filter_by(type_client='proprietaire').all()
+            for client in proprietaires
         ]
+        
+        # Définir EL KHALEF comme propriétaire par défaut
+        if not self.proprietaire_id.data:
+            el_khalef = Client.query.filter_by(nom='EL KHALEF', type_client='proprietaire').first()
+            if el_khalef:
+                self.proprietaire_id.data = el_khalef.id
 
 
 class PhotoForm(FlaskForm):
