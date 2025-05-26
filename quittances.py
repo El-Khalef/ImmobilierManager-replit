@@ -126,14 +126,14 @@ def generer_quittance_pdf(paiement):
     # Tableau des détails
     data = [
         ['Période', f"{mois_noms[paiement.mois]} {paiement.annee}"],
-        ['Loyer', f"{paiement.montant_loyer:,.0f} €".replace(',', ' ')],
+        ['Loyer', f"{paiement.montant_loyer:,.0f} MRU".replace(',', ' ')],
     ]
     
     if paiement.montant_charges and paiement.montant_charges > 0:
-        data.append(['Charges', f"{paiement.montant_charges:,.0f} €".replace(',', ' ')])
+        data.append(['Charges', f"{paiement.montant_charges:,.0f} MRU".replace(',', ' ')])
     
     total = paiement.montant_total
-    data.append(['TOTAL', f"{total:,.0f} €".replace(',', ' ')])
+    data.append(['TOTAL', f"{total:,.0f} MRU".replace(',', ' ')])
     
     if paiement.date_paiement:
         data.append(['Date de paiement', paiement.date_paiement.strftime('%d/%m/%Y')])
@@ -181,7 +181,7 @@ def generer_quittance_pdf(paiement):
         f"La Société Laser Services, représentée par Mariem CHEIKH BRAHIM, "
         f"gestionnaire du bien ci-dessus désigné, reconnais avoir reçu de "
         f"{locataire.nom} {locataire.prenom}, la somme de "
-        f"<b>{total:,.0f} euros</b> ".replace(',', ' ') +
+        f"<b>{total:,.0f} ouguiyas</b> ".replace(',', ' ') +
         f"pour le loyer et charges de la période du {mois_noms[paiement.mois]} {paiement.annee}.",
         certification_style
     ))
