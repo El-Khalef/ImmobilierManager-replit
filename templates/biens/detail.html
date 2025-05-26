@@ -133,7 +133,7 @@
                                                 - {{ contrat.date_fin.strftime('%d/%m/%Y') }}
                                             {% endif %}
                                         </td>
-                                        <td>{{ contrat.loyer_total }} €</td>
+                                        <td>{{ contrat.loyer_total }} MRU</td>
                                         <td>
                                             <span class="badge bg-{{ 'success' if contrat.statut == 'actif' else 'secondary' }}">
                                                 {{ contrat.statut }}
@@ -220,13 +220,13 @@
             </div>
             <div class="card-body">
                 {% if bien.prix_achat %}
-                    <p><strong>Prix d'achat :</strong> {{ "%.2f"|format(bien.prix_achat) }} €</p>
+                    <p><strong>Prix d'achat :</strong> {{ "%.2f"|format(bien.prix_achat) }} MRU</p>
                 {% endif %}
                 {% if bien.prix_location_mensuel %}
-                    <p><strong>Loyer mensuel :</strong> {{ "%.2f"|format(bien.prix_location_mensuel) }} €</p>
+                    <p><strong>Loyer mensuel :</strong> {{ "%.2f"|format(bien.prix_location_mensuel) }} MRU</p>
                 {% endif %}
                 {% if bien.charges_mensuelles %}
-                    <p><strong>Charges :</strong> {{ "%.2f"|format(bien.charges_mensuelles) }} €</p>
+                    <p><strong>Charges :</strong> {{ "%.2f"|format(bien.charges_mensuelles) }} MRU</p>
                 {% endif %}
             </div>
         </div>

@@ -91,7 +91,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <h3 class="text-success">{{ "%.2f"|format(stats.revenus_mois) }} €</h3>
+                <h3 class="text-success">{{ "%.2f"|format(stats.revenus_mois) }} MRU</h3>
                 <p class="text-muted mb-0">Paiements reçus ce mois</p>
             </div>
         </div>
@@ -179,7 +179,7 @@
                                     <div>
                                         <h6 class="mb-1">{{ contrat.bien.titre }}</h6>
                                         <p class="mb-1 text-muted">{{ contrat.locataire.nom_complet }}</p>
-                                        <small class="text-muted">{{ contrat.loyer_total }} €/mois</small>
+                                        <small class="text-muted">{{ contrat.loyer_total }} MRU/mois</small>
                                     </div>
                                     <span class="badge bg-success rounded-pill">{{ contrat.statut }}</span>
                                 </div>
@@ -215,7 +215,7 @@
                                     <div>
                                         <h6 class="mb-1">{{ paiement.contrat.bien.titre }}</h6>
                                         <p class="mb-1 text-muted">{{ paiement.contrat.locataire.nom_complet }}</p>
-                                        <small class="text-muted">{{ paiement.periode }} - {{ paiement.montant_total }} €</small>
+                                        <small class="text-muted">{{ paiement.periode }} - {{ paiement.montant_total }} MRU</small>
                                     </div>
                                     <span class="badge bg-danger rounded-pill">{{ paiement.statut }}</span>
                                 </div>

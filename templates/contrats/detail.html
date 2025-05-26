@@ -104,24 +104,24 @@
                         <table class="table table-borderless">
                             <tr>
                                 <td><strong>Loyer mensuel :</strong></td>
-                                <td>{{ "%.2f"|format(contrat.loyer_mensuel) }} €</td>
+                                <td>{{ "%.2f"|format(contrat.loyer_mensuel) }} MRU</td>
                             </tr>
                             <tr>
                                 <td><strong>Charges :</strong></td>
-                                <td>{{ "%.2f"|format(contrat.charges_mensuelles) }} €</td>
+                                <td>{{ "%.2f"|format(contrat.charges_mensuelles) }} MRU</td>
                             </tr>
                             <tr>
                                 <td><strong>Total mensuel :</strong></td>
-                                <td><strong>{{ "%.2f"|format(contrat.loyer_total) }} €</strong></td>
+                                <td><strong>{{ "%.2f"|format(contrat.loyer_total) }} MRU</strong></td>
                             </tr>
                             <tr>
                                 <td><strong>Dépôt de garantie :</strong></td>
-                                <td>{{ "%.2f"|format(contrat.depot_garantie) }} €</td>
+                                <td>{{ "%.2f"|format(contrat.depot_garantie) }} MRU</td>
                             </tr>
                             {% if contrat.frais_agence > 0 %}
                                 <tr>
                                     <td><strong>Frais d'agence :</strong></td>
-                                    <td>{{ "%.2f"|format(contrat.frais_agence) }} €</td>
+                                    <td>{{ "%.2f"|format(contrat.frais_agence) }} MRU</td>
                                 </tr>
                             {% endif %}
                         </table>
@@ -163,7 +163,7 @@
                                 {% for paiement in contrat.paiements|sort(attribute='annee,mois', reverse=true) %}
                                     <tr class="{{ 'table-danger' if paiement.est_en_retard }}">
                                         <td>{{ paiement.periode }}</td>
-                                        <td>{{ "%.2f"|format(paiement.montant_total) }} €</td>
+                                        <td>{{ "%.2f"|format(paiement.montant_total) }} MRU</td>
                                         <td>{{ paiement.date_echeance.strftime('%d/%m/%Y') }}</td>
                                         <td>
                                             {% if paiement.date_paiement %}
