@@ -164,8 +164,8 @@ def generer_quittance_pdf(paiement):
     
     # Texte de certification
     story.append(Paragraph(
-        f"Je soussigné(e) {proprietaire.nom} {proprietaire.prenom}, "
-        f"propriétaire du bien ci-dessus désigné, reconnais avoir reçu de "
+        f"La Société Laser Services, représentée par Mariem CHEIKH BRAHIM, "
+        f"gestionnaire du bien ci-dessus désigné, reconnais avoir reçu de "
         f"{locataire.nom} {locataire.prenom}, la somme de "
         f"<b>{total:,.0f} euros</b> ".replace(',', ' ') +
         f"pour le loyer et charges de la période du {mois_noms[paiement.mois]} {paiement.annee}.",
@@ -191,7 +191,8 @@ def generer_quittance_pdf(paiement):
     
     story.append(Paragraph("Signature du bailleur :", signature_style))
     story.append(Spacer(1, 40))
-    story.append(Paragraph(f"{proprietaire.nom} {proprietaire.prenom}", signature_style))
+    story.append(Paragraph("Mariem CHEIKH BRAHIM", signature_style))
+    story.append(Paragraph("Représentant - Société Laser Services", signature_style))
     
     # Génération du PDF
     doc.build(story)
