@@ -73,14 +73,15 @@ def generer_quittance_pdf(paiement):
         spaceAfter=4
     )
     
-    story.append(Paragraph("SOCIÉTÉ LASER SERVICES", bailleur_style))
-    story.append(Paragraph("Représentant : Mariem CHEIKH BRAHIM", contact_style))
-    story.append(Paragraph("Téléphone : 36317881", contact_style))
-    story.append(Paragraph("Email : hadramimr84@gmail.com", contact_style))
+    # En-tête bilingue français/arabe
+    story.append(Paragraph("SOCIÉTÉ LASER SERVICES - شركة ليزر سيرفيسيز", bailleur_style))
+    story.append(Paragraph("Représentant : Mariem CHEIKH BRAHIM - الممثل: مريم الشيخ إبراهيم", contact_style))
+    story.append(Paragraph("Téléphone : 36317881 - الهاتف: 36317881", contact_style))
+    story.append(Paragraph("Email : hadramimr84@gmail.com - البريد الإلكتروني: hadramimr84@gmail.com", contact_style))
     story.append(Spacer(1, 12))
     
-    # Titre
-    story.append(Paragraph("QUITTANCE DE LOYER", title_style))
+    # Titre bilingue
+    story.append(Paragraph("QUITTANCE DE LOYER - إيصال إيجار", title_style))
     story.append(Spacer(1, 12))
     
     # Récupération du contrat pour les informations suivantes
@@ -92,57 +93,60 @@ def generer_quittance_pdf(paiement):
     locataire = contrat.locataire
     bien = contrat.bien
     
-    # Locataire - format compact
-    story.append(Paragraph("<b>LOCATAIRE :</b>", header_style))
+    # Locataire - format compact bilingue
+    story.append(Paragraph("<b>LOCATAIRE - المستأجر :</b>", header_style))
     locataire_info = f"{locataire.nom} {locataire.prenom}"
     if locataire.adresse:
         locataire_info += f" - {locataire.adresse}"
         if locataire.ville:
             locataire_info += f", {locataire.ville}"
     if locataire.telephone:
-        locataire_info += f" - Tél : {locataire.telephone}"
+        locataire_info += f" - Tél - هاتف : {locataire.telephone}"
     story.append(Paragraph(locataire_info, content_style))
     
     story.append(Spacer(1, 8))
     
-    # Bien - format compact
-    story.append(Paragraph("<b>BIEN LOUÉ :</b>", header_style))
+    # Bien - format compact bilingue
+    story.append(Paragraph("<b>BIEN LOUÉ - العقار المؤجر :</b>", header_style))
     bien_info = f"{bien.titre} ({bien.type_bien}) - {bien.adresse_complete}"
     if bien.surface:
-        bien_info += f" - Surface : {bien.surface} m²"
+        bien_info += f" - Surface - المساحة : {bien.surface} m²"
     story.append(Paragraph(bien_info, content_style))
     
     story.append(Spacer(1, 10))
     
-    # Détails du paiement
+    # Détails du paiement bilingue
     mois_noms = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
     
-    story.append(Paragraph("<b>DÉTAILS DU PAIEMENT :</b>", header_style))
+    mois_arabe = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
     
-    # Tableau des détails
+    story.append(Paragraph("<b>DÉTAILS DU PAIEMENT - تفاصيل الدفع :</b>", header_style))
+    
+    # Tableau des détails bilingue
     data = [
-        ['Période', f"{mois_noms[paiement.mois]} {paiement.annee}"],
-        ['Loyer', f"{paiement.montant_loyer:,.0f} €".replace(',', ' ')],
+        ['Période - الفترة', f"{mois_noms[paiement.mois]} {paiement.annee} - {mois_arabe[paiement.mois]} {paiement.annee}"],
+        ['Loyer - الإيجار', f"{paiement.montant_loyer:,.0f} €".replace(',', ' ')],
     ]
     
     if paiement.montant_charges and paiement.montant_charges > 0:
-        data.append(['Charges', f"{paiement.montant_charges:,.0f} €".replace(',', ' ')])
+        data.append(['Charges - الرسوم', f"{paiement.montant_charges:,.0f} €".replace(',', ' ')])
     
     total = paiement.montant_total
-    data.append(['TOTAL', f"{total:,.0f} €".replace(',', ' ')])
+    data.append(['TOTAL - المجموع', f"{total:,.0f} €".replace(',', ' ')])
     
     if paiement.date_paiement:
-        data.append(['Date de paiement', paiement.date_paiement.strftime('%d/%m/%Y')])
+        data.append(['Date de paiement - تاريخ الدفع', paiement.date_paiement.strftime('%d/%m/%Y')])
     
     if paiement.mode_paiement and paiement.mode_paiement != '':
         modes = {
-            'virement': 'Virement bancaire',
-            'cheque': 'Chèque',
-            'especes': 'Espèces',
-            'prelevement': 'Prélèvement automatique'
+            'virement': 'Virement bancaire - تحويل مصرفي',
+            'cheque': 'Chèque - شيك',
+            'especes': 'Espèces - نقدا',
+            'prelevement': 'Prélèvement automatique - خصم تلقائي'
         }
-        data.append(['Mode de paiement', modes.get(paiement.mode_paiement, paiement.mode_paiement)])
+        data.append(['Mode de paiement - طريقة الدفع', modes.get(paiement.mode_paiement, paiement.mode_paiement)])
     
     if paiement.reference_paiement:
         data.append(['Référence', paiement.reference_paiement])
@@ -173,6 +177,7 @@ def generer_quittance_pdf(paiement):
         spaceAfter=6
     )
     
+    # Texte de certification bilingue
     story.append(Paragraph(
         f"La Société Laser Services, représentée par Mariem CHEIKH BRAHIM, "
         f"gestionnaire du bien ci-dessus désigné, reconnais avoir reçu de "
@@ -182,17 +187,29 @@ def generer_quittance_pdf(paiement):
         certification_style
     ))
     
+    story.append(Spacer(1, 8))
+    
+    # Texte en arabe
+    story.append(Paragraph(
+        f"نحن شركة ليزر سيرفيسيز، ممثلة بمريم الشيخ إبراهيم، "
+        f"مدير العقار المذكور أعلاه، نقر بأننا تلقينا من "
+        f"{locataire.nom} {locataire.prenom} مبلغ "
+        f"<b>{total:,.0f} يورو</b> ".replace(',', ' ') +
+        f"عن إيجار ورسوم فترة {mois_arabe[paiement.mois]} {paiement.annee}.",
+        certification_style
+    ))
+    
     story.append(Spacer(1, 12))
     
     # Date et signature sur la même ligne pour économiser l'espace
     date_emission = datetime.now().strftime('%d/%m/%Y')
     
-    # Tableau pour date et signature
+    # Tableau pour date et signature bilingue
     signature_data = [
-        [f"Fait à Nouakchott, le {date_emission}", "Signature du bailleur :"],
+        [f"Fait à Nouakchott, le {date_emission}\nحُرر في نواكشوط، بتاريخ {date_emission}", "Signature du bailleur - توقيع المؤجر :"],
         ["", ""],
-        ["", "Mariem CHEIKH BRAHIM"],
-        ["", "Représentant - Société Laser Services"]
+        ["", "Mariem CHEIKH BRAHIM - مريم الشيخ إبراهيم"],
+        ["", "Représentant - Société Laser Services\nممثل - شركة ليزر سيرفيسيز"]
     ]
     
     signature_table = Table(signature_data, colWidths=[doc.width/2, doc.width/2])
