@@ -23,7 +23,7 @@ class Client(db.Model):
     
     # Relations
     biens_proprietaire = db.relationship('BienImmobilier', backref='proprietaire', lazy=True)
-    contrats_locataire = db.relationship('ContratLocation', backref='locataire', lazy=True)
+    contrats_locataire = db.relationship('ContratLocation', foreign_keys='ContratLocation.locataire_id', lazy=True)
     
     def __repr__(self):
         return f'<Client {self.prenom} {self.nom}>'
@@ -116,6 +116,8 @@ class ContratLocation(db.Model):
     locataire_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
     
     # Relations
+    bien = db.relationship('BienImmobilier')
+    locataire = db.relationship('Client')
     paiements = db.relationship('PaiementLoyer', backref='contrat', lazy=True)
     documents = db.relationship('DocumentContrat', backref='contrat', lazy=True, cascade='all, delete-orphan')
     
@@ -148,8 +150,10 @@ class PaiementLoyer(db.Model):
     remarques = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Clé étrangère
+    # Clés étrangères
     contrat_id = db.Column(db.Integer, db.ForeignKey('contrats_location.id'), nullable=False)
+    
+    # Relations (sera créée automatiquement par la relation dans ContratLocation)
     
     def __repr__(self):
         return f'<PaiementLoyer {self.mois}/{self.annee} - {self.statut}>'
@@ -169,6 +173,16 @@ class PaiementLoyer(db.Model):
     @property
     def est_en_retard(self):
         return self.statut != 'paye' and self.date_echeance < date.today()
+    
+    @property
+    def client(self):
+        """Accès au client via le contrat"""
+        return self.contrat.locataire if self.contrat else None
+    
+    @property 
+    def bien(self):
+        """Accès au bien via le contrat"""
+        return self.contrat.bien if self.contrat else None
 
 
 # Fonctions utilitaires pour les statistiques du dashboard
