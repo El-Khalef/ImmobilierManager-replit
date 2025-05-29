@@ -15,6 +15,7 @@ from forms import (
 )
 from quittances import generer_quittance_pdf, generer_nom_fichier_quittance
 from quittances_bilingue import generer_quittance_bilingue_pdf, generer_nom_fichier_quittance_bilingue
+from quittances_arabe_simple import generer_quittance_arabe_simple_pdf, generer_nom_fichier_quittance_arabe
 
 
 def register_routes(app):
@@ -655,9 +656,9 @@ def register_routes(app):
             return redirect(url_for('paiements_index'))
         
         try:
-            # Générer le PDF bilingue
-            pdf_buffer = generer_quittance_bilingue_pdf(paiement)
-            nom_fichier = generer_nom_fichier_quittance_bilingue(paiement)
+            # Générer le PDF en arabe simple (sans caractères arabes)
+            pdf_buffer = generer_quittance_arabe_simple_pdf(paiement)
+            nom_fichier = generer_nom_fichier_quittance_arabe(paiement)
             
             # Créer la réponse avec le PDF
             response = make_response(pdf_buffer.getvalue())
@@ -667,7 +668,7 @@ def register_routes(app):
             return response
             
         except Exception as e:
-            flash(f'Erreur lors de la génération de la quittance bilingue: {str(e)}', 'danger')
+            flash(f'Erreur lors de la génération de la quittance arabe: {str(e)}', 'danger')
             return redirect(url_for('paiements_index'))
     
     @app.route('/contrats/<int:id>/quittances')
