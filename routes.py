@@ -14,8 +14,7 @@ from forms import (
     PaiementForm, SearchForm, DocumentContratForm
 )
 from quittances import generer_quittance_pdf, generer_nom_fichier_quittance
-from quittances_bilingue import generer_quittance_bilingue_pdf, generer_nom_fichier_quittance_bilingue
-from quittances_arabe_simple import generer_quittance_arabe_simple_pdf, generer_nom_fichier_quittance_arabe
+
 
 
 def register_routes(app):
@@ -646,30 +645,7 @@ def register_routes(app):
             flash(f'Erreur lors de la génération de la quittance: {str(e)}', 'danger')
             return redirect(url_for('paiements_index'))
     
-    @app.route('/quittances/<int:id>/bilingue')
-    def generer_quittance_bilingue(id):
-        """Génère une quittance bilingue (français-arabe) en PDF"""
-        paiement = PaiementLoyer.query.get_or_404(id)
-        
-        if paiement.statut != 'paye':
-            flash('Cette quittance ne peut être générée que pour un paiement confirmé.', 'warning')
-            return redirect(url_for('paiements_index'))
-        
-        try:
-            # Générer le PDF en arabe simple (sans caractères arabes)
-            pdf_buffer = generer_quittance_arabe_simple_pdf(paiement)
-            nom_fichier = generer_nom_fichier_quittance_arabe(paiement)
-            
-            # Créer la réponse avec le PDF
-            response = make_response(pdf_buffer.getvalue())
-            response.headers['Content-Type'] = 'application/pdf'
-            response.headers['Content-Disposition'] = f'attachment; filename="{nom_fichier}"'
-            
-            return response
-            
-        except Exception as e:
-            flash(f'Erreur lors de la génération de la quittance arabe: {str(e)}', 'danger')
-            return redirect(url_for('paiements_index'))
+
     
     @app.route('/contrats/<int:id>/quittances')
     def contrats_quittances(id):

@@ -85,24 +85,9 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-success dropdown-toggle" 
-                                                        data-bs-toggle="dropdown" title="Télécharger la quittance">
-                                                    <i class="fas fa-download"></i> PDF
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li>
-                                                        <a class="dropdown-item" href="{{ url_for('generer_quittance', id=paiement.id) }}">
-                                                            <i class="fas fa-file-pdf me-1"></i> Français uniquement
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item" href="{{ url_for('generer_quittance_bilingue', id=paiement.id) }}">
-                                                            <i class="fas fa-language me-1"></i> Version arabe
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                            <a href="{{ url_for('generer_quittance', id=paiement.id) }}" class="btn btn-sm btn-success" title="Télécharger la quittance">
+                                                <i class="fas fa-file-pdf me-1"></i> PDF
+                                            </a>
                                             {% if paiement.reference_paiement %}
                                                 <br><small class="text-muted mt-1">Réf: {{ paiement.reference_paiement }}</small>
                                             {% endif %}
