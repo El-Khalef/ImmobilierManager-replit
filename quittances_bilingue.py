@@ -172,7 +172,7 @@ def _generer_page_quittance(paiement, language):
     tenant_info = [
         f"{client.prenom} {client.nom}",
         f"{get_translation('address', language)}: {client.adresse_complete}",
-        f"{get_translation('phone', language)}: {client.telephone}",
+        f"{get_translation('phone', language)}: {client.telephone or 'Non renseigné'}",
         f"{get_translation('email', language)}: {client.email}"
     ]
     

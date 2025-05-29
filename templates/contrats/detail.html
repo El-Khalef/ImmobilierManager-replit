@@ -118,7 +118,7 @@
                                 <td><strong>Dépôt de garantie :</strong></td>
                                 <td>{{ "%.2f"|format(contrat.depot_garantie) }} MRU</td>
                             </tr>
-                            {% if contrat.frais_agence > 0 %}
+                            {% if contrat.frais_agence and contrat.frais_agence > 0 %}
                                 <tr>
                                     <td><strong>Frais d'agence :</strong></td>
                                     <td>{{ "%.2f"|format(contrat.frais_agence) }} MRU</td>
