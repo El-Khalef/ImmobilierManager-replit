@@ -1,6 +1,5 @@
 """
 Module pour la génération de quittances de loyer bilingues (français-arabe) en PDF
-Version corrigée pour les caractères arabes
 """
 import os
 from datetime import datetime
@@ -10,6 +9,9 @@ from reportlab.lib.units import cm
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT, TA_JUSTIFY
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from io import BytesIO
 from translations import get_translation, get_month_name, format_currency
 
@@ -27,6 +29,14 @@ def generer_quittance_bilingue_pdf(paiement):
     doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, 
                            topMargin=1.5*cm, bottomMargin=1.5*cm)
     
+    # Enregistrer une police Unicode pour l'arabe
+    try:
+        pdfmetrics.registerFont(UnicodeCIDFont('Helvetica'))
+        arabic_font = 'Helvetica'
+    except:
+        # Fallback vers police par défaut
+        arabic_font = 'Helvetica'
+    
     story = []
     
     # Générer la version française
@@ -35,8 +45,8 @@ def generer_quittance_bilingue_pdf(paiement):
     # Saut de page
     story.append(PageBreak())
     
-    # Générer la version arabe (simplifiée avec translitération)
-    story.extend(_generer_page_quittance_arabe_simple(paiement))
+    # Générer la version arabe
+    story.extend(_generer_page_quittance(paiement, 'ar'))
     
     doc.build(story)
     buffer.seek(0)
@@ -44,7 +54,14 @@ def generer_quittance_bilingue_pdf(paiement):
 
 def _generer_page_quittance(paiement, language):
     """
-    Génère une page de quittance française
+    Génère une page de quittance dans la langue spécifiée
+    
+    Args:
+        paiement: Instance de PaiementLoyer
+        language: Code de langue ('fr' ou 'ar')
+        
+    Returns:
+        list: Liste des éléments pour le PDF
     """
     elements = []
     styles = getSampleStyleSheet()
@@ -77,6 +94,39 @@ def _generer_page_quittance(paiement, language):
         spaceAfter=8
     )
     
+    # Styles pour l'arabe avec police Unicode
+    if language == 'ar':
+        # Utiliser DejaVu Sans qui supporte mieux l'Unicode
+        font_name = 'DejaVuSans' if language == 'ar' else 'Helvetica'
+        
+        title_style = ParagraphStyle(
+            'CustomTitleAR',
+            parent=styles['Heading1'],
+            fontSize=18,
+            alignment=TA_CENTER,
+            spaceAfter=30,
+            textColor=colors.darkblue,
+            fontName=font_name
+        )
+        
+        header_style = ParagraphStyle(
+            'HeaderAR',
+            parent=styles['Normal'],
+            fontSize=12,
+            alignment=TA_RIGHT,
+            spaceAfter=12,
+            fontName=font_name
+        )
+        
+        content_style = ParagraphStyle(
+            'ContentAR',
+            parent=styles['Normal'],
+            fontSize=11,
+            alignment=TA_RIGHT,
+            spaceAfter=8,
+            fontName=font_name
+        )
+    
     # En-tête de l'entreprise
     company_data = [
         ['Société Laser Services', get_translation('phone', language) + ': +222 45 25 25 25'],
@@ -88,8 +138,8 @@ def _generer_page_quittance(paiement, language):
     company_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('ALIGN', (0, 0), (0, -1), 'LEFT' if language == 'fr' else 'RIGHT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT' if language == 'fr' else 'LEFT'),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
     ]))
@@ -186,8 +236,8 @@ def _generer_page_quittance(paiement, language):
     payment_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('ALIGN', (0, 0), (0, -1), 'LEFT' if language == 'fr' else 'RIGHT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT' if language == 'fr' else 'LEFT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('BACKGROUND', (-1, -1), (-1, -1), colors.lightgrey),
@@ -217,209 +267,13 @@ def _generer_page_quittance(paiement, language):
         'Signature',
         parent=styles['Normal'],
         fontSize=11,
-        alignment=TA_RIGHT,
+        alignment=TA_RIGHT if language == 'fr' else TA_LEFT,
         spaceAfter=40
     )
     elements.append(Paragraph(signature_text, signature_style))
     
-    # Note de bas de page
-    language_note = "Version française"
-    note_style = ParagraphStyle(
-        'Note',
-        parent=styles['Normal'],
-        fontSize=8,
-        alignment=TA_CENTER,
-        textColor=colors.grey
-    )
-    elements.append(Spacer(1, 20))
-    elements.append(Paragraph(language_note, note_style))
-    
-    return elements
-
-def _generer_page_quittance_arabe_simple(paiement):
-    """
-    Génère une page de quittance avec les termes arabes en translitération
-    (évite les problèmes de police)
-    """
-    elements = []
-    styles = getSampleStyleSheet()
-    
-    # Styles personnalisés orientés RTL
-    title_style = ParagraphStyle(
-        'CustomTitleAR',
-        parent=styles['Heading1'],
-        fontSize=18,
-        alignment=TA_CENTER,
-        spaceAfter=30,
-        textColor=colors.darkblue,
-        fontName='Helvetica-Bold'
-    )
-    
-    header_style = ParagraphStyle(
-        'HeaderAR',
-        parent=styles['Normal'],
-        fontSize=12,
-        alignment=TA_RIGHT,
-        spaceAfter=12,
-        fontName='Helvetica-Bold'
-    )
-    
-    content_style = ParagraphStyle(
-        'ContentAR',
-        parent=styles['Normal'],
-        fontSize=11,
-        alignment=TA_RIGHT,
-        spaceAfter=8
-    )
-    
-    # En-tête de l'entreprise (en arabe translitéré)
-    company_data = [
-        ['Société Laser Services', 'Al-hatif: +222 45 25 25 25'],
-        ['Mariem CHEIKH BRAHIM', 'Al-bareed: contact@laserservices.mr'],
-        ['Nouakchott, Mauritania', '']
-    ]
-    
-    company_table = Table(company_data, colWidths=[8*cm, 8*cm])
-    company_table.setStyle(TableStyle([
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
-        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-    ]))
-    
-    elements.append(company_table)
-    elements.append(Spacer(1, 20))
-    
-    # Titre principal (translitération)
-    title_text = "ISAL IJAR (ايصال إيجار)"
-    elements.append(Paragraph(title_text, title_style))
-    
-    # Numéro de quittance
-    receipt_number = f"LSS-{paiement.id:06d}"
-    receipt_info = f"Raqam al-isal (رقم الإيصال): {receipt_number}"
-    elements.append(Paragraph(receipt_info, header_style))
-    
-    current_date = datetime.now().strftime('%d/%m/%Y')
-    date_info = f"Nouakchott, {current_date}"
-    elements.append(Paragraph(date_info, content_style))
-    elements.append(Spacer(1, 20))
-    
-    # Informations du bailleur
-    elements.append(Paragraph("Al-mu'ajjir (المؤجر):", header_style))
-    
-    landlord_info = [
-        "Société Laser Services",
-        "Mumaththala bi: Mariem CHEIKH BRAHIM",
-        "Al-hatif: +222 45 25 25 25",
-        "Al-bareed: contact@laserservices.mr"
-    ]
-    
-    for info in landlord_info:
-        elements.append(Paragraph(info, content_style))
-    
-    elements.append(Spacer(1, 15))
-    
-    # Informations du locataire
-    elements.append(Paragraph("Al-musta'jir (المستأجر):", header_style))
-    
-    client = paiement.client
-    tenant_info = [
-        f"{client.prenom} {client.nom}",
-        f"Al-'unwan (العنوان): {client.adresse_complete}",
-        f"Al-hatif (الهاتف): {client.telephone or 'Ghayr muddakhal'}",
-        f"Al-bareed (البريد): {client.email}"
-    ]
-    
-    for info in tenant_info:
-        elements.append(Paragraph(info, content_style))
-    
-    elements.append(Spacer(1, 15))
-    
-    # Informations du bien
-    elements.append(Paragraph("Al-'aqar al-mu'ajjar (العقار المؤجر):", header_style))
-    
-    bien = paiement.bien
-    property_info = [
-        bien.titre,
-        f"Al-'unwan (العنوان): {bien.adresse_complete}"
-    ]
-    
-    for info in property_info:
-        elements.append(Paragraph(info, content_style))
-    
-    elements.append(Spacer(1, 20))
-    
-    # Détails du paiement
-    mois_noms_ar = [
-        'Yanayir', 'Fibrayir', 'Mars', 'Abril', 'Mayu', 'Yunyu',
-        'Yulyu', 'Aghustus', 'Sibtambir', 'Uktubar', 'Nufambir', 'Disambir'
-    ]
-    month_name = mois_noms_ar[paiement.mois - 1]
-    period_text = f"{month_name} {paiement.annee}"
-    period_info = f"Al-fatra (الفترة): {period_text}"
-    elements.append(Paragraph(period_info, header_style))
-    
-    # Tableau des montants
-    payment_data = [
-        ["Mablag al-ijar (مبلغ الإيجار)", f"{paiement.montant_loyer:,.0f} ouguiya"],
-    ]
-    
-    if paiement.montant_charges and paiement.montant_charges > 0:
-        payment_data.append([
-            "Mablag ar-rusum (مبلغ الرسوم)", 
-            f"{paiement.montant_charges:,.0f} ouguiya"
-        ])
-    
-    total_amount = paiement.montant_total
-    payment_data.append([
-        "Al-mablag al-ijmali (المبلغ الإجمالي)", 
-        f"{total_amount:,.0f} ouguiya"
-    ])
-    
-    payment_table = Table(payment_data, colWidths=[10*cm, 6*cm])
-    payment_table.setStyle(TableStyle([
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
-        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('BACKGROUND', (-1, -1), (-1, -1), colors.lightgrey),
-        ('FONTNAME', (-1, -1), (-1, -1), 'Helvetica-Bold'),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-    ]))
-    
-    elements.append(payment_table)
-    elements.append(Spacer(1, 20))
-    
-    # Date de paiement
-    if paiement.date_paiement:
-        payment_date_text = f"Tareekh ad-daf' (تاريخ الدفع): {paiement.date_paiement.strftime('%d/%m/%Y')}"
-        elements.append(Paragraph(payment_date_text, content_style))
-    
-    # Mode de paiement
-    if paiement.mode_paiement:
-        payment_method_text = f"Tariqat ad-daf' (طريقة الدفع): {paiement.mode_paiement}"
-        elements.append(Paragraph(payment_method_text, content_style))
-    
-    elements.append(Spacer(1, 30))
-    
-    # Signature
-    signature_text = "Tawqee' al-mu'ajjir (توقيع المؤجر)"
-    signature_style = ParagraphStyle(
-        'Signature',
-        parent=styles['Normal'],
-        fontSize=11,
-        alignment=TA_LEFT,
-        spaceAfter=40
-    )
-    elements.append(Paragraph(signature_text, signature_style))
-    
-    # Note de bas de page
-    language_note = "An-nuskha al-'arabiyya (النسخة العربية)"
+    # Note de bas de page pour indiquer la langue
+    language_note = "Version française" if language == 'fr' else "النسخة العربية"
     note_style = ParagraphStyle(
         'Note',
         parent=styles['Normal'],
@@ -435,6 +289,12 @@ def _generer_page_quittance_arabe_simple(paiement):
 def generer_nom_fichier_quittance_bilingue(paiement):
     """
     Génère un nom de fichier approprié pour la quittance bilingue
+    
+    Args:
+        paiement: Instance de PaiementLoyer
+        
+    Returns:
+        str: Nom du fichier
     """
     client_nom = paiement.client.nom.replace(' ', '_')
     mois_str = f"{paiement.mois:02d}"

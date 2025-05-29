@@ -204,10 +204,17 @@ def get_dashboard_stats():
         PaiementLoyer.statut == 'paye'
     ).scalar() or 0
     
+    # Calcul des paiements en retard
+    paiements_en_retard = PaiementLoyer.query.filter(
+        PaiementLoyer.statut != 'paye',
+        PaiementLoyer.date_echeance < date.today()
+    ).count()
+    
     return {
         'total_biens': total_biens,
         'biens_loues': biens_loues,
         'biens_disponibles': total_biens - biens_loues,
         'total_clients': total_clients,
-        'revenus_mois': revenus_mois
+        'revenus_mois': revenus_mois,
+        'paiements_en_retard': paiements_en_retard
     }
