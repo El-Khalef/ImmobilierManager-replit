@@ -1,0 +1,141 @@
+# STRUCTURE COMPLÈTE DU PROJET - GESTION IMMOBILIÈRE
+# Généré le 30 mai 2025
+
+## ARBORESCENCE COMPLÈTE DU PROJET
+
+### RACINE DU PROJET
+/
+├── app.py                              # Configuration principale Flask + SQLAlchemy
+├── main.py                             # Point d'entrée de l'application
+├── models.py                           # Modèles de base de données (SQLAlchemy)
+├── routes.py                           # Routes et contrôleurs Flask
+├── forms.py                            # Formulaires WTForms
+├── quittances.py                       # Générateur de quittances PDF
+├── pyproject.toml                      # Configuration des dépendances Python
+├── uv.lock                             # Fichier de verrouillage des versions
+├── dependances.txt                     # Documentation des dépendances
+├── export_dependencies.txt             # Liste des dépendances au format requirements.txt
+│
+├── __pycache__/                        # Cache Python (généré automatiquement)
+│   ├── app.cpython-311.pyc
+│   ├── forms.cpython-311.pyc
+│   ├── main.cpython-311.pyc
+│   ├── models.cpython-311.pyc
+│   ├── quittances.cpython-311.pyc
+│   └── routes.cpython-311.pyc
+│
+├── static/                             # Fichiers statiques (CSS, JS, uploads)
+│   ├── css/
+│   │   └── custom.css                  # Styles CSS personnalisés
+│   ├── js/
+│   │   └── main.js                     # JavaScript personnalisé
+│   ├── documents/                      # Documents uploadés
+│   │   ├── 1353ec2d1fbb481a99aa3eedca790718.jpeg
+│   │   ├── 1e849430409549768b694ebf5fe91d41.pdf
+│   │   ├── 56c6d32e71da4bf690fd2bd702f487d9.jpeg
+│   │   ├── 9d9633a1002d4ed8be511e3007225f38.jpeg
+│   │   ├── a5f21ba2e8e4449d8b4415a90a2bd8e8.jpeg
+│   │   ├── e1e1d98d74a44326be55e7cc190ba059.jpeg
+│   │   └── eeb05779e3624f4d84d58bfdb0c1c9e2.
+│   └── uploads/                        # Photos des biens immobiliers
+│
+├── templates/                          # Templates HTML (Jinja2)
+│   ├── base.html                       # Template de base
+│   ├── dashboard.html                  # Page d'accueil/tableau de bord
+│   ├── index.html                      # Page d'accueil alternative
+│   │
+│   ├── clients/                        # Templates pour la gestion des clients
+│   │   ├── index.html                  # Liste des clients
+│   │   ├── detail.html                 # Détail d'un client
+│   │   └── form.html                   # Formulaire d'ajout/édition client
+│   │
+│   ├── biens/                          # Templates pour la gestion des biens
+│   │   ├── index.html                  # Liste des biens immobiliers
+│   │   ├── detail.html                 # Détail d'un bien
+│   │   └── form.html                   # Formulaire d'ajout/édition bien
+│   │
+│   ├── contrats/                       # Templates pour la gestion des contrats
+│   │   ├── index.html                  # Liste des contrats
+│   │   ├── detail.html                 # Détail d'un contrat
+│   │   ├── form.html                   # Formulaire d'ajout/édition contrat
+│   │   └── quittances.html             # Liste des quittances d'un contrat
+│   │
+│   ├── paiements/                      # Templates pour la gestion des paiements
+│   │   ├── index.html                  # Liste des paiements
+│   │   └── form.html                   # Formulaire d'ajout/édition paiement
+│   │
+│   ├── documents/                      # Templates pour la gestion des documents
+│   │   ├── index.html                  # Liste des documents
+│   │   └── form.html                   # Formulaire d'ajout document
+│   │
+│   └── quittances/                     # Templates pour les quittances
+│       ├── index.html                  # Liste générale des quittances
+│       └── index_simple.html           # Vue simplifiée des quittances
+│
+├── attached_assets/                    # Assets attachés (développement)
+│   ├── create_immobilier_app.py
+│   ├── create_project_structure.py
+│   └── image_1748243367605.png
+│
+└── EXPORTS/SAUVEGARDES                 # Fichiers d'export et sauvegarde
+    ├── backup_complete_20250528_184716.sql     # Sauvegarde complète base de données
+    ├── export_complet_2025.sql                 # Export complet récent
+    ├── export_database.sql                     # Export structure base de données
+    ├── models_backup.sql                       # Sauvegarde des modèles
+    ├── models_broken.py                        # Ancienne version modèles (cassée)
+    └── quittances_bilingue_broken.py          # Ancienne version quittances bilingues
+
+## DÉTAIL DES FICHIERS PRINCIPAUX
+
+### FICHIERS DE CONFIGURATION
+- **app.py** : Configuration Flask, SQLAlchemy, base de données
+- **main.py** : Point d'entrée, importe app.py
+- **pyproject.toml** : Dépendances Python et configuration du projet
+
+### FICHIERS MÉTIER
+- **models.py** : Modèles de données (Client, BienImmobilier, ContratLocation, PaiementLoyer, etc.)
+- **routes.py** : Toutes les routes Flask et logique métier
+- **forms.py** : Formulaires WTForms pour toutes les entités
+- **quittances.py** : Génération de quittances PDF avec ReportLab
+
+### TEMPLATES HTML
+- **base.html** : Template principal avec Bootstrap, navigation
+- **dashboard.html** : Tableau de bord avec statistiques
+- Dossiers par module : clients/, biens/, contrats/, paiements/, documents/, quittances/
+
+### FICHIERS STATIQUES
+- **css/custom.css** : Styles personnalisés
+- **js/main.js** : JavaScript pour interactions
+- **uploads/** : Photos des biens immobiliers
+- **documents/** : Documents attachés aux contrats
+
+## FONCTIONNALITÉS IMPLÉMENTÉES
+
+✓ Gestion complète des clients (propriétaires/locataires)
+✓ Gestion des biens immobiliers avec photos
+✓ Contrats de location
+✓ Suivi des paiements de loyers
+✓ Génération de quittances PDF professionnelles
+✓ Gestion de documents (photos, PDF, etc.)
+✓ Recherche et filtres
+✓ Tableau de bord avec statistiques
+✓ Interface responsive (Bootstrap)
+✓ Monnaie mauritanienne (Ouguiya - MRU)
+
+## TECHNOLOGIES UTILISÉES
+
+- **Backend** : Python 3.11, Flask, SQLAlchemy
+- **Frontend** : HTML5, Bootstrap CSS, JavaScript
+- **Base de données** : PostgreSQL
+- **PDF** : ReportLab
+- **Serveur** : Gunicorn
+- **Formulaires** : WTForms, Flask-WTF
+
+## INSTALLATION ET DÉPLOIEMENT
+
+Voir les fichiers :
+- export_dependencies.txt (pour pip install)
+- dependances.txt (documentation complète)
+- export_complet_2025.sql (pour restaurer la base de données)
+
+Total : 6 tables, 28+ fichiers sources, système complet de gestion immobilière
