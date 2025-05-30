@@ -1,0 +1,47 @@
+# DÉPENDANCES DU PROJET - GESTION IMMOBILIÈRE
+# Généré le 30 mai 2025
+
+## Dépendances principales Python
+
+Flask>=3.1.1                    # Framework web principal
+Flask-SQLAlchemy>=3.1.1         # ORM pour base de données
+Flask-WTF>=1.2.2                # Gestion des formulaires avec Flask
+WTForms>=3.2.1                  # Bibliothèque de formulaires
+Werkzeug>=3.1.3                 # Utilitaires WSGI
+email-validator>=2.2.0          # Validation des emails
+psycopg2-binary>=2.9.10         # Connecteur PostgreSQL
+SQLAlchemy>=2.0.41              # ORM base de données
+gunicorn>=23.0.0                # Serveur WSGI de production
+reportlab>=4.4.1                # Génération de PDF
+python-dateutil>=2.9.0.post0    # Manipulation des dates
+sendgrid>=6.12.2                # Service d'envoi d'emails
+
+## Base de données
+PostgreSQL (fournie par Replit)
+
+## Technologies utilisées
+- Langage: Python 3.11+
+- Framework: Flask
+- Base de données: PostgreSQL
+- Frontend: Bootstrap CSS + HTML/Jinja2
+- Serveur: Gunicorn
+- Génération PDF: ReportLab
+
+## Fonctionnalités principales
+- Gestion des clients (propriétaires/locataires)
+- Gestion des biens immobiliers
+- Contrats de location
+- Paiements de loyers
+- Génération de quittances PDF
+- Gestion de documents
+- Photos des biens
+- Monnaie: Ouguiya mauritanienne (MRU)
+
+## Installation (si déployé ailleurs)
+pip install -r requirements.txt
+
+## Configuration requise
+- Python 3.11+
+- PostgreSQL
+- Variables d'environnement: DATABASE_URL, SESSION_SECRET
+- Optionnel: SENDGRID_API_KEY pour les emails

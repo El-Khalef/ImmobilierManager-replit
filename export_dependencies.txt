@@ -1,0 +1,26 @@
+# LISTE COMPLÈTE DES DÉPENDANCES - PROJET GESTION IMMOBILIÈRE
+# Format requirements.txt standard pour installation
+
+Flask==3.1.1
+Flask-SQLAlchemy==3.1.1
+Flask-WTF==1.2.2
+WTForms==3.2.1
+Werkzeug==3.1.3
+email-validator==2.2.0
+psycopg2-binary==2.9.10
+SQLAlchemy==2.0.41
+gunicorn==23.0.0
+reportlab==4.4.1
+python-dateutil==2.9.0.post0
+sendgrid==6.12.2
+
+# INSTRUCTIONS D'INSTALLATION :
+# 1. Créer un environnement virtuel : python -m venv venv
+# 2. Activer l'environnement : source venv/bin/activate (Linux/Mac) ou venv\Scripts\activate (Windows)
+# 3. Installer les dépendances : pip install -r requirements.txt
+
+# CONFIGURATION REQUISE :
+# - Python 3.11 ou supérieur
+# - PostgreSQL
+# - Variables d'environnement : DATABASE_URL, SESSION_SECRET
+# - Optionnel : SENDGRID_API_KEY pour l'envoi d'emails
