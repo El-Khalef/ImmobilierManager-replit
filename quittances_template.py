@@ -155,36 +155,39 @@ def _obtenir_positions_champs():
     # Les coordonnées PDF ont l'origine en bas à gauche
     
     return {
-        # Rectangle 5: Position pour numéro après "N° "
-        'numero': {'x': 1431 * 72/96, 'y': PAGE_HEIGHT - (3405 * 72/96)},
+        # Tous les rectangles commencent à x = 7,5 cm selon vos indications
+        # Les positions Y sont calculées selon les coordonnées fournies
         
-        # Section LOCATAIRE (dans le cadre prévu)
-        'nom_locataire': {'x': 50, 'y': PAGE_HEIGHT - 350},
-        'adresse_locataire': {'x': 50, 'y': PAGE_HEIGHT - 370},
-        'telephone_locataire': {'x': 50, 'y': PAGE_HEIGHT - 390},
+        # Rectangle 5: Numéro de quittance
+        'numero': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12*cm},
+        
+        # Section LOCATAIRE (estimation basée sur le modèle)
+        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8*cm},
+        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.5*cm},
+        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9*cm},
         
         # Rectangle 1: Versement effectué par
-        'versement_par': {'x': 1622 * 72/96, 'y': PAGE_HEIGHT - (3417 * 72/96)},
+        'versement_par': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.1*cm},
         
         # Rectangle 2: Montant payé
-        'montant': {'x': 1928 * 72/96, 'y': PAGE_HEIGHT - (3415 * 72/96)},
+        'montant': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.2*cm},
         
         # Rectangle 3: Date de paiement
-        'date_paiement': {'x': 1763 * 72/96, 'y': PAGE_HEIGHT - (3415 * 72/96)},
+        'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.3*cm},
         
-        # Rectangle 4: Bien loué ou mois
-        'bien_loue': {'x': 2262 * 72/96, 'y': PAGE_HEIGHT - (3405 * 72/96)},
-        'mois': {'x': 2262 * 72/96, 'y': PAGE_HEIGHT - (3425 * 72/96)},
+        # Rectangle 4: Bien loué et mois
+        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.4*cm},
+        'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.5*cm},
         
-        # Section commentaire (dans l'espace prévu)
-        'commentaire': {'x': 50, 'y': PAGE_HEIGHT - 500},
+        # Section commentaire
+        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 16*cm},
         
-        # Date en bas (position "le XX/XX/XXXX")
-        'date_actuelle': {'x': 100, 'y': 50},
+        # Date en bas
+        'date_actuelle': {'x': 3*cm, 'y': PAGE_HEIGHT - 22*cm},
         
         # Informations supplémentaires
-        'mode_paiement': {'x': 50, 'y': 30},
-        'reference': {'x': 400, 'y': 30}
+        'mode_paiement': {'x': 2*cm, 'y': PAGE_HEIGHT - 24*cm},
+        'reference': {'x': 10*cm, 'y': PAGE_HEIGHT - 24*cm}
     }
 
 def _generer_donnees_seules(paiement):
