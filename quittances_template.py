@@ -145,32 +145,34 @@ def _creer_overlay_donnees(paiement):
 
 def _obtenir_positions_champs():
     """
-    Définit les positions exactes pour chaque champ selon votre modèle
-    Ces coordonnées doivent être ajustées selon votre modèle PDF exact
+    Positions exactes ajustées selon le modèle PDF fourni
+    Coordonnées précises pour chaque champ de données
     """
     return {
-        # Numéro de quittance (après "N° ")
-        'numero': {'x': 3.5*cm, 'y': PAGE_HEIGHT - 2*cm},
+        # Numéro de quittance (après "N° " en haut à gauche)
+        'numero': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 2.5*cm},
         
-        # Section LOCATAIRE
-        'nom_locataire': {'x': 2.5*cm, 'y': PAGE_HEIGHT - 8.5*cm},
-        'adresse_locataire': {'x': 2.5*cm, 'y': PAGE_HEIGHT - 9*cm},
-        'telephone_locataire': {'x': 2.5*cm, 'y': PAGE_HEIGHT - 9.5*cm},
+        # Section LOCATAIRE (dans le cadre prévu)
+        'nom_locataire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 7*cm},
+        'adresse_locataire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 7.5*cm},
+        'telephone_locataire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 8*cm},
         
-        # Champs de paiement (sur les lignes prévues)
-        'versement_par': {'x': 6*cm, 'y': PAGE_HEIGHT - 11.5*cm},
-        'montant': {'x': 6*cm, 'y': PAGE_HEIGHT - 12.3*cm},
-        'date_paiement': {'x': 6*cm, 'y': PAGE_HEIGHT - 13.1*cm},
-        'bien_loue': {'x': 6*cm, 'y': PAGE_HEIGHT - 13.9*cm},
-        'mois': {'x': 6*cm, 'y': PAGE_HEIGHT - 14.7*cm},
+        # Champs de paiement (alignés sur les lignes du modèle)
+        'versement_par': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 10*cm},
+        'montant': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 11*cm},
+        'date_paiement': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 12*cm},
+        'bien_loue': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 13*cm},
+        'mois': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 14*cm},
         
-        # Section commentaire
-        'commentaire': {'x': 2.5*cm, 'y': PAGE_HEIGHT - 17*cm},
+        # Section commentaire (dans l'espace prévu)
+        'commentaire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 16.5*cm},
         
-        # Informations en bas
-        'date_actuelle': {'x': 8*cm, 'y': PAGE_HEIGHT - 22.5*cm},
-        'mode_paiement': {'x': 2*cm, 'y': PAGE_HEIGHT - 24*cm},
-        'reference': {'x': 8*cm, 'y': PAGE_HEIGHT - 24*cm}
+        # Date en bas (position "le XX/XX/XXXX")
+        'date_actuelle': {'x': 2.5*cm, 'y': PAGE_HEIGHT - 21*cm},
+        
+        # Informations supplémentaires
+        'mode_paiement': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 23*cm},
+        'reference': {'x': 10*cm, 'y': PAGE_HEIGHT - 23*cm}
     }
 
 def _generer_donnees_seules(paiement):
