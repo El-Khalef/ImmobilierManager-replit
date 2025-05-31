@@ -177,7 +177,7 @@ def _obtenir_positions_champs():
         'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 13.7*cm},
         
         # Rectangle 4: Bien loué
-        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 15.3*cm},
+        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 15.1*cm},
         
         # Rectangle 5: Mois
         'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.3*cm},
