@@ -167,17 +167,17 @@ def _obtenir_positions_champs():
         'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9*cm},
         
         # Rectangle 1: Versement effectué par
-        'versement_par': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.1*cm},
+        'versement_par': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 13.5*cm},
         
-        # Rectangle 2: Montant payé
-        'montant': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.2*cm},
+        # Rectangle 2: Montant payé  
+        'montant': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 15*cm},
         
         # Rectangle 3: Date de paiement
-        'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.3*cm},
+        'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.5*cm},
         
-        # Rectangle 4: Bien loué et mois
-        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.4*cm},
-        'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.5*cm},
+        # Rectangle 4: Bien loué et mois (espacés de 1,5 cm)
+        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 18*cm},
+        'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 19.5*cm},
         
         # Section commentaire
         'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 16*cm},
