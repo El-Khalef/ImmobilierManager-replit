@@ -15,6 +15,7 @@ from forms import (
 )
 from quittances import generer_quittance_pdf, generer_nom_fichier_quittance
 from quittances_template import generer_quittance_avec_template_pdf, generer_nom_fichier_quittance_template
+from calibration_positions import generer_grille_calibration, generer_pdf_test_avec_donnees_exemple
 
 
 
@@ -645,6 +646,36 @@ def register_routes(app):
             
         except Exception as e:
             flash(f'Erreur lors de la génération de la quittance: {str(e)}', 'danger')
+            return redirect(url_for('paiements_index'))
+    
+    @app.route('/calibration/grille')
+    def calibration_grille():
+        """Génère une grille de calibration pour positionner les données"""
+        try:
+            pdf_buffer = generer_grille_calibration()
+            
+            response = make_response(pdf_buffer.getvalue())
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = 'inline; filename="grille_calibration.pdf"'
+            
+            return response
+        except Exception as e:
+            flash(f'Erreur lors de la génération de la grille: {str(e)}', 'danger')
+            return redirect(url_for('paiements_index'))
+    
+    @app.route('/calibration/test')
+    def calibration_test():
+        """Génère un PDF de test avec des données d'exemple positionnées"""
+        try:
+            pdf_buffer = generer_pdf_test_avec_donnees_exemple()
+            
+            response = make_response(pdf_buffer.getvalue())
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = 'inline; filename="test_positions.pdf"'
+            
+            return response
+        except Exception as e:
+            flash(f'Erreur lors de la génération du test: {str(e)}', 'danger')
             return redirect(url_for('paiements_index'))
     
 
