@@ -94,7 +94,8 @@ def _dessiner_titre_principal(c):
     
     # Titre français
     c.setFont("Helvetica-Bold", 16)
-    c.drawCentredText(PAGE_WIDTH/2, y, "QUITTANCE DE LOYER")
+    text_width = c.stringWidth("QUITTANCE DE LOYER", "Helvetica-Bold", 16)
+    c.drawString((PAGE_WIDTH - text_width) / 2, y, "QUITTANCE DE LOYER")
     
     # Titre arabe (à droite)
     c.setFont("Helvetica-Bold", 14)
@@ -241,11 +242,15 @@ def _dessiner_signature_bailleur(c):
     y = PAGE_HEIGHT - 20*cm
     
     c.setFont("Helvetica-Bold", 12)
-    c.drawCentredText(x, y, "Mariem CHEIKH BRAHIM")
+    text_width = c.stringWidth("Mariem CHEIKH BRAHIM", "Helvetica-Bold", 12)
+    c.drawString(x - text_width/2, y, "Mariem CHEIKH BRAHIM")
     
     c.setFont("Helvetica", 10)
-    c.drawCentredText(x, y - 0.5*cm, "Bailleur المؤجر")
-    c.drawCentredText(x, y - 1*cm, "+222 45 25 25 25")
+    text_width2 = c.stringWidth("Bailleur المؤجر", "Helvetica", 10)
+    c.drawString(x - text_width2/2, y - 0.5*cm, "Bailleur المؤجر")
+    
+    text_width3 = c.stringWidth("+222 45 25 25 25", "Helvetica", 10)
+    c.drawString(x - text_width3/2, y - 1*cm, "+222 45 25 25 25")
 
 def _dessiner_lieu_date(c):
     """Dessine le lieu et la date"""
