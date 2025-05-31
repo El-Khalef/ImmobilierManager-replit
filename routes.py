@@ -14,7 +14,7 @@ from forms import (
     PaiementForm, SearchForm, DocumentContratForm
 )
 from quittances import generer_quittance_pdf, generer_nom_fichier_quittance
-from quittances_overlay import generer_quittance_overlay_pdf, generer_nom_fichier_quittance_overlay
+from quittances_template import generer_quittance_avec_template_pdf, generer_nom_fichier_quittance_template
 
 
 
@@ -631,9 +631,10 @@ def register_routes(app):
             return redirect(url_for('paiements_index'))
         
         try:
-            # Générer le PDF avec superposition de données uniquement
-            pdf_buffer = generer_quittance_overlay_pdf(paiement)
-            nom_fichier = generer_nom_fichier_quittance_overlay(paiement)
+            # Générer le PDF en utilisant le modèle avec superposition de données
+            chemin_modele = os.path.join(os.path.dirname(__file__), 'modele_quittance.pdf')
+            pdf_buffer = generer_quittance_avec_template_pdf(paiement, chemin_modele)
+            nom_fichier = generer_nom_fichier_quittance_template(paiement)
             
             # Créer la réponse avec le PDF
             response = make_response(pdf_buffer.getvalue())

@@ -363,6 +363,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pypdf2"
+version = "3.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/bb/18dc3062d37db6c491392007dfd1a7f524bb95886eb956569ac38a23a784/PyPDF2-3.0.1.tar.gz", hash = "sha256:a74408f69ba6271f71b9352ef4ed03dc53a31aa404d29b5d31f53bfecfee1440", size = 227419 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8e/5e/c86a5643653825d3c913719e788e41386bee415c2b87b4f955432f2de6b2/pypdf2-3.0.1-py3-none-any.whl", hash = "sha256:d16e4205cfee272fbdc0568b68d82be796540b1537508cef59388f839c191928", size = 232572 },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://pypi.org/simple" }
@@ -394,10 +403,12 @@ dependencies = [
     { name = "flask-wtf" },
     { name = "gunicorn" },
     { name = "psycopg2-binary" },
+    { name = "pypdf2" },
     { name = "python-dateutil" },
     { name = "reportlab" },
     { name = "sendgrid" },
     { name = "sqlalchemy" },
+    { name = "translations" },
     { name = "werkzeug" },
     { name = "wtforms" },
 ]
@@ -410,10 +421,12 @@ requires-dist = [
     { name = "flask-wtf", specifier = ">=1.2.2" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
+    { name = "pypdf2", specifier = ">=3.0.1" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "reportlab", specifier = ">=4.4.1" },
     { name = "sendgrid", specifier = ">=6.12.2" },
     { name = "sqlalchemy", specifier = ">=2.0.41" },
+    { name = "translations", specifier = ">=0.1.3" },
     { name = "werkzeug", specifier = ">=3.1.3" },
     { name = "wtforms", specifier = ">=3.2.1" },
 ]
@@ -490,6 +503,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/61/e8c1b9b6307c57157d328dd8b8348ddc4c47ffdf1279365a13b2b98b8049/sqlalchemy-2.0.41-cp313-cp313-win_amd64.whl", hash = "sha256:82ca366a844eb551daff9d2e6e7a9e5e76d2612c8564f58db6c19a726869c1df", size = 2108329 },
     { url = "https://files.pythonhosted.org/packages/1c/fc/9ba22f01b5cdacc8f5ed0d22304718d2c758fce3fd49a5372b886a86f37c/sqlalchemy-2.0.41-py3-none-any.whl", hash = "sha256:57df5dc6fdb5ed1a88a1ed2195fd31927e705cad62dedd86b46972752a80f576", size = 1911224 },
 ]
+
+[[package]]
+name = "translations"
+version = "0.1.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/dd/a7/eff70cec74687a444fc3b982ac83e328e2c10172f1f128dafa441ddcd5fc/translations-0.1.3.tar.gz", hash = "sha256:75ee7ba0069b0b828beafecf3255eb09841685dadbf30254d82ee2d3432a7666", size = 4867 }
 
 [[package]]
 name = "typing-extensions"
