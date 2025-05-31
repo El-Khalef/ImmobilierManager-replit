@@ -158,26 +158,29 @@ def _obtenir_positions_champs():
         # Tous les rectangles commencent à x = 7,5 cm selon vos indications
         # Les positions Y sont calculées selon les coordonnées fournies
         
-        # Rectangle 5: Numéro de quittance
-        'numero': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12*cm},
+        # Numéro de quittance (pas dans les rectangles bleus)
+        'numero': {'x': 1*cm, 'y': PAGE_HEIGHT - 2.5*cm},
         
-        # Section LOCATAIRE (estimation basée sur le modèle)
+        # Section LOCATAIRE (pas dans les rectangles bleus)
         'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8*cm},
         'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.5*cm},
         'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9*cm},
         
+        # LES 5 RECTANGLES BLEUS (x=7.5cm, espacés de 1.5cm en hauteur)
         # Rectangle 1: Versement effectué par
-        'versement_par': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 13.5*cm},
+        'versement_par': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12*cm},
         
         # Rectangle 2: Montant payé  
-        'montant': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 15*cm},
+        'montant': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 13.5*cm},
         
         # Rectangle 3: Date de paiement
-        'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.5*cm},
+        'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 15*cm},
         
-        # Rectangle 4: Bien loué et mois (espacés de 1,5 cm)
-        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 18*cm},
-        'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 19.5*cm},
+        # Rectangle 4: Bien loué
+        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.5*cm},
+        
+        # Rectangle 5: Mois
+        'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 18*cm},
         
         # Section commentaire
         'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 16*cm},
