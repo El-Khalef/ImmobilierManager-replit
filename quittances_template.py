@@ -162,9 +162,9 @@ def _obtenir_positions_champs():
         'numero': {'x': 1*cm, 'y': PAGE_HEIGHT - 2.5*cm},
         
         # Section LOCATAIRE (pas dans les rectangles bleus)
-        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8*cm},
-        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.5*cm},
-        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9*cm},
+        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.2*cm},
+        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.7*cm},
+        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9.2*cm},
         
         # LES 5 RECTANGLES BLEUS (x=7.5cm, positions finement ajustées)
         # Rectangle 1: Versement effectué par
