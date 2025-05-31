@@ -14,7 +14,7 @@ from forms import (
     PaiementForm, SearchForm, DocumentContratForm
 )
 from quittances import generer_quittance_pdf, generer_nom_fichier_quittance
-from quittances_positioned import generer_quittance_positioned_pdf, generer_nom_fichier_quittance_positioned
+from quittances_overlay import generer_quittance_overlay_pdf, generer_nom_fichier_quittance_overlay
 
 
 
@@ -631,9 +631,9 @@ def register_routes(app):
             return redirect(url_for('paiements_index'))
         
         try:
-            # Générer le PDF avec positionnement précis
-            pdf_buffer = generer_quittance_positioned_pdf(paiement)
-            nom_fichier = generer_nom_fichier_quittance_positioned(paiement)
+            # Générer le PDF avec superposition de données uniquement
+            pdf_buffer = generer_quittance_overlay_pdf(paiement)
+            nom_fichier = generer_nom_fichier_quittance_overlay(paiement)
             
             # Créer la réponse avec le PDF
             response = make_response(pdf_buffer.getvalue())
