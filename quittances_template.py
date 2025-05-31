@@ -145,34 +145,46 @@ def _creer_overlay_donnees(paiement):
 
 def _obtenir_positions_champs():
     """
-    Positions exactes ajustées selon le modèle PDF fourni
-    Coordonnées précises pour chaque champ de données
+    Positions exactes basées sur les coordonnées des rectangles identifiés
+    Rectangle 1: 1622, 3417, 71, 31 - Rectangle 2: 1928, 3415, 52, 22
+    Rectangle 3: 1763, 3415, 67, 22 - Rectangle 4: 2262, 3405, 56, 43
+    Rectangle 5: 1431, 3405, 62, 32
     """
+    
+    # Conversion des coordonnées pixel vers points PDF (72 points par pouce)
+    # Les coordonnées PDF ont l'origine en bas à gauche
+    
     return {
-        # Numéro de quittance (après "N° " en haut à gauche)
-        'numero': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 2.5*cm},
+        # Rectangle 5: Position pour numéro après "N° "
+        'numero': {'x': 1431 * 72/96, 'y': PAGE_HEIGHT - (3405 * 72/96)},
         
         # Section LOCATAIRE (dans le cadre prévu)
-        'nom_locataire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 7*cm},
-        'adresse_locataire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 7.5*cm},
-        'telephone_locataire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 8*cm},
+        'nom_locataire': {'x': 50, 'y': PAGE_HEIGHT - 350},
+        'adresse_locataire': {'x': 50, 'y': PAGE_HEIGHT - 370},
+        'telephone_locataire': {'x': 50, 'y': PAGE_HEIGHT - 390},
         
-        # Champs de paiement (alignés sur les lignes du modèle)
-        'versement_par': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 10*cm},
-        'montant': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 11*cm},
-        'date_paiement': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 12*cm},
-        'bien_loue': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 13*cm},
-        'mois': {'x': 4.5*cm, 'y': PAGE_HEIGHT - 14*cm},
+        # Rectangle 1: Versement effectué par
+        'versement_par': {'x': 1622 * 72/96, 'y': PAGE_HEIGHT - (3417 * 72/96)},
+        
+        # Rectangle 2: Montant payé
+        'montant': {'x': 1928 * 72/96, 'y': PAGE_HEIGHT - (3415 * 72/96)},
+        
+        # Rectangle 3: Date de paiement
+        'date_paiement': {'x': 1763 * 72/96, 'y': PAGE_HEIGHT - (3415 * 72/96)},
+        
+        # Rectangle 4: Bien loué ou mois
+        'bien_loue': {'x': 2262 * 72/96, 'y': PAGE_HEIGHT - (3405 * 72/96)},
+        'mois': {'x': 2262 * 72/96, 'y': PAGE_HEIGHT - (3425 * 72/96)},
         
         # Section commentaire (dans l'espace prévu)
-        'commentaire': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 16.5*cm},
+        'commentaire': {'x': 50, 'y': PAGE_HEIGHT - 500},
         
         # Date en bas (position "le XX/XX/XXXX")
-        'date_actuelle': {'x': 2.5*cm, 'y': PAGE_HEIGHT - 21*cm},
+        'date_actuelle': {'x': 100, 'y': 50},
         
         # Informations supplémentaires
-        'mode_paiement': {'x': 1.5*cm, 'y': PAGE_HEIGHT - 23*cm},
-        'reference': {'x': 10*cm, 'y': PAGE_HEIGHT - 23*cm}
+        'mode_paiement': {'x': 50, 'y': 30},
+        'reference': {'x': 400, 'y': 30}
     }
 
 def _generer_donnees_seules(paiement):
