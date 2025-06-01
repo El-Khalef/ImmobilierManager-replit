@@ -122,7 +122,7 @@ class ContratForm(FlaskForm):
         # Charger les biens disponibles (qui n'ont pas de contrat actif)
         biens_avec_contrat_actif = db.session.query(ContratLocation.bien_id).filter(
             ContratLocation.statut == 'actif'
-        ).subquery()
+        )
         
         biens_disponibles = BienImmobilier.query.filter(
             ~BienImmobilier.id.in_(biens_avec_contrat_actif)

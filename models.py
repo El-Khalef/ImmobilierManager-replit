@@ -5,6 +5,13 @@ from datetime import datetime, date
 from app import db
 
 
+def formater_montant(montant):
+    """Formate un montant avec des espaces comme séparateurs de milliers"""
+    if montant is None:
+        return "0"
+    return f"{montant:,.2f}".replace(",", " ").replace(".", ",").rstrip("0").rstrip(",")
+
+
 class Client(db.Model):
     """Modèle pour les clients (propriétaires, locataires, acheteurs)"""
     __tablename__ = 'clients'
