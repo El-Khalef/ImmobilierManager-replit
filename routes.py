@@ -513,7 +513,7 @@ def register_routes(app):
     @app.route('/documents/')
     def documents_index():
         """Liste des documents"""
-        documents = DocumentContrat.query.order_by(DocumentContrat.date_ajout.desc()).all()
+        documents = DocumentContrat.query.order_by(DocumentContrat.date_upload.desc()).all()
         return render_template('documents/index.html', documents=documents)
     
     @app.route('/documents/add', methods=['GET', 'POST'])
