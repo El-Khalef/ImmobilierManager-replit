@@ -178,11 +178,15 @@ class DocumentContrat(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     contrat_id = db.Column(db.Integer, db.ForeignKey('contrats_location.id'), nullable=False)
-    type_document = db.Column(db.String(50), nullable=False)
     nom_fichier = db.Column(db.String(255), nullable=False)
-    chemin_fichier = db.Column(db.String(500), nullable=False)
+    nom_original = db.Column(db.String(255))
+    type_document = db.Column(db.String(50), nullable=False)
+    format_fichier = db.Column(db.String(10))
+    taille_fichier = db.Column(db.Integer)
+    chemin_stockage = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text)
-    date_upload = db.Column(db.DateTime, default=datetime.utcnow)
+    date_ajout = db.Column(db.DateTime, default=datetime.utcnow)
+    ajoute_par = db.Column(db.String(100))
     
     def __repr__(self):
         return f'<DocumentContrat {self.nom_fichier}>'
