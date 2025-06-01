@@ -159,7 +159,7 @@
                                         <td>{{ bien.ville }}</td>
                                         <td>
                                             {% if bien.prix_location_mensuel %}
-                                                {{ "%.0f"|format(bien.prix_location_mensuel) }} MRU
+                                                {{ formater_montant(bien.prix_location_mensuel) }} MRU
                                             {% else %}
                                                 -
                                             {% endif %}
@@ -218,7 +218,7 @@
                                                 <br>au {{ contrat.date_fin.strftime('%d/%m/%Y') }}
                                             {% endif %}
                                         </td>
-                                        <td>{{ "%.0f"|format(contrat.loyer_total) }} MRU</td>
+                                        <td>{{ formater_montant(contrat.loyer_total) }} MRU</td>
                                         <td>
                                             <span class="badge bg-{{ 'success' if contrat.statut == 'actif' else 'secondary' }}">
                                                 {{ contrat.statut }}

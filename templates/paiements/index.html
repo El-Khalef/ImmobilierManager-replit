@@ -122,11 +122,11 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <strong>{{ "%.2f"|format(paiement.montant_total) }} MRU</strong>
+                                        <strong>{{ formater_montant(paiement.montant_total) }} MRU</strong>
                                         <br><small class="text-muted">
-                                            Loyer: {{ "%.0f"|format(paiement.montant_loyer) }} MRU
+                                            Loyer: {{ formater_montant(paiement.montant_loyer) }} MRU
                                             {% if paiement.montant_charges > 0 %}
-                                                + {{ "%.0f"|format(paiement.montant_charges) }} MRU charges
+                                                + {{ formater_montant(paiement.montant_charges) }} MRU charges
                                             {% endif %}
                                         </small>
                                     </div>

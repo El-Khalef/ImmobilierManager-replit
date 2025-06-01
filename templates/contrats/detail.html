@@ -104,24 +104,24 @@
                         <table class="table table-borderless">
                             <tr>
                                 <td><strong>Loyer mensuel :</strong></td>
-                                <td>{{ "%.2f"|format(contrat.loyer_mensuel) }} MRU</td>
+                                <td>{{ formater_montant(contrat.loyer_mensuel) }} MRU</td>
                             </tr>
                             <tr>
                                 <td><strong>Charges :</strong></td>
-                                <td>{{ "%.2f"|format(contrat.charges_mensuelles) }} MRU</td>
+                                <td>{{ formater_montant(contrat.charges_mensuelles) }} MRU</td>
                             </tr>
                             <tr>
                                 <td><strong>Total mensuel :</strong></td>
-                                <td><strong>{{ "%.2f"|format(contrat.loyer_total) }} MRU</strong></td>
+                                <td><strong>{{ formater_montant(contrat.loyer_total) }} MRU</strong></td>
                             </tr>
                             <tr>
                                 <td><strong>Dépôt de garantie :</strong></td>
-                                <td>{{ "%.2f"|format(contrat.depot_garantie) }} MRU</td>
+                                <td>{{ formater_montant(contrat.depot_garantie) }} MRU</td>
                             </tr>
                             {% if contrat.frais_agence and contrat.frais_agence > 0 %}
                                 <tr>
                                     <td><strong>Frais d'agence :</strong></td>
-                                    <td>{{ "%.2f"|format(contrat.frais_agence) }} MRU</td>
+                                    <td>{{ formater_montant(contrat.frais_agence) }} MRU</td>
                                 </tr>
                             {% endif %}
                         </table>

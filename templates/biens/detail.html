@@ -220,13 +220,13 @@
             </div>
             <div class="card-body">
                 {% if bien.prix_achat %}
-                    <p><strong>Prix d'achat :</strong> {{ "%.2f"|format(bien.prix_achat) }} MRU</p>
+                    <p><strong>Prix d'achat :</strong> {{ formater_montant(bien.prix_achat) }} MRU</p>
                 {% endif %}
                 {% if bien.prix_location_mensuel %}
-                    <p><strong>Loyer mensuel :</strong> {{ "%.2f"|format(bien.prix_location_mensuel) }} MRU</p>
+                    <p><strong>Loyer mensuel :</strong> {{ formater_montant(bien.prix_location_mensuel) }} MRU</p>
                 {% endif %}
                 {% if bien.charges_mensuelles %}
-                    <p><strong>Charges :</strong> {{ "%.2f"|format(bien.charges_mensuelles) }} MRU</p>
+                    <p><strong>Charges :</strong> {{ formater_montant(bien.charges_mensuelles) }} MRU</p>
                 {% endif %}
             </div>
         </div>
