@@ -63,6 +63,9 @@ class BienImmobilier(db.Model):
     proprietaire_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # Relations
+    proprietaire = db.relationship('Client', backref='biens_possedes')
+    
     def __repr__(self):
         return f'<BienImmobilier {self.titre}>'
     
@@ -82,11 +85,15 @@ class ContratLocation(db.Model):
     date_fin = db.Column(db.Date)
     loyer_mensuel = db.Column(db.Float, nullable=False)
     charges_mensuelles = db.Column(db.Float, default=0)
-    depot_garantie = db.Column(db.Float)
-    frais_agence = db.Column(db.Float)
+    depot_garantie = db.Column(db.Float, default=0)
+    frais_agence = db.Column(db.Float, default=0)
     statut = db.Column(db.String(20), default='actif')  # actif, termine, suspendu
     conditions_particulieres = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relations
+    bien = db.relationship('BienImmobilier', backref='contrats')
+    locataire = db.relationship('Client', backref='contrats_locataire')
     
     def __repr__(self):
         return f'<ContratLocation {self.id}>'
@@ -94,14 +101,6 @@ class ContratLocation(db.Model):
     @property
     def loyer_total(self):
         return self.loyer_mensuel + (self.charges_mensuelles or 0)
-    
-    @property
-    def bien(self):
-        return BienImmobilier.query.get(self.bien_id)
-    
-    @property
-    def locataire(self):
-        return Client.query.get(self.locataire_id)
 
 
 class PaiementLoyer(db.Model):
@@ -122,6 +121,9 @@ class PaiementLoyer(db.Model):
     remarques = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # Relations
+    contrat = db.relationship('ContratLocation', backref='paiements')
+    
     def __repr__(self):
         return f'<PaiementLoyer {self.mois}/{self.annee} - {self.statut}>'
     
@@ -130,20 +132,14 @@ class PaiementLoyer(db.Model):
         return self.montant_loyer + (self.montant_charges or 0)
     
     @property
-    def contrat(self):
-        return ContratLocation.query.get(self.contrat_id)
-    
-    @property
     def client(self):
         """Accès au client via le contrat"""
-        contrat = self.contrat
-        return contrat.locataire if contrat else None
+        return self.contrat.locataire if self.contrat else None
     
     @property 
     def bien(self):
         """Accès au bien via le contrat"""
-        contrat = self.contrat
-        return contrat.bien if contrat else None
+        return self.contrat.bien if self.contrat else None
     
     @property
     def periode(self):
