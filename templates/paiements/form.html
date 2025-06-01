@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const chargesMensuelles = parseFloat(selectedOption.dataset.chargesMensuelles);
             const contratId = selectedOption.dataset.contratId;
             
-            bienDetails.textContent = `Loyer: ${loyerMensuel.toFixed(2)}€ + Charges: ${chargesMensuelles.toFixed(2)}€ = Total: ${(loyerMensuel + chargesMensuelles).toFixed(2)}€`;
+            bienDetails.textContent = `Loyer: ${loyerMensuel.toFixed(2)} MRU + Charges: ${chargesMensuelles.toFixed(2)} MRU = Total: ${(loyerMensuel + chargesMensuelles).toFixed(2)} MRU`;
             bienInfo.style.display = 'block';
             
             // Pré-remplir les montants

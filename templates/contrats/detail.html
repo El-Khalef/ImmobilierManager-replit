@@ -163,7 +163,7 @@
                                 {% for paiement in contrat.paiements|sort(attribute='annee,mois', reverse=true) %}
                                     <tr class="{{ 'table-danger' if paiement.est_en_retard }}">
                                         <td>{{ paiement.periode }}</td>
-                                        <td>{{ "%.2f"|format(paiement.montant_total) }} MRU</td>
+                                        <td>{{ formater_montant(paiement.montant_total) }} MRU</td>
                                         <td>{{ paiement.date_echeance.strftime('%d/%m/%Y') }}</td>
                                         <td>
                                             {% if paiement.date_paiement %}

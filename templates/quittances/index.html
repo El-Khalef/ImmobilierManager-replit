@@ -69,11 +69,11 @@
                                         </td>
                                         <td>
                                             {% set total = paiement.montant_loyer + paiement.montant_charges %}
-                                            <strong>{{ "{:,.0f}".format(total).replace(',', ' ') }} MRU</strong>
+                                            <strong>{{ formater_montant(total) }} MRU</strong>
                                             {% if paiement.montant_charges > 0 %}
                                                 <br><small class="text-muted">
-                                                    Loyer: {{ "{:,.0f}".format(paiement.montant_loyer).replace(',', ' ') }} MRU + 
-                                                    Charges: {{ "{:,.0f}".format(paiement.montant_charges).replace(',', ' ') }} MRU
+                                                    Loyer: {{ formater_montant(paiement.montant_loyer) }} MRU + 
+                                                    Charges: {{ formater_montant(paiement.montant_charges) }} MRU
                                                 </small>
                                             {% endif %}
                                         </td>

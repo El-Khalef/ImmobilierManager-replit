@@ -106,11 +106,11 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <strong>{{ "%.0f"|format(contrat.loyer_total) }} MRU</strong>
+                                        <strong>{{ formater_montant(contrat.loyer_total) }} MRU</strong>
                                         <br><small class="text-muted">
-                                            Loyer: {{ "%.0f"|format(contrat.loyer_mensuel) }} MRU
+                                            Loyer: {{ formater_montant(contrat.loyer_mensuel) }} MRU
                                             {% if contrat.charges_mensuelles > 0 %}
-                                                + {{ "%.0f"|format(contrat.charges_mensuelles) }} MRU charges
+                                                + {{ formater_montant(contrat.charges_mensuelles) }} MRU charges
                                             {% endif %}
                                         </small>
                                     </div>
