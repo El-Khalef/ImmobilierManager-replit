@@ -16,7 +16,11 @@
             <span class="badge bg-{{ 'primary' if client.type_client == 'proprietaire' else 'success' if client.type_client == 'locataire' else 'info' }} me-2">
                 {{ client.type_client }}
             </span>
-            Client depuis le {{ client.date_creation.strftime('%d/%m/%Y') }}
+            {% if client.date_creation %}
+                Client depuis le {{ client.date_creation.strftime('%d/%m/%Y') }}
+            {% else %}
+                Client enregistré
+            {% endif %}
         </p>
     </div>
     <div class="col-md-4 text-end">
