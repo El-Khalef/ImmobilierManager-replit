@@ -188,6 +188,9 @@ class DocumentContrat(db.Model):
     date_ajout = db.Column(db.DateTime, default=datetime.utcnow)
     ajoute_par = db.Column(db.String(100))
     
+    # Relations
+    contrat = db.relationship('ContratLocation', backref='documents')
+    
     def __repr__(self):
         return f'<DocumentContrat {self.nom_fichier}>'
 
