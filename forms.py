@@ -8,6 +8,7 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
 from wtforms.widgets import TextArea
 from models import Client, BienImmobilier, ContratLocation
+from app import db
 
 
 class ClientForm(FlaskForm):
@@ -118,10 +119,18 @@ class ContratForm(FlaskForm):
     
     def __init__(self, *args, **kwargs):
         super(ContratForm, self).__init__(*args, **kwargs)
-        # Charger les biens disponibles
+        # Charger les biens disponibles (qui n'ont pas de contrat actif)
+        biens_avec_contrat_actif = db.session.query(ContratLocation.bien_id).filter(
+            ContratLocation.statut == 'actif'
+        ).subquery()
+        
+        biens_disponibles = BienImmobilier.query.filter(
+            ~BienImmobilier.id.in_(biens_avec_contrat_actif)
+        ).all()
+        
         self.bien_id.choices = [
             (bien.id, f"{bien.titre} - {bien.adresse_complete}") 
-            for bien in BienImmobilier.query.filter_by(disponible=True).all()
+            for bien in biens_disponibles
         ]
         # Charger les locataires
         self.locataire_id.choices = [
