@@ -97,7 +97,8 @@ def _creer_overlay_donnees(paiement):
     
     # Montant payé
     montant_total = paiement.montant_loyer + (paiement.montant_charges or 0)
-    c.drawString(positions['montant']['x'], positions['montant']['y'], f"{montant_total:,.0f} MRU")
+    montant_formate = f"{montant_total:,.0f}".replace(",", " ")
+    c.drawString(positions['montant']['x'], positions['montant']['y'], f"{montant_formate} MRU")
     
     # Date de paiement
     if paiement.date_paiement:
