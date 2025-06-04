@@ -156,38 +156,37 @@ def _obtenir_positions_champs():
     # Les coordonnées PDF ont l'origine en bas à gauche
     
     return {
-        # Tous les rectangles commencent à x = 7,5 cm selon vos indications
-        # Les positions Y sont calculées selon les coordonnées fournies
+        # Positions pour le nouveau modèle ASER SERVICES bilingue
         
-        # Numéro de quittance (pas dans les rectangles bleus)
-        'numero': {'x': 1*cm, 'y': PAGE_HEIGHT - 2.5*cm},
+        # Numéro de quittance (en haut à droite)
+        'numero': {'x': 18*cm, 'y': PAGE_HEIGHT - 2.5*cm},
         
-        # Section LOCATAIRE (pas dans les rectangles bleus)
-        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.2*cm},
-        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.7*cm},
-        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9.2*cm},
+        # Section LOCATAIRE
+        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 6*cm},
+        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 6.5*cm},
+        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 7*cm},
         
-        # LES 5 RECTANGLES BLEUS (x=7.5cm, positions finement ajustées)
-        # Rectangle 1: Versement effectué par
-        'versement_par': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 11.3*cm},
+        # Champs de paiement selon le nouveau modèle
+        # Versement effectué par
+        'versement_par': {'x': 8*cm, 'y': PAGE_HEIGHT - 9*cm},
         
-        # Rectangle 2: Montant payé  
-        'montant': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.5*cm},
+        # Montant payé  
+        'montant': {'x': 8*cm, 'y': PAGE_HEIGHT - 10.5*cm},
         
-        # Rectangle 3: Date de paiement
-        'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 13.7*cm},
+        # En date du (Date de paiement)
+        'date_paiement': {'x': 8*cm, 'y': PAGE_HEIGHT - 12*cm},
         
-        # Rectangle 4: Bien loué
-        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 15.1*cm},
+        # Loyer du bien suivant
+        'bien_loue': {'x': 8*cm, 'y': PAGE_HEIGHT - 13.5*cm},
         
-        # Rectangle 5: Mois
-        'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.3*cm},
+        # Au titre du mois de
+        'mois': {'x': 8*cm, 'y': PAGE_HEIGHT - 15*cm},
         
         # Section commentaire
-        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 16*cm},
+        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 17*cm},
         
-        # Date en bas
-        'date_actuelle': {'x': 3*cm, 'y': PAGE_HEIGHT - 22*cm},
+        # Date en bas (le : / /20)
+        'date_actuelle': {'x': 3*cm, 'y': PAGE_HEIGHT - 25*cm},
         
         # Informations supplémentaires
         'mode_paiement': {'x': 2*cm, 'y': PAGE_HEIGHT - 24*cm},
