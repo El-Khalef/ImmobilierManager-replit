@@ -159,7 +159,7 @@ def _obtenir_positions_champs():
         # Positions pour le nouveau modèle ASER SERVICES bilingue
         
         # Numéro de quittance (en haut à droite)
-        'numero': {'x': 18*cm, 'y': PAGE_HEIGHT - 2.8*cm},
+        'numero': {'x': 20*cm, 'y': PAGE_HEIGHT - 2.8*cm},
         
         # Section LOCATAIRE
         'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.2*cm},
@@ -183,7 +183,7 @@ def _obtenir_positions_champs():
         'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.3*cm},
         
         # Section commentaire
-        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 17*cm},
+        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 21*cm},
         
         # Date en bas (le : / /20)
         'date_actuelle': {'x': 3*cm, 'y': PAGE_HEIGHT - 25*cm},
