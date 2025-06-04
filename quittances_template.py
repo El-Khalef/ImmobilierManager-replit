@@ -159,7 +159,7 @@ def _obtenir_positions_champs():
         # Positions pour le nouveau modèle ASER SERVICES bilingue
         
         # Numéro de quittance (en haut à droite)
-        'numero': {'x': 18*cm, 'y': PAGE_HEIGHT - 2.7*cm},
+        'numero': {'x': 18*cm, 'y': PAGE_HEIGHT - 2.8*cm},
         
         # Section LOCATAIRE
         'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.2*cm},
