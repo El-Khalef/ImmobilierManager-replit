@@ -183,7 +183,7 @@ def _obtenir_positions_champs():
         'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.3*cm},
         
         # Section commentaire
-        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 20.2*cm},
+        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 19.4*cm},
         
         # Date en bas (le : / /20)
         'date_actuelle': {'x': 3*cm, 'y': PAGE_HEIGHT - 25*cm},
