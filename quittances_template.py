@@ -175,7 +175,7 @@ def _obtenir_positions_champs():
         
         # Champs de paiement (rectangles à remplir)
         # Versement effectué par
-        'versement_par': {'x': 6.5*cm, 'y': PAGE_HEIGHT - 11.5*cm},
+        'versement_par': {'x': 7*cm, 'y': PAGE_HEIGHT - 11.5*cm},
         
         # Montant payé  
         'montant': {'x': 10*cm, 'y': PAGE_HEIGHT - 12.8*cm},
