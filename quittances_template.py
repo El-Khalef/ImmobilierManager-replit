@@ -181,13 +181,13 @@ def _obtenir_positions_champs():
         'montant': {'x': 10*cm, 'y': PAGE_HEIGHT - 12.6*cm},
         
         # En date du
-        'date_paiement': {'x': 10*cm, 'y': PAGE_HEIGHT - 13.9*cm},
+        'date_paiement': {'x': 10*cm, 'y': PAGE_HEIGHT - 13.8*cm},
         
         # Loyer du bien suivant
-        'bien_loue': {'x': 10*cm, 'y': PAGE_HEIGHT - 15.2*cm},
+        'bien_loue': {'x': 10*cm, 'y': PAGE_HEIGHT - 15.1*cm},
         
         # Au titre du mois de
-        'mois': {'x': 10*cm, 'y': PAGE_HEIGHT - 16.5*cm},
+        'mois': {'x': 10*cm, 'y': PAGE_HEIGHT - 16.4*cm},
         
         # Mode & Réf. de paiement
         'mode_paiement': {'x': 10*cm, 'y': PAGE_HEIGHT - 17.8*cm},
