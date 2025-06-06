@@ -166,7 +166,7 @@ def _obtenir_positions_champs():
         # Positions pour le nouveau modèle ASER SERVICES model_quittance_loyer.pdf
         
         # Numéro de quittance (en haut à droite, après "N°")
-        'numero': {'x': 16*cm, 'y': PAGE_HEIGHT - 5.8*cm},
+        'numero': {'x': 13*cm, 'y': PAGE_HEIGHT - 5.8*cm},
         
         # Section LOCATAIRE (sous "LOCATAIRE")
         'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.3*cm},
