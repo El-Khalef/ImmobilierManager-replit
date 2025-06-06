@@ -196,10 +196,10 @@ def _obtenir_positions_champs():
         'commentaire': {'x': 1.7*cm, 'y': PAGE_HEIGHT - 20.5*cm},
         
         # Date en bas (après "le :")
-        'date_actuelle': {'x': 4*cm, 'y': PAGE_HEIGHT - 25.5*cm},
+        'date_actuelle': {'x': 2*cm, 'y': PAGE_HEIGHT - 23.5*cm},
         
         # Lieu (après "Fait à :")
-        'lieu': {'x': 8*cm, 'y': PAGE_HEIGHT - 25*cm}
+        'lieu': {'x': 6*cm, 'y': PAGE_HEIGHT - 23*cm}
     }
 
 def _generer_donnees_seules(paiement):
