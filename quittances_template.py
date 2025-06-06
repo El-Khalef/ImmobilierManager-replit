@@ -193,7 +193,7 @@ def _obtenir_positions_champs():
         'mode_paiement': {'x': 10*cm, 'y': PAGE_HEIGHT - 17.8*cm},
         
         # Section COMMENTAIRE
-        'commentaire': {'x': 1.8*cm, 'y': PAGE_HEIGHT - 20.5*cm},
+        'commentaire': {'x': 1.7*cm, 'y': PAGE_HEIGHT - 20.5*cm},
         
         # Date en bas (après "le :")
         'date_actuelle': {'x': 4*cm, 'y': PAGE_HEIGHT - 25.5*cm},
