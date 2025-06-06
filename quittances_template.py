@@ -117,28 +117,35 @@ def _creer_overlay_donnees(paiement):
     mois_str = f"{mois_noms[paiement.mois - 1]} {paiement.annee}"
     c.drawString(positions['mois']['x'], positions['mois']['y'], mois_str)
     
+    # Mode & Réf. de paiement
+    mode_ref = ""
+    if paiement.mode_paiement:
+        mode_ref = paiement.mode_paiement
+    if paiement.reference_paiement:
+        if mode_ref:
+            mode_ref += f" - Réf: {paiement.reference_paiement}"
+        else:
+            mode_ref = f"Réf: {paiement.reference_paiement}"
+    
+    if mode_ref:
+        c.drawString(positions['mode_paiement']['x'], positions['mode_paiement']['y'], mode_ref)
+    
     # 4. COMMENTAIRES
     if paiement.remarques:
         c.setFont("Helvetica", 10)
         # Limiter le commentaire pour qu'il tienne dans l'espace prévu
-        commentaire = paiement.remarques[:80]
+        commentaire = paiement.remarques[:100]
         c.drawString(positions['commentaire']['x'], positions['commentaire']['y'], commentaire)
     
-    # 5. DATE ACTUELLE
+    # 5. DATE ET LIEU EN BAS
     c.setFont("Helvetica", 10)
+    
+    # Date actuelle
     date_actuelle = datetime.now().strftime('%d/%m/%Y')
     c.drawString(positions['date_actuelle']['x'], positions['date_actuelle']['y'], date_actuelle)
     
-    # 6. INFORMATIONS SUPPLÉMENTAIRES (optionnelles)
-    c.setFont("Helvetica", 9)
-    
-    # Mode de paiement
-    if paiement.mode_paiement:
-        c.drawString(positions['mode_paiement']['x'], positions['mode_paiement']['y'], paiement.mode_paiement)
-    
-    # Référence de paiement
-    if paiement.reference_paiement:
-        c.drawString(positions['reference']['x'], positions['reference']['y'], paiement.reference_paiement)
+    # Lieu (Nouakchott par défaut)
+    c.drawString(positions['lieu']['x'], positions['lieu']['y'], "Nouakchott")
     
     c.save()
     buffer.seek(0)
@@ -156,41 +163,43 @@ def _obtenir_positions_champs():
     # Les coordonnées PDF ont l'origine en bas à gauche
     
     return {
-        # Positions pour le nouveau modèle ASER SERVICES bilingue
+        # Positions pour le nouveau modèle ASER SERVICES model_quittance_loyer.pdf
         
-        # Numéro de quittance (en haut à droite)
-        'numero': {'x': 18.2*cm, 'y': PAGE_HEIGHT - 2.8*cm},
+        # Numéro de quittance (en haut à droite, après "N°")
+        'numero': {'x': 19*cm, 'y': PAGE_HEIGHT - 5.8*cm},
         
-        # Section LOCATAIRE
-        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.2*cm},
-        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.7*cm},
-        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9.2*cm},
+        # Section LOCATAIRE (sous "LOCATAIRE")
+        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.5*cm},
+        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9*cm},
+        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9.5*cm},
         
-        # Champs de paiement selon le nouveau modèle
-        # Rectangle 1: Versement effectué par
-        'versement_par': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 11.3*cm},
+        # Champs de paiement (rectangles à remplir)
+        # Versement effectué par
+        'versement_par': {'x': 10*cm, 'y': PAGE_HEIGHT - 11.5*cm},
         
-        # Rectangle 2: Montant payé  
-        'montant': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 12.5*cm},
+        # Montant payé  
+        'montant': {'x': 10*cm, 'y': PAGE_HEIGHT - 12.8*cm},
         
-        # Rectangle 3: Date de paiement
-        'date_paiement': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 13.7*cm},
+        # En date du
+        'date_paiement': {'x': 10*cm, 'y': PAGE_HEIGHT - 14.1*cm},
         
-        # Rectangle 4: Bien loué
-        'bien_loue': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 15.1*cm},
+        # Loyer du bien suivant
+        'bien_loue': {'x': 10*cm, 'y': PAGE_HEIGHT - 15.4*cm},
         
-        # Rectangle 5: Mois
-        'mois': {'x': 7.5*cm, 'y': PAGE_HEIGHT - 16.3*cm},
+        # Au titre du mois de
+        'mois': {'x': 10*cm, 'y': PAGE_HEIGHT - 16.7*cm},
         
-        # Section commentaire
-        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 19.4*cm},
+        # Mode & Réf. de paiement
+        'mode_paiement': {'x': 10*cm, 'y': PAGE_HEIGHT - 18*cm},
         
-        # Date en bas (le : / /20)
-        'date_actuelle': {'x': 3*cm, 'y': PAGE_HEIGHT - 25*cm},
+        # Section COMMENTAIRE
+        'commentaire': {'x': 2*cm, 'y': PAGE_HEIGHT - 20.5*cm},
         
-        # Informations supplémentaires
-        'mode_paiement': {'x': 2*cm, 'y': PAGE_HEIGHT - 24*cm},
-        'reference': {'x': 10*cm, 'y': PAGE_HEIGHT - 24*cm}
+        # Date en bas (après "le :")
+        'date_actuelle': {'x': 4*cm, 'y': PAGE_HEIGHT - 25.5*cm},
+        
+        # Lieu (après "Fait à :")
+        'lieu': {'x': 8*cm, 'y': PAGE_HEIGHT - 25*cm}
     }
 
 def _generer_donnees_seules(paiement):
