@@ -169,13 +169,13 @@ def _obtenir_positions_champs():
         'numero': {'x': 19*cm, 'y': PAGE_HEIGHT - 5.8*cm},
         
         # Section LOCATAIRE (sous "LOCATAIRE")
-        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.5*cm},
-        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9*cm},
-        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9.5*cm},
+        'nom_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.3*cm},
+        'adresse_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 8.8*cm},
+        'telephone_locataire': {'x': 2*cm, 'y': PAGE_HEIGHT - 9.3*cm},
         
         # Champs de paiement (rectangles à remplir)
         # Versement effectué par
-        'versement_par': {'x': 7*cm, 'y': PAGE_HEIGHT - 11.2*cm},
+        'versement_par': {'x': 7*cm, 'y': PAGE_HEIGHT - 11.4*cm},
         
         # Montant payé  
         'montant': {'x': 10*cm, 'y': PAGE_HEIGHT - 12.6*cm},
