@@ -178,7 +178,7 @@ def _obtenir_positions_champs():
         'versement_par': {'x': 7*cm, 'y': PAGE_HEIGHT - 11.4*cm},
         
         # Montant payé  
-        'montant': {'x': 10*cm, 'y': PAGE_HEIGHT - 12.8*cm},
+        'montant': {'x': 10*cm, 'y': PAGE_HEIGHT - 12.7*cm},
         
         # En date du
         'date_paiement': {'x': 10*cm, 'y': PAGE_HEIGHT - 14.1*cm},
