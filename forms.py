@@ -67,6 +67,8 @@ class BienForm(FlaskForm):
     ascenseur = BooleanField('Ascenseur')
     etage = IntegerField('Étage', validators=[Optional()])
     annee_construction = IntegerField('Année de construction', validators=[Optional(), NumberRange(min=1800, max=2030)])
+    latitude = FloatField('Latitude', validators=[Optional(), NumberRange(min=-90, max=90)])
+    longitude = FloatField('Longitude', validators=[Optional(), NumberRange(min=-180, max=180)])
     proprietaire_id = SelectField('Propriétaire', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Enregistrer')
     

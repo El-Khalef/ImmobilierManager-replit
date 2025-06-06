@@ -70,6 +70,10 @@ class BienImmobilier(db.Model):
     proprietaire_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # Coordonnées géographiques
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    
     # Relations
     proprietaire = db.relationship('Client', backref='biens_possedes')
     
@@ -79,6 +83,16 @@ class BienImmobilier(db.Model):
     @property
     def adresse_complete(self):
         return f"{self.adresse}, {self.code_postal} {self.ville}"
+    
+    @property
+    def has_coordinates(self):
+        """Vérifie si le bien a des coordonnées GPS"""
+        return self.latitude is not None and self.longitude is not None
+    
+    def set_coordinates(self, lat, lng):
+        """Définit les coordonnées GPS du bien"""
+        self.latitude = float(lat) if lat else None
+        self.longitude = float(lng) if lng else None
 
 
 class ContratLocation(db.Model):

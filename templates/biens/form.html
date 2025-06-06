@@ -204,6 +204,56 @@
                         {% endif %}
                     </div>
                     
+                    <!-- Géolocalisation -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">Localisation GPS</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.latitude.label(class="form-label") }}
+                                {{ form.latitude(class="form-control", id="latitude", step="any") }}
+                                {% if form.latitude.errors %}
+                                    {% for error in form.latitude.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.longitude.label(class="form-label") }}
+                                {{ form.longitude(class="form-control", id="longitude", step="any") }}
+                                {% if form.longitude.errors %}
+                                    {% for error in form.longitude.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="geolocateAddress()">
+                                <i class="fas fa-search-location me-1"></i>
+                                Géolocaliser l'adresse
+                            </button>
+                            <button type="button" class="btn btn-outline-success btn-sm me-2" onclick="getCurrentLocation()">
+                                <i class="fas fa-crosshairs me-1"></i>
+                                Ma position actuelle
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearLocation()">
+                                <i class="fas fa-times me-1"></i>
+                                Effacer
+                            </button>
+                        </div>
+                        
+                        <!-- Carte -->
+                        <div class="card">
+                            <div class="card-header">
+                                <small class="text-muted">Cliquez sur la carte pour définir la position exacte du bien</small>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="map" style="height: 300px; width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Description -->
                     <div class="mb-3">
                         {{ form.description.label(class="form-label") }}
@@ -231,4 +281,140 @@
         </div>
     </div>
 </div>
+
+<!-- Leaflet CSS et JS pour la carte -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let map;
+let marker;
+
+// Coordonnées par défaut (Nouakchott, Mauritanie)
+const defaultLat = 18.0735;
+const defaultLng = -15.9582;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMap();
+});
+
+function initializeMap() {
+    // Récupérer les coordonnées existantes ou utiliser les valeurs par défaut
+    const lat = parseFloat(document.getElementById('latitude').value) || defaultLat;
+    const lng = parseFloat(document.getElementById('longitude').value) || defaultLng;
+    
+    // Initialiser la carte
+    map = L.map('map').setView([lat, lng], 13);
+    
+    // Ajouter les tuiles OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Ajouter un marqueur s'il y a des coordonnées
+    if (document.getElementById('latitude').value && document.getElementById('longitude').value) {
+        marker = L.marker([lat, lng]).addTo(map);
+    }
+    
+    // Écouter les clics sur la carte
+    map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        
+        updateMarker(lat, lng);
+        updateCoordinateFields(lat, lng);
+    });
+}
+
+function updateMarker(lat, lng) {
+    if (marker) {
+        map.removeLayer(marker);
+    }
+    marker = L.marker([lat, lng]).addTo(map);
+}
+
+function updateCoordinateFields(lat, lng) {
+    document.getElementById('latitude').value = lat.toFixed(6);
+    document.getElementById('longitude').value = lng.toFixed(6);
+}
+
+function geolocateAddress() {
+    const adresse = document.getElementById('adresse').value;
+    const ville = document.getElementById('ville').value;
+    
+    if (!adresse || !ville) {
+        alert('Veuillez remplir l\'adresse et la ville avant de géolocaliser');
+        return;
+    }
+    
+    const query = encodeURIComponent(`${adresse}, ${ville}, Mauritanie`);
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const result = data[0];
+                const lat = parseFloat(result.lat);
+                const lng = parseFloat(result.lon);
+                
+                map.setView([lat, lng], 16);
+                updateMarker(lat, lng);
+                updateCoordinateFields(lat, lng);
+            } else {
+                alert('Adresse non trouvée. Essayez de cliquer sur la carte pour positionner manuellement.');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur de géolocalisation:', error);
+            alert('Erreur lors de la géolocalisation. Essayez de positionner manuellement sur la carte.');
+        });
+}
+
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            map.setView([lat, lng], 16);
+            updateMarker(lat, lng);
+            updateCoordinateFields(lat, lng);
+        }, function(error) {
+            alert('Impossible d\'obtenir votre position actuelle.');
+        });
+    } else {
+        alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+    }
+}
+
+function clearLocation() {
+    if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+    }
+    document.getElementById('latitude').value = '';
+    document.getElementById('longitude').value = '';
+    map.setView([defaultLat, defaultLng], 13);
+}
+
+// Mettre à jour la carte quand les coordonnées sont saisies manuellement
+document.getElementById('latitude').addEventListener('input', function() {
+    updateMapFromFields();
+});
+
+document.getElementById('longitude').addEventListener('input', function() {
+    updateMapFromFields();
+});
+
+function updateMapFromFields() {
+    const lat = parseFloat(document.getElementById('latitude').value);
+    const lng = parseFloat(document.getElementById('longitude').value);
+    
+    if (lat && lng && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        map.setView([lat, lng], 16);
+        updateMarker(lat, lng);
+    }
+}
+</script>
 {% endblock %}

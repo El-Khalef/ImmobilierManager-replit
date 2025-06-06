@@ -190,6 +190,32 @@ def register_routes(app):
         
         return render_template('biens/index.html', biens=biens, form=form)
     
+    @app.route('/biens/carte')
+    def biens_carte():
+        """Carte des biens immobiliers"""
+        # Récupérer seulement les biens avec coordonnées
+        biens = BienImmobilier.query.filter(
+            BienImmobilier.latitude.isnot(None),
+            BienImmobilier.longitude.isnot(None)
+        ).all()
+        
+        # Convertir en format JSON pour la carte
+        biens_json = []
+        for bien in biens:
+            biens_json.append({
+                'id': bien.id,
+                'titre': bien.titre,
+                'adresse': bien.adresse_complete,
+                'type_bien': bien.type_bien,
+                'prix_location': bien.prix_location_mensuel,
+                'surface': bien.surface,
+                'latitude': bien.latitude,
+                'longitude': bien.longitude,
+                'url': url_for('biens_detail', id=bien.id)
+            })
+        
+        return render_template('biens/carte.html', biens_json=biens_json)
+    
     @app.route('/biens/<int:id>')
     def biens_detail(id):
         """Détail d'un bien immobilier"""
@@ -220,6 +246,8 @@ def register_routes(app):
                 ascenseur=form.ascenseur.data,
                 etage=form.etage.data,
                 annee_construction=form.annee_construction.data,
+                latitude=form.latitude.data,
+                longitude=form.longitude.data,
                 proprietaire_id=form.proprietaire_id.data
             )
             db.session.add(bien)
