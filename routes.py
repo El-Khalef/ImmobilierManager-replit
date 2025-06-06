@@ -621,7 +621,8 @@ def register_routes(app):
         document = DocumentContrat.query.get_or_404(doc_id)
         
         # Construire le chemin du fichier
-        chemin_fichier = os.path.join(current_app.config.get('UPLOAD_FOLDER'), document.nom_fichier)
+        upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
+        chemin_fichier = os.path.join(upload_folder, document.nom_fichier)
         
         # Vérifier que le fichier existe
         if not os.path.exists(chemin_fichier):
@@ -636,7 +637,8 @@ def register_routes(app):
     def document_file(doc_id):
         """Sert le fichier document pour l'aperçu"""
         document = DocumentContrat.query.get_or_404(doc_id)
-        chemin_fichier = os.path.join(current_app.config.get('UPLOAD_FOLDER'), document.nom_fichier)
+        upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
+        chemin_fichier = os.path.join(upload_folder, document.nom_fichier)
         
         if not os.path.exists(chemin_fichier):
             return "Fichier non trouvé", 404

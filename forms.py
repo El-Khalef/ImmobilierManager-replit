@@ -258,7 +258,7 @@ class DocumentContratForm(FlaskForm):
             ]
             self.submit.label.text = 'Enregistrer les modifications'
         else:
-            from wtforms.validators import FileRequired
+            from flask_wtf.file import FileRequired
             self.fichier.validators = [
                 FileRequired('Veuillez sélectionner un fichier'),
                 FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 
