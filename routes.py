@@ -620,13 +620,21 @@ def register_routes(app):
         """Affiche l'aperçu d'un document"""
         document = DocumentContrat.query.get_or_404(doc_id)
         
-        # Construire le chemin du fichier
-        upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
-        chemin_fichier = os.path.join(upload_folder, document.nom_fichier)
+        # Construire le chemin du fichier - utiliser le chemin stocké en base ou static/documents
+        if hasattr(document, 'chemin_stockage') and document.chemin_stockage:
+            # Utiliser le chemin stocké en base (pour les anciens documents)
+            if document.chemin_stockage.startswith('static/'):
+                chemin_fichier = document.chemin_stockage
+            else:
+                chemin_fichier = os.path.join('static/documents', document.nom_fichier)
+        else:
+            # Fallback pour les nouveaux documents
+            upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
+            chemin_fichier = os.path.join(upload_folder, document.nom_fichier)
         
         # Vérifier que le fichier existe
         if not os.path.exists(chemin_fichier):
-            flash('Fichier non trouvé', 'error')
+            flash(f'Fichier non trouvé : {chemin_fichier}', 'error')
             return redirect(url_for('documents_index'))
         
         return render_template('documents/preview.html', 
@@ -637,8 +645,18 @@ def register_routes(app):
     def document_file(doc_id):
         """Sert le fichier document pour l'aperçu"""
         document = DocumentContrat.query.get_or_404(doc_id)
-        upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
-        chemin_fichier = os.path.join(upload_folder, document.nom_fichier)
+        
+        # Construire le chemin du fichier - utiliser le chemin stocké en base ou static/documents
+        if hasattr(document, 'chemin_stockage') and document.chemin_stockage:
+            # Utiliser le chemin stocké en base (pour les anciens documents)
+            if document.chemin_stockage.startswith('static/'):
+                chemin_fichier = document.chemin_stockage
+            else:
+                chemin_fichier = os.path.join('static/documents', document.nom_fichier)
+        else:
+            # Fallback pour les nouveaux documents
+            upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
+            chemin_fichier = os.path.join(upload_folder, document.nom_fichier)
         
         if not os.path.exists(chemin_fichier):
             return "Fichier non trouvé", 404
@@ -667,9 +685,16 @@ def register_routes(app):
             if form.fichier.data and hasattr(form.fichier.data, 'filename') and form.fichier.data.filename:
                 fichier = form.fichier.data
                 
-                # Supprimer l'ancien fichier
-                upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
-                ancien_chemin = os.path.join(upload_folder, document.nom_fichier)
+                # Supprimer l'ancien fichier en utilisant le chemin stocké en base
+                if hasattr(document, 'chemin_stockage') and document.chemin_stockage:
+                    if document.chemin_stockage.startswith('static/'):
+                        ancien_chemin = document.chemin_stockage
+                    else:
+                        ancien_chemin = os.path.join('static/documents', document.nom_fichier)
+                else:
+                    upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
+                    ancien_chemin = os.path.join(upload_folder, document.nom_fichier)
+                
                 if os.path.exists(ancien_chemin):
                     os.remove(ancien_chemin)
                 
