@@ -615,6 +615,86 @@ def register_routes(app):
         
         return redirect(url_for('documents_index'))
     
+    @app.route('/documents/<int:doc_id>/preview')
+    def document_preview(doc_id):
+        """Affiche l'aperçu d'un document"""
+        document = DocumentContrat.query.get_or_404(doc_id)
+        
+        # Construire le chemin du fichier
+        chemin_fichier = os.path.join(current_app.config.get('UPLOAD_FOLDER'), document.nom_fichier)
+        
+        # Vérifier que le fichier existe
+        if not os.path.exists(chemin_fichier):
+            flash('Fichier non trouvé', 'error')
+            return redirect(url_for('documents_index'))
+        
+        return render_template('documents/preview.html', 
+                             document=document,
+                             fichier_url=url_for('document_file', doc_id=doc_id))
+
+    @app.route('/documents/<int:doc_id>/file')
+    def document_file(doc_id):
+        """Sert le fichier document pour l'aperçu"""
+        document = DocumentContrat.query.get_or_404(doc_id)
+        chemin_fichier = os.path.join(current_app.config.get('UPLOAD_FOLDER'), document.nom_fichier)
+        
+        if not os.path.exists(chemin_fichier):
+            return "Fichier non trouvé", 404
+        
+        return send_file(chemin_fichier, as_attachment=False)
+
+    @app.route('/documents/<int:doc_id>/edit', methods=['GET', 'POST'])
+    def document_edit(doc_id):
+        """Page d'édition d'un document"""
+        document = DocumentContrat.query.get_or_404(doc_id)
+        form = DocumentContratForm(edit_mode=True)
+        
+        if request.method == 'GET':
+            # Pré-remplir le formulaire avec les données existantes
+            form.contrat_id.data = document.contrat_id
+            form.type_document.data = document.type_document
+            form.description.data = document.description
+        
+        if form.validate_on_submit():
+            # Mettre à jour les champs modifiables
+            document.contrat_id = form.contrat_id.data
+            document.type_document = form.type_document.data
+            document.description = form.description.data
+            
+            # Si un nouveau fichier est fourni, remplacer l'ancien
+            if form.fichier.data and hasattr(form.fichier.data, 'filename') and form.fichier.data.filename:
+                fichier = form.fichier.data
+                
+                # Supprimer l'ancien fichier
+                upload_folder = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
+                ancien_chemin = os.path.join(upload_folder, document.nom_fichier)
+                if os.path.exists(ancien_chemin):
+                    os.remove(ancien_chemin)
+                
+                # Sauvegarder le nouveau fichier
+                nom_original = secure_filename(fichier.filename)
+                extension = nom_original.rsplit('.', 1)[1].lower() if '.' in nom_original else ''
+                nom_unique = f"{uuid.uuid4().hex}.{extension}"
+                chemin_fichier = os.path.join(upload_folder, nom_unique)
+                
+                fichier.save(chemin_fichier)
+                
+                # Mettre à jour les informations du document
+                document.nom_original = nom_original
+                document.nom_fichier = nom_unique
+                document.taille_fichier = os.path.getsize(chemin_fichier)
+                document.chemin_stockage = chemin_fichier
+            
+            try:
+                db.session.commit()
+                flash('Document modifié avec succès.', 'success')
+                return redirect(url_for('document_preview', doc_id=doc_id))
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Erreur lors de la modification: {str(e)}', 'danger')
+        
+        return render_template('documents/edit.html', form=form, document=document, title='Modifier le document')
+
     @app.route('/contrats/<int:id>/documents')
     def contrats_documents(id):
         """Voir les documents d'un contrat"""

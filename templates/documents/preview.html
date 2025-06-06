@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Aperçu Document - {{ document.nom_original }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('documents_index') }}">Documents</a></li>
+                <li class="breadcrumb-item active">Aperçu</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2">
+                    <i class="fas fa-eye me-2"></i>
+                    Aperçu du document
+                </h1>
+                <p class="text-muted">{{ document.nom_original }}</p>
+            </div>
+            <div class="btn-group">
+                <a href="{{ url_for('document_edit', doc_id=document.id) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-1"></i>
+                    Modifier
+                </a>
+                <a href="{{ url_for('document_file', doc_id=document.id) }}" download="{{ document.nom_original }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-download me-1"></i>
+                    Télécharger
+                </a>
+                <a href="{{ url_for('documents_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Retour
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informations du document -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Informations
+                </h6>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-5">Type :</dt>
+                    <dd class="col-sm-7">
+                        {% if document.type_document == 'piece_identite' %}
+                            <span class="badge bg-primary">Pièce d'identité</span>
+                        {% elif document.type_document == 'photo' %}
+                            <span class="badge bg-success">Photo</span>
+                        {% elif document.type_document == 'video' %}
+                            <span class="badge bg-info">Vidéo</span>
+                        {% elif document.type_document == 'audio' %}
+                            <span class="badge bg-warning">Audio</span>
+                        {% elif document.type_document == 'contrat_signe' %}
+                            <span class="badge bg-danger">Contrat signé</span>
+                        {% elif document.type_document == 'justificatif' %}
+                            <span class="badge bg-secondary">Justificatif</span>
+                        {% else %}
+                            <span class="badge bg-dark">Autre</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-5">Contrat :</dt>
+                    <dd class="col-sm-7">
+                        <a href="{{ url_for('contrats_detail', id=document.contrat.id) }}" class="text-decoration-none">
+                            {{ document.contrat.locataire.nom }} {{ document.contrat.locataire.prenom }}
+                        </a>
+                    </dd>
+                    
+                    <dt class="col-sm-5">Bien :</dt>
+                    <dd class="col-sm-7">{{ document.contrat.bien.titre }}</dd>
+                    
+                    <dt class="col-sm-5">Taille :</dt>
+                    <dd class="col-sm-7">{{ "%.1f"|format(document.taille_fichier / 1024) }} KB</dd>
+                    
+                    <dt class="col-sm-5">Ajouté le :</dt>
+                    <dd class="col-sm-7">{{ document.date_ajout.strftime('%d/%m/%Y à %H:%M') }}</dd>
+                </dl>
+                
+                {% if document.description %}
+                <div class="mt-3">
+                    <strong>Description :</strong>
+                    <p class="text-muted">{{ document.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-file me-2"></i>
+                    Aperçu du fichier
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                {% set extension = document.nom_fichier.split('.')[-1].lower() %}
+                
+                {% if extension in ['pdf'] %}
+                    <!-- Aperçu PDF -->
+                    <div class="text-center p-3">
+                        <iframe src="{{ fichier_url }}" 
+                                width="100%" 
+                                height="600" 
+                                style="border: none; border-radius: 0.375rem;">
+                            <p>Votre navigateur ne supporte pas l'affichage des PDF. 
+                               <a href="{{ fichier_url }}" target="_blank">Cliquez ici pour ouvrir dans un nouvel onglet</a>
+                            </p>
+                        </iframe>
+                    </div>
+                    
+                {% elif extension in ['jpg', 'jpeg', 'png', 'gif'] %}
+                    <!-- Aperçu Image -->
+                    <div class="text-center p-3">
+                        <img src="{{ fichier_url }}" 
+                             class="img-fluid" 
+                             style="max-height: 600px; border-radius: 0.375rem;"
+                             alt="{{ document.nom_original }}">
+                    </div>
+                    
+                {% elif extension in ['mp4', 'avi', 'mov', 'webm'] %}
+                    <!-- Aperçu Vidéo -->
+                    <div class="text-center p-3">
+                        <video controls style="max-width: 100%; max-height: 600px; border-radius: 0.375rem;">
+                            <source src="{{ fichier_url }}" type="video/{{ extension }}">
+                            Votre navigateur ne supporte pas la lecture vidéo.
+                        </video>
+                    </div>
+                    
+                {% elif extension in ['mp3', 'wav', 'ogg', 'm4a'] %}
+                    <!-- Aperçu Audio -->
+                    <div class="text-center p-3">
+                        <div class="mb-3">
+                            <i class="fas fa-music fa-3x text-muted"></i>
+                        </div>
+                        <audio controls style="width: 100%;">
+                            <source src="{{ fichier_url }}" type="audio/{{ extension }}">
+                            Votre navigateur ne supporte pas la lecture audio.
+                        </audio>
+                    </div>
+                    
+                {% elif extension in ['doc', 'docx'] %}
+                    <!-- Document Word -->
+                    <div class="text-center p-5">
+                        <i class="fas fa-file-word fa-4x text-primary mb-3"></i>
+                        <h5>Document Word</h5>
+                        <p class="text-muted">{{ document.nom_original }}</p>
+                        <a href="{{ fichier_url }}" download="{{ document.nom_original }}" class="btn btn-primary">
+                            <i class="fas fa-download me-1"></i>
+                            Télécharger pour ouvrir
+                        </a>
+                    </div>
+                    
+                {% else %}
+                    <!-- Type de fichier non supporté pour aperçu -->
+                    <div class="text-center p-5">
+                        <i class="fas fa-file fa-4x text-muted mb-3"></i>
+                        <h5>Aperçu non disponible</h5>
+                        <p class="text-muted">Ce type de fichier ne peut pas être prévisualisé dans le navigateur.</p>
+                        <p class="text-muted">{{ document.nom_original }}</p>
+                        <a href="{{ fichier_url }}" download="{{ document.nom_original }}" class="btn btn-primary">
+                            <i class="fas fa-download me-1"></i>
+                            Télécharger le fichier
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    Actions rapides
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('document_edit', doc_id=document.id) }}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-edit d-block mb-1"></i>
+                            Modifier les informations
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('contrats_detail', id=document.contrat.id) }}" class="btn btn-outline-info w-100 mb-2">
+                            <i class="fas fa-file-contract d-block mb-1"></i>
+                            Voir le contrat
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('clients_detail', id=document.contrat.locataire.id) }}" class="btn btn-outline-secondary w-100 mb-2">
+                            <i class="fas fa-user d-block mb-1"></i>
+                            Voir le client
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-outline-danger w-100 mb-2" 
+                                onclick="confirmDelete({{ document.id }})">
+                            <i class="fas fa-trash d-block mb-1"></i>
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer ce document ?</p>
+                <p class="text-muted"><strong>{{ document.nom_original }}</strong></p>
+                <p class="text-danger">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="POST" action="{{ url_for('documents_delete', id=document.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(documentId) {
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+</script>
+{% endblock %}

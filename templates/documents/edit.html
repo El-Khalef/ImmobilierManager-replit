@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier Document - {{ document.nom_original }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('documents_index') }}">Documents</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('document_preview', doc_id=document.id) }}">Aperçu</a></li>
+                <li class="breadcrumb-item active">Modifier</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2">
+                    <i class="fas fa-edit me-2"></i>
+                    Modifier le document
+                </h1>
+                <p class="text-muted">{{ document.nom_original }}</p>
+            </div>
+            <a href="{{ url_for('document_preview', doc_id=document.id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                Retour à l'aperçu
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    Informations du document
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.contrat_id.label(class="form-label") }}
+                                {{ form.contrat_id(class="form-select") }}
+                                {% if form.contrat_id.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.contrat_id.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.type_document.label(class="form-label") }}
+                                {{ form.type_document(class="form-select") }}
+                                {% if form.type_document.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.type_document.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Ajoutez une description optionnelle pour ce document.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Fichier actuel</label>
+                        <div class="p-3 bg-light rounded">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file me-2"></i>
+                                <div>
+                                    <strong>{{ document.nom_original }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ "%.1f"|format(document.taille_fichier / 1024) }} KB - 
+                                        Ajouté le {{ document.date_ajout.strftime('%d/%m/%Y à %H:%M') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.fichier.label(class="form-label") }}
+                        {{ form.fichier(class="form-control") }}
+                        {% if form.fichier.errors %}
+                            <div class="text-danger">
+                                {% for error in form.fichier.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <strong>Optionnel :</strong> Sélectionnez un nouveau fichier pour remplacer l'actuel.
+                            Si aucun fichier n'est sélectionné, le fichier actuel sera conservé.
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('document_preview', doc_id=document.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            Enregistrer les modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Aperçu du fichier actuel -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-eye me-2"></i>
+                    Aperçu actuel
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                {% set extension = document.nom_fichier.split('.')[-1].lower() %}
+                
+                {% if extension in ['jpg', 'jpeg', 'png', 'gif'] %}
+                    <img src="{{ url_for('document_file', doc_id=document.id) }}" 
+                         class="img-fluid w-100" 
+                         style="max-height: 200px; object-fit: cover;"
+                         alt="{{ document.nom_original }}">
+                {% elif extension in ['pdf'] %}
+                    <div class="text-center p-3">
+                        <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                        <p class="mb-0">Document PDF</p>
+                        <small class="text-muted">{{ document.nom_original }}</small>
+                    </div>
+                {% elif extension in ['mp4', 'avi', 'mov', 'webm'] %}
+                    <div class="text-center p-3">
+                        <i class="fas fa-video fa-3x text-info mb-2"></i>
+                        <p class="mb-0">Fichier vidéo</p>
+                        <small class="text-muted">{{ document.nom_original }}</small>
+                    </div>
+                {% elif extension in ['mp3', 'wav', 'ogg', 'm4a'] %}
+                    <div class="text-center p-3">
+                        <i class="fas fa-music fa-3x text-warning mb-2"></i>
+                        <p class="mb-0">Fichier audio</p>
+                        <small class="text-muted">{{ document.nom_original }}</small>
+                    </div>
+                {% else %}
+                    <div class="text-center p-3">
+                        <i class="fas fa-file fa-3x text-muted mb-2"></i>
+                        <p class="mb-0">Document</p>
+                        <small class="text-muted">{{ document.nom_original }}</small>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('document_preview', doc_id=document.id) }}" class="btn btn-outline-primary btn-sm w-100">
+                    <i class="fas fa-eye me-1"></i>
+                    Voir l'aperçu complet
+                </a>
+            </div>
+        </div>
+        
+        <!-- Informations du contrat -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-file-contract me-2"></i>
+                    Contrat associé
+                </h6>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Client :</dt>
+                    <dd class="col-sm-8">{{ document.contrat.locataire.nom }} {{ document.contrat.locataire.prenom }}</dd>
+                    
+                    <dt class="col-sm-4">Bien :</dt>
+                    <dd class="col-sm-8">{{ document.contrat.bien.titre }}</dd>
+                    
+                    <dt class="col-sm-4">Statut :</dt>
+                    <dd class="col-sm-8">
+                        {% if document.contrat.statut == 'actif' %}
+                            <span class="badge bg-success">Actif</span>
+                        {% elif document.contrat.statut == 'termine' %}
+                            <span class="badge bg-secondary">Terminé</span>
+                        {% else %}
+                            <span class="badge bg-warning">{{ document.contrat.statut|title }}</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+                <a href="{{ url_for('contrats_detail', id=document.contrat.id) }}" class="btn btn-outline-info btn-sm w-100 mt-2">
+                    <i class="fas fa-external-link-alt me-1"></i>
+                    Voir le contrat
+                </a>
+            </div>
+        </div>
+        
+        <!-- Guide de modification -->
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Guide de modification
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Modifiez le contrat associé si nécessaire
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Changez le type de document si approprié
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Ajoutez ou modifiez la description
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Remplacez le fichier si nécessaire
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

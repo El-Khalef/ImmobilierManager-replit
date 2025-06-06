@@ -229,7 +229,6 @@ class DocumentContratForm(FlaskForm):
                                ],
                                validators=[DataRequired()])
     fichier = FileField('Fichier', validators=[
-        FileRequired('Veuillez sélectionner un fichier'),
         FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 
                     'mp4', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'm4a'], 
                    'Format de fichier non autorisé!')
@@ -237,11 +236,32 @@ class DocumentContratForm(FlaskForm):
     description = TextAreaField('Description', validators=[Optional(), Length(max=500)])
     submit = SubmitField('Ajouter le document')
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, edit_mode=False, **kwargs):
         super(DocumentContratForm, self).__init__(*args, **kwargs)
-        # Charger les contrats actifs
-        contrats = ContratLocation.query.filter_by(statut='actif').all()
+        # Charger tous les contrats pour l'édition, seulement les actifs pour l'ajout
+        if edit_mode:
+            contrats = ContratLocation.query.all()
+        else:
+            contrats = ContratLocation.query.filter_by(statut='actif').all()
+            
         self.contrat_id.choices = [
-            (contrat.id, f"Contrat #{contrat.id} - {contrat.locataire.nom_complet}") 
+            (contrat.id, f"Contrat #{contrat.id} - {contrat.locataire.nom} {contrat.locataire.prenom}") 
             for contrat in contrats
         ]
+        
+        # En mode édition, le fichier n'est pas requis
+        if edit_mode:
+            self.fichier.validators = [
+                FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 
+                            'mp4', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'm4a'], 
+                           'Format de fichier non autorisé!')
+            ]
+            self.submit.label.text = 'Enregistrer les modifications'
+        else:
+            from wtforms.validators import FileRequired
+            self.fichier.validators = [
+                FileRequired('Veuillez sélectionner un fichier'),
+                FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 
+                            'mp4', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'm4a'], 
+                           'Format de fichier non autorisé!')
+            ]
