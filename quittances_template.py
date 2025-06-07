@@ -239,9 +239,9 @@ def _generer_donnees_seules(paiement):
     return buffer
 
 def generer_nom_fichier_quittance_template(paiement):
-    """Génère un nom de fichier pour la quittance template"""
+    """Génère un nom de fichier pour la quittance"""
     client_nom = paiement.client.nom.replace(' ', '_')
     mois_str = f"{paiement.mois:02d}"
     annee = paiement.annee
     
-    return f"quittance_template_{client_nom}_{mois_str}_{annee}.pdf"
+    return f"quittance_{client_nom}_{mois_str}_{annee}.pdf"
