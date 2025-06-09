@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if budget %}
+        Modifier le budget
+    {% else %}
+        Nouveau budget prévisionnel
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            {% if budget %}
+                Modifier le budget
+            {% else %}
+                Nouveau budget prévisionnel
+            {% endif %}
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('budgets_list') }}">Budgets</a></li>
+                <li class="breadcrumb-item active">
+                    {% if budget %}Modifier{% else %}Nouveau{% endif %}
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informations du budget</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.bien_id.label(class="form-label") }}
+                                    {{ form.bien_id(class="form-select") }}
+                                    {% if form.bien_id.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bien_id.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.annee.label(class="form-label") }}
+                                    {{ form.annee(class="form-control") }}
+                                    {% if form.annee.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.annee.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.mois.label(class="form-label") }}
+                                    {{ form.mois(class="form-select") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Revenus prévisionnels</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.revenus_loyers_prevus.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.revenus_loyers_prevus(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.autres_revenus_prevus.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.autres_revenus_prevus(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Charges prévisionnelles</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.charges_courantes_prevues.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.charges_courantes_prevues(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.travaux_prevus.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.travaux_prevus(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.taxes_impots_prevus.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.taxes_impots_prevus(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.assurances_prevues.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.assurances_prevues(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.frais_gestion_prevus.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.frais_gestion_prevus(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.notes.label(class="form-label") }}
+                            {{ form.notes(class="form-control", rows="3") }}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('budgets_list') }}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Aide</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        Le budget prévisionnel permet d'anticiper les revenus et charges :
+                    </p>
+                    <ul class="small text-muted">
+                        <li><strong>Budget global :</strong> Pour tous les biens</li>
+                        <li><strong>Budget spécifique :</strong> Pour un bien particulier</li>
+                        <li><strong>Période :</strong> Annuelle ou mensuelle</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

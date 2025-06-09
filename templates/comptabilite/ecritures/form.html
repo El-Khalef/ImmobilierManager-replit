@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if ecriture %}
+        Modifier l'écriture comptable
+    {% else %}
+        Nouvelle écriture comptable
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            {% if ecriture %}
+                Modifier l'écriture comptable
+            {% else %}
+                Nouvelle écriture comptable
+            {% endif %}
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('ecritures_list') }}">Écritures</a></li>
+                <li class="breadcrumb-item active">
+                    {% if ecriture %}Modifier{% else %}Nouvelle{% endif %}
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informations de l'écriture</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.numero_piece.label(class="form-label") }}
+                                    {{ form.numero_piece(class="form-control") }}
+                                    {% if form.numero_piece.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.numero_piece.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.date_operation.label(class="form-label") }}
+                                    {{ form.date_operation(class="form-control") }}
+                                    {% if form.date_operation.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.date_operation.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.compte_debit.label(class="form-label") }}
+                                    {{ form.compte_debit(class="form-select") }}
+                                    {% if form.compte_debit.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.compte_debit.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.compte_credit.label(class="form-label") }}
+                                    {{ form.compte_credit(class="form-select") }}
+                                    {% if form.compte_credit.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.compte_credit.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.montant.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.montant(class="form-control") }}
+                                <span class="input-group-text">MRU</span>
+                            </div>
+                            {% if form.montant.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.montant.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.libelle.label(class="form-label") }}
+                            {{ form.libelle(class="form-control") }}
+                            {% if form.libelle.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.libelle.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.bien_id.label(class="form-label") }}
+                                    {{ form.bien_id(class="form-select") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.client_id.label(class="form-label") }}
+                                    {{ form.client_id(class="form-select") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.reference_externe.label(class="form-label") }}
+                            {{ form.reference_externe(class="form-control") }}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('ecritures_list') }}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Aide</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        Une écriture comptable enregistre une opération selon le principe de la partie double :
+                    </p>
+                    <ul class="small text-muted">
+                        <li><strong>Débit :</strong> Compte mouvementé à gauche</li>
+                        <li><strong>Crédit :</strong> Compte mouvementé à droite</li>
+                        <li>Le montant doit être identique pour les deux comptes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

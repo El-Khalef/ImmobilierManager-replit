@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Journal des écritures comptables{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Journal des écritures comptables</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
+                <li class="breadcrumb-item active">Écritures</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Liste des écritures</h5>
+            <a href="{{ url_for('ecritures_add') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nouvelle écriture
+            </a>
+        </div>
+        <div class="card-body">
+            {% if ecritures %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>N° Pièce</th>
+                                <th>Libellé</th>
+                                <th>Compte Débit</th>
+                                <th>Compte Crédit</th>
+                                <th>Montant</th>
+                                <th>Validée</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ecriture in ecritures %}
+                            <tr>
+                                <td>{{ ecriture.date_operation.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ ecriture.numero_piece }}</td>
+                                <td>{{ ecriture.libelle[:50] }}{% if ecriture.libelle|length > 50 %}...{% endif %}</td>
+                                <td>{{ ecriture.compte_debit.numero_compte }} - {{ ecriture.compte_debit.nom_compte }}</td>
+                                <td>{{ ecriture.compte_credit.numero_compte }} - {{ ecriture.compte_credit.nom_compte }}</td>
+                                <td class="text-end">{{ "{:,.2f}".format(ecriture.montant) }} MRU</td>
+                                <td>
+                                    {% if ecriture.validee %}
+                                        <span class="badge bg-success">Validée</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">En attente</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('ecritures_edit', id=ecriture.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmerSuppression({{ ecriture.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Aucune écriture comptable enregistrée</p>
+                    <a href="{{ url_for('ecritures_add') }}" class="btn btn-primary">
+                        Saisir la première écriture
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmerSuppression(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette écriture ?')) {
+        fetch(`/comptabilite/ecritures/${id}/supprimer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(() => {
+            location.reload();
+        });
+    }
+}
+</script>
+{% endblock %}

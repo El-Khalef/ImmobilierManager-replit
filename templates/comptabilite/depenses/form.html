@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if depense %}
+        Modifier la dépense
+    {% else %}
+        Nouvelle dépense
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            {% if depense %}
+                Modifier la dépense
+            {% else %}
+                Nouvelle dépense
+            {% endif %}
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('depenses_list') }}">Dépenses</a></li>
+                <li class="breadcrumb-item active">
+                    {% if depense %}Modifier{% else %}Nouvelle{% endif %}
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informations de la dépense</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.bien_id.label(class="form-label") }}
+                                    {{ form.bien_id(class="form-select") }}
+                                    {% if form.bien_id.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bien_id.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.fournisseur_id.label(class="form-label") }}
+                                    {{ form.fournisseur_id(class="form-select") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.type_depense.label(class="form-label") }}
+                                    {{ form.type_depense(class="form-control") }}
+                                    {% if form.type_depense.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.type_depense.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.categorie.label(class="form-label") }}
+                                    {{ form.categorie(class="form-select") }}
+                                    {% if form.categorie.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.categorie.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.montant.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.montant(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                    {% if form.montant.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.montant.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.date_depense.label(class="form-label") }}
+                                    {{ form.date_depense(class="form-control") }}
+                                    {% if form.date_depense.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.date_depense.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="3") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.description.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.numero_facture.label(class="form-label") }}
+                                    {{ form.numero_facture(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.mode_paiement.label(class="form-label") }}
+                                    {{ form.mode_paiement(class="form-select") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.justificatif.label(class="form-label") }}
+                            {{ form.justificatif(class="form-control") }}
+                            <div class="form-text">Formats acceptés : PDF, JPG, PNG</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    {{ form.deductible_impots(class="form-check-input") }}
+                                    {{ form.deductible_impots.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    {{ form.tva_applicable(class="form-check-input") }}
+                                    {{ form.tva_applicable.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    {{ form.montant_tva.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.montant_tva(class="form-control") }}
+                                        <span class="input-group-text">MRU</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('depenses_list') }}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Catégories de dépenses</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small text-muted">
+                        <li><strong>Entretien :</strong> Réparations, maintenance</li>
+                        <li><strong>Travaux :</strong> Rénovations, améliorations</li>
+                        <li><strong>Assurance :</strong> Primes d'assurance</li>
+                        <li><strong>Taxes :</strong> Impôts fonciers</li>
+                        <li><strong>Gestion :</strong> Frais d'administration</li>
+                        <li><strong>Copropriété :</strong> Charges communes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

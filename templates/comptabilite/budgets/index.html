@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Budgets prévisionnels{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Budgets prévisionnels</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
+                <li class="breadcrumb-item active">Budgets</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Liste des budgets</h5>
+            <a href="{{ url_for('budgets_add') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nouveau budget
+            </a>
+        </div>
+        <div class="card-body">
+            {% if budgets %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Période</th>
+                                <th>Bien</th>
+                                <th>Revenus prévus</th>
+                                <th>Charges prévues</th>
+                                <th>Résultat prévisionnel</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for budget in budgets %}
+                            <tr>
+                                <td>
+                                    {% if budget.mois %}
+                                        {{ budget.mois }}/{{ budget.annee }}
+                                    {% else %}
+                                        {{ budget.annee }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if budget.bien %}
+                                        {{ budget.bien.titre }}
+                                    {% else %}
+                                        <em>Budget global</em>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {{ "{:,.2f}".format(budget.revenus_loyers_prevus + budget.autres_revenus_prevus) }} MRU
+                                </td>
+                                <td class="text-end">
+                                    {{ "{:,.2f}".format(budget.charges_courantes_prevues + budget.travaux_prevus + budget.taxes_impots_prevus + budget.assurances_prevues + budget.frais_gestion_prevus) }} MRU
+                                </td>
+                                <td class="text-end">
+                                    {% set resultat = (budget.revenus_loyers_prevus + budget.autres_revenus_prevus) - (budget.charges_courantes_prevues + budget.travaux_prevus + budget.taxes_impots_prevus + budget.assurances_prevues + budget.frais_gestion_prevus) %}
+                                    <span class="{% if resultat >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ "{:,.2f}".format(resultat) }} MRU
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('budgets_edit', id=budget.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmerSuppression({{ budget.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Aucun budget prévisionnel créé</p>
+                    <a href="{{ url_for('budgets_add') }}" class="btn btn-primary">
+                        Créer le premier budget
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmerSuppression(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce budget ?')) {
+        fetch(`/comptabilite/budgets/${id}/supprimer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(() => {
+            location.reload();
+        });
+    }
+}
+</script>
+{% endblock %}
