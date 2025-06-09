@@ -17,6 +17,8 @@ from werkzeug.utils import secure_filename
 def register_comptabilite_routes(app):
     """Enregistre toutes les routes de comptabilité"""
     
+
+    
     @app.route('/comptabilite')
     def comptabilite_dashboard():
         """Dashboard principal de la comptabilité"""
@@ -144,24 +146,23 @@ def register_comptabilite_routes(app):
                 fichier.save(justificatif_path)
             
             # Créer la dépense
-            depense = DepenseImmobiliere(
-                bien_id=form.bien_id.data if form.bien_id.data != 0 else None,
-                fournisseur_id=form.fournisseur_id.data if form.fournisseur_id.data != 0 else None,
-                type_depense=form.type_depense.data,
-                categorie=form.categorie.data,
-                montant=form.montant.data,
-                date_depense=form.date_depense.data,
-                date_paiement=form.date_paiement.data,
-                statut_paiement=form.statut_paiement.data,
-                mode_paiement=form.mode_paiement.data,
-                numero_facture=form.numero_facture.data,
-                reference_paiement=form.reference_paiement.data,
-                description=form.description.data,
-                justificatif_path=justificatif_path,
-                deductible_impots=form.deductible_impots.data,
-                tva_applicable=form.tva_applicable.data,
-                montant_tva=form.montant_tva.data or 0
-            )
+            depense = DepenseImmobiliere()
+            depense.bien_id = form.bien_id.data if form.bien_id.data != 0 else None
+            depense.fournisseur_id = form.fournisseur_id.data if form.fournisseur_id.data != 0 else None
+            depense.type_depense = form.type_depense.data
+            depense.categorie = form.categorie.data
+            depense.montant = form.montant.data
+            depense.date_depense = form.date_depense.data
+            depense.date_paiement = form.date_paiement.data
+            depense.statut_paiement = form.statut_paiement.data
+            depense.mode_paiement = form.mode_paiement.data
+            depense.numero_facture = form.numero_facture.data
+            depense.reference_paiement = form.reference_paiement.data
+            depense.description = form.description.data
+            depense.justificatif_path = justificatif_path
+            depense.deductible_impots = form.deductible_impots.data
+            depense.tva_applicable = form.tva_applicable.data
+            depense.montant_tva = form.montant_tva.data or 0
             
             db.session.add(depense)
             
@@ -278,21 +279,20 @@ def register_comptabilite_routes(app):
         form = EcritureComptableForm()
         
         if form.validate_on_submit():
-            ecriture = EcritureComptable(
-                numero_piece=form.numero_piece.data,
-                date_ecriture=form.date_ecriture.data,
-                date_operation=form.date_operation.data,
-                compte_debit_id=form.compte_debit_id.data,
-                compte_credit_id=form.compte_credit_id.data,
-                montant=form.montant.data,
-                libelle=form.libelle.data,
-                type_operation=form.type_operation.data,
-                bien_id=form.bien_id.data if form.bien_id.data != 0 else None,
-                client_id=form.client_id.data if form.client_id.data != 0 else None,
-                reference_externe=form.reference_externe.data,
-                validee=True,
-                saisie_par='Admin'
-            )
+            ecriture = EcritureComptable()
+            ecriture.numero_piece = form.numero_piece.data
+            ecriture.date_ecriture = form.date_ecriture.data
+            ecriture.date_operation = form.date_operation.data
+            ecriture.compte_debit_id = form.compte_debit_id.data
+            ecriture.compte_credit_id = form.compte_credit_id.data
+            ecriture.montant = form.montant.data
+            ecriture.libelle = form.libelle.data
+            ecriture.type_operation = form.type_operation.data
+            ecriture.bien_id = form.bien_id.data if form.bien_id.data != 0 else None
+            ecriture.client_id = form.client_id.data if form.client_id.data != 0 else None
+            ecriture.reference_externe = form.reference_externe.data
+            ecriture.validee = True
+            ecriture.saisie_par = 'Admin'
             
             db.session.add(ecriture)
             db.session.commit()
@@ -347,19 +347,18 @@ def register_comptabilite_routes(app):
         form = BudgetForm()
         
         if form.validate_on_submit():
-            budget = BudgetPrevisionnel(
-                bien_id=form.bien_id.data if form.bien_id.data != 0 else None,
-                annee=form.annee.data,
-                mois=form.mois.data if form.mois.data != 0 else None,
-                revenus_loyers_prevus=form.revenus_loyers_prevus.data or 0,
-                autres_revenus_prevus=form.autres_revenus_prevus.data or 0,
-                charges_courantes_prevues=form.charges_courantes_prevues.data or 0,
-                travaux_prevus=form.travaux_prevus.data or 0,
-                taxes_impots_prevus=form.taxes_impots_prevus.data or 0,
-                assurances_prevues=form.assurances_prevues.data or 0,
-                frais_gestion_prevus=form.frais_gestion_prevus.data or 0,
-                notes=form.notes.data
-            )
+            budget = BudgetPrevisionnel()
+            budget.bien_id = form.bien_id.data if form.bien_id.data != 0 else None
+            budget.annee = form.annee.data
+            budget.mois = form.mois.data if form.mois.data != 0 else None
+            budget.revenus_loyers_prevus = form.revenus_loyers_prevus.data or 0
+            budget.autres_revenus_prevus = form.autres_revenus_prevus.data or 0
+            budget.charges_courantes_prevues = form.charges_courantes_prevues.data or 0
+            budget.travaux_prevus = form.travaux_prevus.data or 0
+            budget.taxes_impots_prevus = form.taxes_impots_prevus.data or 0
+            budget.assurances_prevues = form.assurances_prevues.data or 0
+            budget.frais_gestion_prevus = form.frais_gestion_prevus.data or 0
+            budget.notes = form.notes.data
             
             db.session.add(budget)
             db.session.commit()
@@ -391,8 +390,21 @@ def register_comptabilite_routes(app):
     def generer_rapport():
         """Génère et affiche un rapport comptable"""
         type_rapport = request.args.get('type_rapport')
-        date_debut = datetime.strptime(request.args.get('date_debut'), '%Y-%m-%d').date()
-        date_fin = datetime.strptime(request.args.get('date_fin'), '%Y-%m-%d').date()
+        date_debut_str = request.args.get('date_debut')
+        date_fin_str = request.args.get('date_fin')
+        
+        if date_debut_str and date_fin_str:
+            try:
+                date_debut = datetime.strptime(date_debut_str, '%Y-%m-%d').date()
+                date_fin = datetime.strptime(date_fin_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                # Dates par défaut en cas d'erreur
+                date_fin = datetime.now().date()
+                date_debut = date_fin.replace(month=1, day=1)
+        else:
+            # Dates par défaut si non spécifiées
+            date_fin = datetime.now().date()
+            date_debut = date_fin.replace(month=1, day=1)
         bien_id = request.args.get('bien_id', type=int)
         format_export = request.args.get('format_export', 'html')
         
@@ -426,21 +438,20 @@ def creer_ecriture_depense(depense):
     compte_tresorerie = CompteComptable.query.filter_by(numero_compte='512').first()
     
     if compte_charge and compte_tresorerie:
-        ecriture = EcritureComptable(
-            numero_piece=f"DEP{depense.id:06d}",
-            date_ecriture=depense.date_paiement or depense.date_depense,
-            date_operation=depense.date_depense,
-            compte_debit_id=compte_charge.id,
-            compte_credit_id=compte_tresorerie.id,
-            montant=depense.montant_total,
-            libelle=f"{depense.type_depense} - {depense.description[:100]}",
-            reference_externe=f"depense_{depense.id}",
-            type_operation='depense',
-            bien_id=depense.bien_id,
-            client_id=depense.fournisseur_id,
-            validee=True,
-            saisie_par='Auto'
-        )
+        ecriture = EcritureComptable()
+        ecriture.numero_piece = f"DEP{depense.id:06d}"
+        ecriture.date_ecriture = depense.date_paiement or depense.date_depense
+        ecriture.date_operation = depense.date_depense
+        ecriture.compte_debit_id = compte_charge.id
+        ecriture.compte_credit_id = compte_tresorerie.id
+        ecriture.montant = depense.montant + (depense.montant_tva or 0)
+        ecriture.libelle = f"{depense.type_depense} - {depense.description[:100]}"
+        ecriture.reference_externe = f"depense_{depense.id}"
+        ecriture.type_operation = 'depense'
+        ecriture.bien_id = depense.bien_id
+        ecriture.client_id = depense.fournisseur_id
+        ecriture.validee = True
+        ecriture.saisie_par = 'Auto'
         
         db.session.add(ecriture)
         depense.ecriture_comptable_id = ecriture.id
