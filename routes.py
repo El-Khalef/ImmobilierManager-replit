@@ -7,7 +7,8 @@ from sqlalchemy import or_, and_
 from app import db
 from models import (
     Client, BienImmobilier, PhotoBien, ContratLocation, 
-    PaiementLoyer, DocumentContrat, get_dashboard_stats
+    PaiementLoyer, DocumentContrat, get_dashboard_stats,
+    CompteComptable, EcritureComptable, DepenseImmobiliere, BudgetPrevisionnel
 )
 from forms import (
     ClientForm, BienForm, PhotoForm, ContratForm, 
@@ -829,6 +830,10 @@ def register_routes(app):
         return render_template('contrats/quittances.html', 
                              contrat=contrat, 
                              paiements=paiements_payes)
+    
+    # Enregistrer les routes de comptabilité
+    from routes_comptabilite import register_comptabilite_routes
+    register_comptabilite_routes(app)
     
     @app.route('/quittances')
     def quittances_index():
