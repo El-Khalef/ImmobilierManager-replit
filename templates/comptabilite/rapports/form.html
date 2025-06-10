@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Génération de rapports comptables{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Génération de rapports comptables</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
+                <li class="breadcrumb-item active">Rapports</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Paramètres du rapport</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('generer_rapport') }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="type_rapport" class="form-label">Type de rapport</label>
+                                    <select name="type_rapport" id="type_rapport" class="form-select" required>
+                                        <option value="">Sélectionnez un rapport</option>
+                                        <option value="balance">Balance comptable</option>
+                                        <option value="compte_resultat">Compte de résultat</option>
+                                        <option value="journal">Journal général</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bien_id" class="form-label">Bien immobilier (optionnel)</label>
+                                    <select name="bien_id" id="bien_id" class="form-select">
+                                        <option value="">Tous les biens</option>
+                                        {% for bien in biens %}
+                                        <option value="{{ bien.id }}">{{ bien.titre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="date_debut" class="form-label">Date de début</label>
+                                    <input type="date" name="date_debut" id="date_debut" class="form-control" 
+                                           value="{{ date_debut.strftime('%Y-%m-%d') if date_debut else '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="date_fin" class="form-label">Date de fin</label>
+                                    <input type="date" name="date_fin" id="date_fin" class="form-control" 
+                                           value="{{ date_fin.strftime('%Y-%m-%d') if date_fin else '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="format_export" class="form-label">Format d'export</label>
+                                    <select name="format_export" id="format_export" class="form-select">
+                                        <option value="html">Affichage web</option>
+                                        <option value="pdf">PDF</option>
+                                        <option value="excel">Excel</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-chart-bar"></i> Générer le rapport
+                            </button>
+                            <a href="{{ url_for('comptabilite_dashboard') }}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Rapports disponibles</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ url_for('rapports_balance') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Balance comptable
+                            <small class="text-muted d-block">Situation des comptes</small>
+                        </a>
+                        <a href="{{ url_for('rapports_compte_resultat') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Compte de résultat
+                            <small class="text-muted d-block">Charges et produits</small>
+                        </a>
+                        <a href="{{ url_for('ecritures_index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-book me-2"></i>
+                            Journal général
+                            <small class="text-muted d-block">Toutes les écritures</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Aide</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        Les rapports comptables permettent d'analyser la situation financière :
+                    </p>
+                    <ul class="small text-muted">
+                        <li><strong>Balance :</strong> Soldes de tous les comptes</li>
+                        <li><strong>Compte de résultat :</strong> Bénéfices et pertes</li>
+                        <li><strong>Journal :</strong> Chronologie des opérations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Définir les dates par défaut
+document.addEventListener('DOMContentLoaded', function() {
+    const dateDebut = document.getElementById('date_debut');
+    const dateFin = document.getElementById('date_fin');
+    
+    if (!dateDebut.value) {
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), 0, 1);
+        dateDebut.value = firstDay.toISOString().split('T')[0];
+    }
+    
+    if (!dateFin.value) {
+        const today = new Date();
+        dateFin.value = today.toISOString().split('T')[0];
+    }
+});
+</script>
+{% endblock %}

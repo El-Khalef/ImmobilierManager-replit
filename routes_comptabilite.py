@@ -373,18 +373,20 @@ def register_comptabilite_routes(app):
     @app.route('/comptabilite/rapports', methods=['GET', 'POST'])
     def rapports_comptables():
         """Génération de rapports comptables"""
-        form = RapportComptableForm()
+        from models import BienImmobilier
+        from datetime import datetime, date
         
-        if form.validate_on_submit():
-            # Rediriger vers le rapport spécifique
-            return redirect(url_for('generer_rapport',
-                                  type_rapport=form.type_rapport.data,
-                                  date_debut=form.date_debut.data,
-                                  date_fin=form.date_fin.data,
-                                  bien_id=form.bien_id.data if form.bien_id.data != 0 else None,
-                                  format_export=form.format_export.data))
+        # Récupérer les biens pour le formulaire
+        biens = BienImmobilier.query.all()
         
-        return render_template('comptabilite/rapports/form.html', form=form)
+        # Dates par défaut
+        date_fin = date.today()
+        date_debut = date_fin.replace(month=1, day=1)
+        
+        return render_template('comptabilite/rapports/form.html', 
+                             biens=biens,
+                             date_debut=date_debut,
+                             date_fin=date_fin)
     
     @app.route('/comptabilite/rapports/generer')
     def generer_rapport():
