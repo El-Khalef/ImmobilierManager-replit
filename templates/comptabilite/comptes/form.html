@@ -22,7 +22,7 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
                 <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
-                <li class="breadcrumb-item"><a href="{{ url_for('comptes_list') }}">Plan comptable</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptes_index') }}">Plan comptable</a></li>
                 <li class="breadcrumb-item active">
                     {% if compte %}Modifier{% else %}Nouveau{% endif %}
                 </li>
@@ -103,7 +103,7 @@
 
                         <div class="d-flex gap-2">
                             {{ form.submit(class="btn btn-primary") }}
-                            <a href="{{ url_for('comptes_list') }}" class="btn btn-secondary">Annuler</a>
+                            <a href="{{ url_for('comptes_index') }}" class="btn btn-secondary">Annuler</a>
                         </div>
                     </form>
                 </div>
