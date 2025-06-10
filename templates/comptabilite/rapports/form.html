@@ -96,12 +96,12 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        <a href="{{ url_for('rapports_balance') }}" class="list-group-item list-group-item-action">
+                        <a href="{{ url_for('generer_rapport', type_rapport='balance') }}" class="list-group-item list-group-item-action">
                             <i class="fas fa-balance-scale me-2"></i>
                             Balance comptable
                             <small class="text-muted d-block">Situation des comptes</small>
                         </a>
-                        <a href="{{ url_for('rapports_compte_resultat') }}" class="list-group-item list-group-item-action">
+                        <a href="{{ url_for('generer_rapport', type_rapport='compte_resultat') }}" class="list-group-item list-group-item-action">
                             <i class="fas fa-chart-line me-2"></i>
                             Compte de résultat
                             <small class="text-muted d-block">Charges et produits</small>
