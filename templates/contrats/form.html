@@ -163,6 +163,144 @@
                         {% endif %}
                     </div>
                     
+                    <!-- Section Compteurs SOMELEC et SNDE -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bolt me-2"></i>
+                                Informations Compteurs SOMELEC et SNDE
+                            </h5>
+                            <small class="text-muted">
+                                Chaque locataire doit disposer de ses propres compteurs avec quitus du locataire précédent
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <!-- Compteurs SOMELEC -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-bolt me-1"></i>
+                                        SOMELEC - Électricité
+                                    </h6>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.somelec_numero_compteur.label(class="form-label") }}
+                                    {{ form.somelec_numero_compteur(class="form-control") }}
+                                    {% if form.somelec_numero_compteur.errors %}
+                                        {% for error in form.somelec_numero_compteur.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.somelec_code_abonnement.label(class="form-label") }}
+                                    {{ form.somelec_code_abonnement(class="form-control") }}
+                                    {% if form.somelec_code_abonnement.errors %}
+                                        {% for error in form.somelec_code_abonnement.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    {{ form.somelec_index_initial.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.somelec_index_initial(class="form-control") }}
+                                        <span class="input-group-text">kWh</span>
+                                    </div>
+                                    {% if form.somelec_index_initial.errors %}
+                                        {% for error in form.somelec_index_initial.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.somelec_date_branchement.label(class="form-label") }}
+                                    {{ form.somelec_date_branchement(class="form-control") }}
+                                    {% if form.somelec_date_branchement.errors %}
+                                        {% for error in form.somelec_date_branchement.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <div class="form-check">
+                                        {{ form.somelec_quitus_precedent(class="form-check-input") }}
+                                        {{ form.somelec_quitus_precedent.label(class="form-check-label") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <!-- Compteurs SNDE -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h6 class="text-info">
+                                        <i class="fas fa-tint me-1"></i>
+                                        SNDE - Eau
+                                    </h6>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.snde_numero_compteur.label(class="form-label") }}
+                                    {{ form.snde_numero_compteur(class="form-control") }}
+                                    {% if form.snde_numero_compteur.errors %}
+                                        {% for error in form.snde_numero_compteur.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.snde_code_abonnement.label(class="form-label") }}
+                                    {{ form.snde_code_abonnement(class="form-control") }}
+                                    {% if form.snde_code_abonnement.errors %}
+                                        {% for error in form.snde_code_abonnement.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    {{ form.snde_index_initial.label(class="form-label") }}
+                                    <div class="input-group">
+                                        {{ form.snde_index_initial(class="form-control") }}
+                                        <span class="input-group-text">m³</span>
+                                    </div>
+                                    {% if form.snde_index_initial.errors %}
+                                        {% for error in form.snde_index_initial.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.snde_date_branchement.label(class="form-label") }}
+                                    {{ form.snde_date_branchement(class="form-control") }}
+                                    {% if form.snde_date_branchement.errors %}
+                                        {% for error in form.snde_date_branchement.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <div class="form-check">
+                                        {{ form.snde_quitus_precedent(class="form-check-input") }}
+                                        {{ form.snde_quitus_precedent.label(class="form-check-label") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Boutons -->
                     <div class="d-flex justify-content-between">
                         <a href="{{ url_for('contrats_index') }}" class="btn btn-secondary">

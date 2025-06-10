@@ -131,6 +131,21 @@ class ContratForm(FlaskForm):
                         default='actif',
                         validators=[DataRequired()])
     conditions_particulieres = TextAreaField('Conditions particulières', widget=TextArea())
+    
+    # Compteurs SOMELEC (Électricité)
+    somelec_numero_compteur = StringField('N° compteur SOMELEC', validators=[Optional(), Length(max=50)])
+    somelec_code_abonnement = StringField('Code abonnement SOMELEC', validators=[Optional(), Length(max=50)])
+    somelec_index_initial = FloatField('Index initial électricité (kWh)', validators=[Optional(), NumberRange(min=0)])
+    somelec_date_branchement = DateField('Date branchement électricité', validators=[Optional()])
+    somelec_quitus_precedent = BooleanField('Quitus du locataire précédent obtenu')
+    
+    # Compteurs SNDE (Eau)
+    snde_numero_compteur = StringField('N° compteur SNDE', validators=[Optional(), Length(max=50)])
+    snde_code_abonnement = StringField('Code abonnement SNDE', validators=[Optional(), Length(max=50)])
+    snde_index_initial = FloatField('Index initial eau (m³)', validators=[Optional(), NumberRange(min=0)])
+    snde_date_branchement = DateField('Date branchement eau', validators=[Optional()])
+    snde_quitus_precedent = BooleanField('Quitus du locataire précédent obtenu')
+    
     submit = SubmitField('Enregistrer')
     
     def __init__(self, *args, **kwargs):
