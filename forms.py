@@ -7,6 +7,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
 from wtforms.widgets import TextArea
+from datetime import date
 from models import Client, BienImmobilier, ContratLocation
 from app import db
 
@@ -278,3 +279,47 @@ class DocumentContratForm(FlaskForm):
                             'mp4', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'm4a'], 
                            'Format de fichier non autorisé!')
             ]
+
+
+class ReleveCompteurForm(FlaskForm):
+    """Formulaire pour enregistrer un relevé de compteur SOMELEC ou SNDE"""
+    bien_id = SelectField('Bien immobilier', coerce=int, validators=[DataRequired()])
+    type_compteur = SelectField('Type de compteur',
+                               choices=[
+                                   ('somelec', 'SOMELEC - Électricité'),
+                                   ('snde', 'SNDE - Eau')
+                               ],
+                               validators=[DataRequired()])
+    numero_compteur = StringField('Numéro du compteur', validators=[DataRequired(), Length(max=50)])
+    code_abonnement = StringField('Code d\'abonnement', validators=[Optional(), Length(max=50)])
+    date_releve = DateField('Date du relevé', validators=[DataRequired()])
+    index_precedent = FloatField('Index précédent', validators=[Optional(), NumberRange(min=0)], default=0)
+    index_actuel = FloatField('Index actuel', validators=[DataRequired(), NumberRange(min=0)])
+    montant_facture = FloatField('Montant de la facture (MRU)', validators=[Optional(), NumberRange(min=0)])
+    statut_paiement = SelectField('Statut du paiement',
+                                 choices=[
+                                     ('en_attente', 'En attente'),
+                                     ('paye_proprietaire', 'Payé par le propriétaire'),
+                                     ('paye_locataire', 'Payé par le locataire')
+                                 ],
+                                 default='en_attente',
+                                 validators=[DataRequired()])
+    locataire_id = SelectField('Locataire responsable', coerce=int, validators=[Optional()])
+    remarques = TextAreaField('Remarques', validators=[Optional()])
+    submit = SubmitField('Enregistrer le relevé')
+    
+    def __init__(self, *args, **kwargs):
+        super(ReleveCompteurForm, self).__init__(*args, **kwargs)
+        # Charger les biens immobiliers
+        biens = BienImmobilier.query.all()
+        self.bien_id.choices = [
+            (bien.id, f"{bien.titre} - {bien.adresse}")
+            for bien in biens
+        ]
+        
+        # Charger les locataires
+        locataires = Client.query.filter_by(type_client='locataire').all()
+        self.locataire_id.choices = [(0, 'Aucun locataire spécifique')] + [
+            (client.id, client.nom_complet)
+            for client in locataires
+        ]
