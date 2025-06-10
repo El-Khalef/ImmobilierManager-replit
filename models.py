@@ -74,17 +74,6 @@ class BienImmobilier(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     
-    # Informations compteurs et abonnements
-    somelec_numero_compteur = db.Column(db.String(50), nullable=True)  # Numéro compteur électricité
-    somelec_code_abonnement = db.Column(db.String(50), nullable=True)  # Code abonnement SOMELEC
-    somelec_index_actuel = db.Column(db.Float, nullable=True)  # Index actuel du compteur électricité
-    somelec_date_releve = db.Column(db.Date, nullable=True)  # Date du dernier relevé
-    
-    snde_numero_compteur = db.Column(db.String(50), nullable=True)  # Numéro compteur eau
-    snde_code_abonnement = db.Column(db.String(50), nullable=True)  # Code abonnement SNDE
-    snde_index_actuel = db.Column(db.Float, nullable=True)  # Index actuel du compteur eau
-    snde_date_releve = db.Column(db.Date, nullable=True)  # Date du dernier relevé
-    
     # Relations
     proprietaire = db.relationship('Client', backref='biens_possedes')
     
@@ -122,6 +111,20 @@ class ContratLocation(db.Model):
     statut = db.Column(db.String(20), default='actif')  # actif, termine, suspendu
     conditions_particulieres = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Compteurs SOMELEC (Électricité) - spécifiques au contrat
+    somelec_numero_compteur = db.Column(db.String(50))
+    somelec_code_abonnement = db.Column(db.String(50))
+    somelec_index_initial = db.Column(db.Float, default=0)
+    somelec_date_branchement = db.Column(db.Date)
+    somelec_quitus_precedent = db.Column(db.Boolean, default=False)  # Attestation de règlement
+    
+    # Compteurs SNDE (Eau) - spécifiques au contrat
+    snde_numero_compteur = db.Column(db.String(50))
+    snde_code_abonnement = db.Column(db.String(50))
+    snde_index_initial = db.Column(db.Float, default=0)
+    snde_date_branchement = db.Column(db.Date)
+    snde_quitus_precedent = db.Column(db.Boolean, default=False)  # Attestation de règlement
     
     # Relations
     bien = db.relationship('BienImmobilier', backref='contrats')
@@ -169,7 +172,7 @@ class ReleveCompteur(db.Model):
     __tablename__ = 'releves_compteurs'
     
     id = db.Column(db.Integer, primary_key=True)
-    bien_id = db.Column(db.Integer, db.ForeignKey('biens_immobiliers.id'), nullable=False)
+    contrat_id = db.Column(db.Integer, db.ForeignKey('contrats_location.id'), nullable=False)
     type_compteur = db.Column(db.String(20), nullable=False)  # 'somelec' ou 'snde'
     numero_compteur = db.Column(db.String(50), nullable=False)
     code_abonnement = db.Column(db.String(50))
@@ -179,16 +182,14 @@ class ReleveCompteur(db.Model):
     consommation = db.Column(db.Float)  # Calculée automatiquement
     montant_facture = db.Column(db.Float)  # Montant de la facture si disponible
     statut_paiement = db.Column(db.String(20), default='en_attente')  # en_attente, paye_proprietaire, paye_locataire
-    locataire_id = db.Column(db.Integer, db.ForeignKey('clients.id'))  # Locataire responsable du paiement
     remarques = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relations
-    bien = db.relationship('BienImmobilier', backref='releves_compteurs')
-    locataire = db.relationship('Client', backref='releves_compteurs')
+    contrat = db.relationship('ContratLocation', backref='releves_compteurs')
     
     def __repr__(self):
-        return f'<ReleveCompteur {self.type_compteur} - {self.bien.titre}>'
+        return f'<ReleveCompteur {self.type_compteur} - Contrat {self.contrat_id}>'
     
     @property
     def unite_mesure(self):
@@ -211,13 +212,7 @@ class ReleveCompteur(db.Model):
         """Accès au bien via le contrat"""
         return self.contrat.bien if self.contrat else None
     
-    @property
-    def periode(self):
-        mois_noms = [
-            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-        ]
-        return f"{mois_noms[self.mois - 1]} {self.annee}"
+
 
 
 class PhotoBien(db.Model):

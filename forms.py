@@ -283,7 +283,7 @@ class DocumentContratForm(FlaskForm):
 
 class ReleveCompteurForm(FlaskForm):
     """Formulaire pour enregistrer un relevé de compteur SOMELEC ou SNDE"""
-    bien_id = SelectField('Bien immobilier', coerce=int, validators=[DataRequired()])
+    contrat_id = SelectField('Contrat de location', coerce=int, validators=[DataRequired()])
     type_compteur = SelectField('Type de compteur',
                                choices=[
                                    ('somelec', 'SOMELEC - Électricité'),
@@ -304,22 +304,14 @@ class ReleveCompteurForm(FlaskForm):
                                  ],
                                  default='en_attente',
                                  validators=[DataRequired()])
-    locataire_id = SelectField('Locataire responsable', coerce=int, validators=[Optional()])
     remarques = TextAreaField('Remarques', validators=[Optional()])
     submit = SubmitField('Enregistrer le relevé')
     
     def __init__(self, *args, **kwargs):
         super(ReleveCompteurForm, self).__init__(*args, **kwargs)
-        # Charger les biens immobiliers
-        biens = BienImmobilier.query.all()
-        self.bien_id.choices = [
-            (bien.id, f"{bien.titre} - {bien.adresse}")
-            for bien in biens
-        ]
-        
-        # Charger les locataires
-        locataires = Client.query.filter_by(type_client='locataire').all()
-        self.locataire_id.choices = [(0, 'Aucun locataire spécifique')] + [
-            (client.id, client.nom_complet)
-            for client in locataires
+        # Charger les contrats actifs
+        contrats = ContratLocation.query.filter_by(statut='actif').all()
+        self.contrat_id.choices = [
+            (contrat.id, f"{contrat.bien.titre} - {contrat.locataire.nom_complet}")
+            for contrat in contrats
         ]
