@@ -74,6 +74,17 @@ class BienImmobilier(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     
+    # Informations compteurs et abonnements
+    somelec_numero_compteur = db.Column(db.String(50), nullable=True)  # Numéro compteur électricité
+    somelec_code_abonnement = db.Column(db.String(50), nullable=True)  # Code abonnement SOMELEC
+    somelec_index_actuel = db.Column(db.Float, nullable=True)  # Index actuel du compteur électricité
+    somelec_date_releve = db.Column(db.Date, nullable=True)  # Date du dernier relevé
+    
+    snde_numero_compteur = db.Column(db.String(50), nullable=True)  # Numéro compteur eau
+    snde_code_abonnement = db.Column(db.String(50), nullable=True)  # Code abonnement SNDE
+    snde_index_actuel = db.Column(db.Float, nullable=True)  # Index actuel du compteur eau
+    snde_date_releve = db.Column(db.Date, nullable=True)  # Date du dernier relevé
+    
     # Relations
     proprietaire = db.relationship('Client', backref='biens_possedes')
     
@@ -151,6 +162,44 @@ class PaiementLoyer(db.Model):
     @property
     def montant_total(self):
         return self.montant_loyer + (self.montant_charges or 0)
+
+
+class ReleveCompteur(db.Model):
+    """Modèle pour l'historique des relevés de compteurs SOMELEC et SNDE"""
+    __tablename__ = 'releves_compteurs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    bien_id = db.Column(db.Integer, db.ForeignKey('biens_immobiliers.id'), nullable=False)
+    type_compteur = db.Column(db.String(20), nullable=False)  # 'somelec' ou 'snde'
+    numero_compteur = db.Column(db.String(50), nullable=False)
+    code_abonnement = db.Column(db.String(50))
+    date_releve = db.Column(db.Date, nullable=False)
+    index_precedent = db.Column(db.Float, default=0)
+    index_actuel = db.Column(db.Float, nullable=False)
+    consommation = db.Column(db.Float)  # Calculée automatiquement
+    montant_facture = db.Column(db.Float)  # Montant de la facture si disponible
+    statut_paiement = db.Column(db.String(20), default='en_attente')  # en_attente, paye_proprietaire, paye_locataire
+    locataire_id = db.Column(db.Integer, db.ForeignKey('clients.id'))  # Locataire responsable du paiement
+    remarques = db.Column(db.Text)
+    date_creation = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relations
+    bien = db.relationship('BienImmobilier', backref='releves_compteurs')
+    locataire = db.relationship('Client', backref='releves_compteurs')
+    
+    def __repr__(self):
+        return f'<ReleveCompteur {self.type_compteur} - {self.bien.titre}>'
+    
+    @property
+    def unite_mesure(self):
+        """Retourne l'unité de mesure selon le type de compteur"""
+        return 'kWh' if self.type_compteur == 'somelec' else 'm³'
+    
+    def calculer_consommation(self):
+        """Calcule la consommation depuis le dernier relevé"""
+        if self.index_actuel and self.index_precedent:
+            self.consommation = self.index_actuel - self.index_precedent
+        return self.consommation or 0
     
     @property
     def client(self):

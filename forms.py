@@ -69,6 +69,19 @@ class BienForm(FlaskForm):
     annee_construction = IntegerField('Année de construction', validators=[Optional(), NumberRange(min=1800, max=2030)])
     latitude = FloatField('Latitude', validators=[Optional(), NumberRange(min=-90, max=90)])
     longitude = FloatField('Longitude', validators=[Optional(), NumberRange(min=-180, max=180)])
+    
+    # Compteurs SOMELEC (Électricité)
+    somelec_numero_compteur = StringField('N° compteur SOMELEC', validators=[Optional(), Length(max=50)])
+    somelec_code_abonnement = StringField('Code abonnement SOMELEC', validators=[Optional(), Length(max=50)])
+    somelec_index_actuel = FloatField('Index actuel électricité (kWh)', validators=[Optional(), NumberRange(min=0)])
+    somelec_date_releve = DateField('Date relevé électricité', validators=[Optional()])
+    
+    # Compteurs SNDE (Eau)
+    snde_numero_compteur = StringField('N° compteur SNDE', validators=[Optional(), Length(max=50)])
+    snde_code_abonnement = StringField('Code abonnement SNDE', validators=[Optional(), Length(max=50)])
+    snde_index_actuel = FloatField('Index actuel eau (m³)', validators=[Optional(), NumberRange(min=0)])
+    snde_date_releve = DateField('Date relevé eau', validators=[Optional()])
+    
     proprietaire_id = SelectField('Propriétaire', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Enregistrer')
     

@@ -112,6 +112,100 @@
             </div>
         {% endif %}
         
+        <!-- Compteurs et abonnements -->
+        {% if bien.somelec_numero_compteur or bien.snde_numero_compteur %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Compteurs et abonnements
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- SOMELEC -->
+                        {% if bien.somelec_numero_compteur %}
+                        <div class="col-md-6">
+                            <h6 class="text-primary">
+                                <i class="fas fa-bolt me-1"></i>
+                                SOMELEC - Électricité
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>N° compteur :</strong></td>
+                                        <td>{{ bien.somelec_numero_compteur }}</td>
+                                    </tr>
+                                    {% if bien.somelec_code_abonnement %}
+                                    <tr>
+                                        <td><strong>Code abonnement :</strong></td>
+                                        <td>{{ bien.somelec_code_abonnement }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if bien.somelec_index_actuel %}
+                                    <tr>
+                                        <td><strong>Index actuel :</strong></td>
+                                        <td>{{ "{:,.0f}".format(bien.somelec_index_actuel) }} kWh</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if bien.somelec_date_releve %}
+                                    <tr>
+                                        <td><strong>Dernier relevé :</strong></td>
+                                        <td>{{ bien.somelec_date_releve.strftime('%d/%m/%Y') }}</td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- SNDE -->
+                        {% if bien.snde_numero_compteur %}
+                        <div class="col-md-6">
+                            <h6 class="text-info">
+                                <i class="fas fa-tint me-1"></i>
+                                SNDE - Eau
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>N° compteur :</strong></td>
+                                        <td>{{ bien.snde_numero_compteur }}</td>
+                                    </tr>
+                                    {% if bien.snde_code_abonnement %}
+                                    <tr>
+                                        <td><strong>Code abonnement :</strong></td>
+                                        <td>{{ bien.snde_code_abonnement }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if bien.snde_index_actuel %}
+                                    <tr>
+                                        <td><strong>Index actuel :</strong></td>
+                                        <td>{{ "{:,.1f}".format(bien.snde_index_actuel) }} m³</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if bien.snde_date_releve %}
+                                    <tr>
+                                        <td><strong>Dernier relevé :</strong></td>
+                                        <td>{{ bien.snde_date_releve.strftime('%d/%m/%Y') }}</td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if not bien.somelec_numero_compteur and not bien.snde_numero_compteur %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Aucune information de compteur renseignée
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
         <!-- Contrats associés -->
         {% if bien.contrats %}
             <div class="card mb-4">

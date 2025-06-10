@@ -186,6 +186,67 @@
                         </div>
                     </div>
                     
+                    <!-- Compteurs et abonnements -->
+                    <h5 class="mt-4 mb-3">Compteurs et abonnements</h5>
+                    
+                    <!-- SOMELEC (Électricité) -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6 class="text-primary">SOMELEC - Électricité</h6>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.somelec_numero_compteur.label(class="form-label") }}
+                            {{ form.somelec_numero_compteur(class="form-control", placeholder="Ex: 12345678") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.somelec_code_abonnement.label(class="form-label") }}
+                            {{ form.somelec_code_abonnement(class="form-control", placeholder="Ex: AB123456") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.somelec_index_actuel.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.somelec_index_actuel(class="form-control", placeholder="0") }}
+                                <span class="input-group-text">kWh</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.somelec_date_releve.label(class="form-label") }}
+                            {{ form.somelec_date_releve(class="form-control") }}
+                        </div>
+                    </div>
+                    
+                    <!-- SNDE (Eau) -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6 class="text-info">SNDE - Eau</h6>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.snde_numero_compteur.label(class="form-label") }}
+                            {{ form.snde_numero_compteur(class="form-control", placeholder="Ex: 87654321") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.snde_code_abonnement.label(class="form-label") }}
+                            {{ form.snde_code_abonnement(class="form-control", placeholder="Ex: CD789012") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.snde_index_actuel.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.snde_index_actuel(class="form-control", placeholder="0") }}
+                                <span class="input-group-text">m³</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.snde_date_releve.label(class="form-label") }}
+                            {{ form.snde_date_releve(class="form-control") }}
+                        </div>
+                    </div>
+
                     <!-- Propriétaire -->
                     <div class="mb-3">
                         {{ form.proprietaire_id.label(class="form-label") }}
