@@ -22,7 +22,7 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
                 <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
-                <li class="breadcrumb-item"><a href="{{ url_for('budgets_list') }}">Budgets</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('budgets_index') }}">Budgets</a></li>
                 <li class="breadcrumb-item active">
                     {% if budget %}Modifier{% else %}Nouveau{% endif %}
                 </li>
