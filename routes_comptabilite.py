@@ -329,6 +329,33 @@ def register_comptabilite_routes(app):
         
         return redirect(url_for('comptes_index'))
     
+    @app.route('/comptabilite/comptes/ajouter', methods=['GET', 'POST'])
+    def comptes_add():
+        """Ajouter un nouveau compte comptable"""
+        form = CompteComptableForm()
+        
+        if form.validate_on_submit():
+            compte = CompteComptable(
+                numero_compte=form.numero_compte.data,
+                nom_compte=form.nom_compte.data,
+                type_compte=form.type_compte.data,
+                description=form.description.data,
+                actif=form.actif.data
+            )
+            
+            try:
+                db.session.add(compte)
+                db.session.commit()
+                flash('Compte comptable ajouté avec succès.', 'success')
+                return redirect(url_for('comptes_index'))
+            except Exception as e:
+                db.session.rollback()
+                flash('Erreur lors de l\'ajout du compte comptable.', 'danger')
+        
+        return render_template('comptabilite/comptes/form.html',
+                             form=form,
+                             title='Ajouter un compte comptable')
+    
     @app.route('/comptabilite/budgets')
     def budgets_index():
         """Liste des budgets prévisionnels"""

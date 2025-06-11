@@ -1,129 +1,87 @@
 {% extends "base.html" %}
 
-{% block title %}
-    {% if compte %}
-        Modifier le compte comptable
-    {% else %}
-        Nouveau compte comptable
-    {% endif %}
-{% endblock %}
+{% block title %}{{ title }} - Gestion Immobilière{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">
-            {% if compte %}
-                Modifier le compte comptable
-            {% else %}
-                Nouveau compte comptable
-            {% endif %}
-        </h1>
+<div class="row mb-4">
+    <div class="col">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Accueil</a></li>
                 <li class="breadcrumb-item"><a href="{{ url_for('comptabilite_dashboard') }}">Comptabilité</a></li>
-                <li class="breadcrumb-item"><a href="{{ url_for('comptes_index') }}">Plan comptable</a></li>
-                <li class="breadcrumb-item active">
-                    {% if compte %}Modifier{% else %}Nouveau{% endif %}
-                </li>
+                <li class="breadcrumb-item"><a href="{{ url_for('comptes_index') }}">Comptes</a></li>
+                <li class="breadcrumb-item active">{{ title }}</li>
             </ol>
         </nav>
+        <h1 class="h2">{{ title }}</h1>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Informations du compte</h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        {{ form.hidden_tag() }}
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.numero_compte.label(class="form-label") }}
-                                    {{ form.numero_compte(class="form-control") }}
-                                    {% if form.numero_compte.errors %}
-                                        <div class="text-danger">
-                                            {% for error in form.numero_compte.errors %}
-                                                <small>{{ error }}</small>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.nom_compte.label(class="form-label") }}
-                                    {{ form.nom_compte(class="form-control") }}
-                                    {% if form.nom_compte.errors %}
-                                        <div class="text-danger">
-                                            {% for error in form.nom_compte.errors %}
-                                                <small>{{ error }}</small>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.numero_compte.label(class="form-label") }}
+                            {{ form.numero_compte(class="form-control") }}
+                            {% if form.numero_compte.errors %}
+                                {% for error in form.numero_compte.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.type_compte.label(class="form-label") }}
-                                    {{ form.type_compte(class="form-select") }}
-                                    {% if form.type_compte.errors %}
-                                        <div class="text-danger">
-                                            {% for error in form.type_compte.errors %}
-                                                <small>{{ error }}</small>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.sous_type.label(class="form-label") }}
-                                    {{ form.sous_type(class="form-control") }}
-                                </div>
-                            </div>
+                        <div class="col-md-8">
+                            {{ form.nom_compte.label(class="form-label") }}
+                            {{ form.nom_compte(class="form-control") }}
+                            {% if form.nom_compte.errors %}
+                                {% for error in form.nom_compte.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-
-                        <div class="mb-3">
-                            {{ form.compte_parent_id.label(class="form-label") }}
-                            {{ form.compte_parent_id(class="form-select") }}
-                        </div>
-
-                        <div class="form-check mb-3">
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.type_compte.label(class="form-label") }}
+                        {{ form.type_compte(class="form-select") }}
+                        {% if form.type_compte.errors %}
+                            {% for error in form.type_compte.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
                             {{ form.actif(class="form-check-input") }}
                             {{ form.actif.label(class="form-check-label") }}
                         </div>
-
-                        <div class="d-flex gap-2">
-                            {{ form.submit(class="btn btn-primary") }}
-                            <a href="{{ url_for('comptes_index') }}" class="btn btn-secondary">Annuler</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">Types de comptes</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="small text-muted">
-                        <li><strong>Actif :</strong> Biens possédés</li>
-                        <li><strong>Passif :</strong> Dettes et capitaux</li>
-                        <li><strong>Charge :</strong> Dépenses</li>
-                        <li><strong>Produit :</strong> Revenus</li>
-                        <li><strong>Résultat :</strong> Bénéfice/Perte</li>
-                    </ul>
-                </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('comptes_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
