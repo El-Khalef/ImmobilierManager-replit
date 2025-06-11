@@ -84,14 +84,22 @@
 
 <script>
 function confirmerSuppression(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette écriture ?')) {
+    if (confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous absolument sûr de vouloir supprimer cette écriture comptable ?\n\nCette action est IRRÉVERSIBLE et peut affecter vos comptes.\n\nCliquez sur OK pour confirmer la suppression définitive.')) {
         fetch(`/comptabilite/ecritures/${id}/supprimer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
             }
-        }).then(() => {
-            location.reload();
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la suppression. Veuillez réessayer.');
+            }
+        }).catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur de connexion. Veuillez réessayer.');
         });
     }
 }

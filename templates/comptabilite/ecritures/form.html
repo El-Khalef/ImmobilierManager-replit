@@ -197,10 +197,12 @@ async function genererNumero() {
     }
 }
 
-// Générer automatiquement le numéro au chargement si le champ est vide
+// Générer automatiquement le numéro au chargement si le champ est vide (seulement pour les nouveaux)
 document.addEventListener('DOMContentLoaded', function() {
     const champNumero = document.getElementById('numero_piece');
-    if (champNumero && !champNumero.value) {
+    const isEdit = window.location.pathname.includes('/modifier');
+    
+    if (champNumero && !champNumero.value && !isEdit) {
         genererNumero();
     }
 });

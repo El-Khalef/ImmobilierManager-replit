@@ -314,6 +314,58 @@ def register_comptabilite_routes(app):
         numero = EcritureComptable.generer_numero_piece()
         return jsonify({'numero': numero})
     
+    @app.route('/comptabilite/ecritures/<int:id>/modifier', methods=['GET', 'POST'])
+    def ecritures_edit(id):
+        """Modifier une écriture comptable"""
+        ecriture = EcritureComptable.query.get_or_404(id)
+        form = EcritureComptableForm(obj=ecriture)
+        
+        if form.validate_on_submit():
+            # Générer automatiquement le numéro de pièce si vide
+            if form.numero_piece.data:
+                ecriture.numero_piece = form.numero_piece.data
+            else:
+                ecriture.numero_piece = EcritureComptable.generer_numero_piece()
+                
+            ecriture.date_ecriture = form.date_ecriture.data
+            ecriture.date_operation = form.date_operation.data
+            ecriture.compte_debit_id = form.compte_debit_id.data
+            ecriture.compte_credit_id = form.compte_credit_id.data
+            ecriture.montant = form.montant.data
+            ecriture.libelle = form.libelle.data
+            ecriture.type_operation = form.type_operation.data
+            ecriture.reference_externe = form.reference_externe.data
+            ecriture.bien_id = form.bien_id.data if form.bien_id.data != 0 else None
+            ecriture.client_id = form.client_id.data if form.client_id.data != 0 else None
+            
+            try:
+                db.session.commit()
+                flash('Écriture comptable modifiée avec succès.', 'success')
+                return redirect(url_for('ecritures_index'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Erreur lors de la modification: {str(e)}', 'error')
+        
+        return render_template('comptabilite/ecritures/form.html', 
+                             form=form, 
+                             titre="Modifier l'écriture",
+                             ecriture=ecriture)
+    
+    @app.route('/comptabilite/ecritures/<int:id>/supprimer', methods=['POST'])
+    def ecritures_delete(id):
+        """Supprimer une écriture comptable"""
+        ecriture = EcritureComptable.query.get_or_404(id)
+        
+        try:
+            db.session.delete(ecriture)
+            db.session.commit()
+            flash('Écriture comptable supprimée avec succès.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erreur lors de la suppression: {str(e)}', 'error')
+        
+        return jsonify({'success': True})
+    
     @app.route('/comptabilite/comptes')
     def comptes_index():
         """Plan comptable"""
