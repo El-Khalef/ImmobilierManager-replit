@@ -330,6 +330,25 @@ class EcritureComptable(db.Model):
     
     def __repr__(self):
         return f'<Ecriture {self.numero_piece} - {self.montant} MRU>'
+    
+    @staticmethod
+    def generer_numero_piece():
+        """Génère automatiquement un numéro de pièce au format AAAA-NNNN"""
+        from datetime import datetime
+        from sqlalchemy import func
+        
+        annee_courante = datetime.now().year
+        
+        # Compter les écritures de l'année courante
+        count = db.session.query(func.count(EcritureComptable.id)).filter(
+            func.extract('year', EcritureComptable.date_ecriture) == annee_courante
+        ).scalar() or 0
+        
+        # Nouveau numéro séquentiel
+        numero_sequence = count + 1
+        
+        # Format: 2025-0001, 2025-0002, etc.
+        return f"{annee_courante}-{numero_sequence:04d}"
 
 
 class DepenseImmobiliere(db.Model):

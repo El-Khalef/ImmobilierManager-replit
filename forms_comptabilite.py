@@ -84,7 +84,8 @@ class DepenseForm(FlaskForm):
 
 class EcritureComptableForm(FlaskForm):
     """Formulaire pour saisir une écriture comptable"""
-    numero_piece = StringField('Numéro de pièce', validators=[DataRequired(), Length(max=50)])
+    numero_piece = StringField('Numéro de pièce', validators=[Optional(), Length(max=50)], 
+                              render_kw={'placeholder': 'Généré automatiquement si vide'})
     date_ecriture = DateField('Date d\'écriture', validators=[DataRequired()], default=date.today)
     date_operation = DateField('Date d\'opération', validators=[DataRequired()], default=date.today)
     compte_debit_id = SelectField('Compte à débiter', coerce=int, validators=[DataRequired()])

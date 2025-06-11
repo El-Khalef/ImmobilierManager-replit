@@ -280,7 +280,11 @@ def register_comptabilite_routes(app):
         
         if form.validate_on_submit():
             ecriture = EcritureComptable()
-            ecriture.numero_piece = form.numero_piece.data
+            # Générer automatiquement le numéro de pièce si vide
+            if form.numero_piece.data:
+                ecriture.numero_piece = form.numero_piece.data
+            else:
+                ecriture.numero_piece = EcritureComptable.generer_numero_piece()
             ecriture.date_ecriture = form.date_ecriture.data
             ecriture.date_operation = form.date_operation.data
             ecriture.compte_debit_id = form.compte_debit_id.data
@@ -303,6 +307,12 @@ def register_comptabilite_routes(app):
         return render_template('comptabilite/ecritures/form.html', 
                              form=form, 
                              titre="Ajouter une écriture")
+    
+    @app.route('/comptabilite/ecritures/generer-numero')
+    def generer_numero_piece():
+        """API pour générer un numéro de pièce automatiquement"""
+        numero = EcritureComptable.generer_numero_piece()
+        return jsonify({'numero': numero})
     
     @app.route('/comptabilite/comptes')
     def comptes_index():

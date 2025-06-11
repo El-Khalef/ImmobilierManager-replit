@@ -44,7 +44,13 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     {{ form.numero_piece.label(class="form-label") }}
-                                    {{ form.numero_piece(class="form-control") }}
+                                    <div class="input-group">
+                                        {{ form.numero_piece(class="form-control") }}
+                                        <button type="button" class="btn btn-outline-secondary" onclick="genererNumero()" title="Générer automatiquement">
+                                            <i class="fas fa-magic"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Laisser vide pour génération automatique (format: AAAA-NNNN)</small>
                                     {% if form.numero_piece.errors %}
                                         <div class="text-danger">
                                             {% for error in form.numero_piece.errors %}
@@ -173,4 +179,30 @@
         </div>
     </div>
 </div>
+
+<script>
+async function genererNumero() {
+    try {
+        const response = await fetch('/comptabilite/ecritures/generer-numero');
+        const data = await response.json();
+        if (data.numero) {
+            document.getElementById('numero_piece').value = data.numero;
+        }
+    } catch (error) {
+        console.error('Erreur lors de la génération du numéro:', error);
+        // Génération côté client en cas d'erreur
+        const annee = new Date().getFullYear();
+        const numero = Math.floor(Math.random() * 9999) + 1;
+        document.getElementById('numero_piece').value = `${annee}-${numero.toString().padStart(4, '0')}`;
+    }
+}
+
+// Générer automatiquement le numéro au chargement si le champ est vide
+document.addEventListener('DOMContentLoaded', function() {
+    const champNumero = document.getElementById('numero_piece');
+    if (champNumero && !champNumero.value) {
+        genererNumero();
+    }
+});
+</script>
 {% endblock %}
