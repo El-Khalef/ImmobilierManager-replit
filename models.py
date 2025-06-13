@@ -165,6 +165,31 @@ class PaiementLoyer(db.Model):
     @property
     def montant_total(self):
         return self.montant_loyer + (self.montant_charges or 0)
+    
+    @property
+    def periode(self):
+        """Retourne la période formatée"""
+        mois_noms = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+        ]
+        return f"{mois_noms[self.mois - 1]} {self.annee}"
+    
+    @property
+    def est_en_retard(self):
+        """Vérifie si le paiement est en retard"""
+        from datetime import date
+        return self.statut != 'paye' and self.date_echeance < date.today()
+    
+    @property
+    def client(self):
+        """Accès au client via le contrat"""
+        return self.contrat.locataire if self.contrat else None
+    
+    @property 
+    def bien(self):
+        """Accès au bien via le contrat"""
+        return self.contrat.bien if self.contrat else None
 
 
 class ReleveCompteur(db.Model):
