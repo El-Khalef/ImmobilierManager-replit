@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Journaux Comptables{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Journaux Comptables</h2>
+                    <p class="text-muted">Consultation des écritures par journal spécialisé</p>
+                </div>
+                <a href="{{ url_for('comptabilite_index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <div class="row">
+                {% for journal in journaux %}
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary text-white rounded p-2 me-3">
+                                    <strong>{{ journal.code }}</strong>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-1">{{ journal.nom }}</h5>
+                                    <small class="text-muted">{{ journal.description }}</small>
+                                </div>
+                            </div>
+                            
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="h4 mb-0">{{ journal.count }}</div>
+                                    <small class="text-muted">Écritures</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 mb-0 text-success">{{ formater_montant(journal.total) }}</div>
+                                    <small class="text-muted">Total MRU</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('journaux_detail', code=journal.code) }}" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-eye"></i> Consulter le journal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> À propos des journaux comptables</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Journal des Ventes (VT)</h6>
+                                    <p class="small text-muted">Enregistre tous les encaissements : loyers collectés, ventes immobilières, etc.</p>
+                                    
+                                    <h6>Journal des Achats (AC)</h6>
+                                    <p class="small text-muted">Enregistre tous les décaissements : achats, dépenses, factures fournisseurs, etc.</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Journal de Banque (BQ)</h6>
+                                    <p class="small text-muted">Enregistre les opérations bancaires : virements, emprunts, remboursements, etc.</p>
+                                    
+                                    <h6>Journal des Opérations Diverses (OD)</h6>
+                                    <p class="small text-muted">Enregistre toutes les autres opérations comptables non classées ailleurs.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

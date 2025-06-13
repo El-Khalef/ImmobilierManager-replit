@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ journal.nom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>{{ journal.nom }} ({{ journal.code }})</h2>
+                    <p class="text-muted">{{ journal.description }}</p>
+                </div>
+                <a href="{{ url_for('journaux_index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour aux journaux
+                </a>
+            </div>
+
+            <!-- Résumé du journal -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h3 class="text-primary">{{ ecritures|length }}</h3>
+                            <p class="text-muted mb-0">Écritures dans ce journal</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h3 class="text-success">{{ formater_montant(total_montant) }}</h3>
+                            <p class="text-muted mb-0">Total des montants (MRU)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des écritures -->
+            {% if ecritures %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Écritures du journal {{ journal.code }}</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>N° Pièce</th>
+                                        <th>Date</th>
+                                        <th>Libellé</th>
+                                        <th>Compte Débité</th>
+                                        <th>Compte Crédité</th>
+                                        <th>Montant (MRU)</th>
+                                        <th>Type</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ecriture in ecritures %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ ecriture.numero_piece }}</strong>
+                                        </td>
+                                        <td>{{ ecriture.date_ecriture.strftime('%d/%m/%Y') }}</td>
+                                        <td>{{ ecriture.libelle }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ ecriture.compte_debit.numero_compte }}</span>
+                                            <br><small>{{ ecriture.compte_debit.nom_compte }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">{{ ecriture.compte_credit.numero_compte }}</span>
+                                            <br><small>{{ ecriture.compte_credit.nom_compte }}</small>
+                                        </td>
+                                        <td>
+                                            <strong class="text-primary">{{ formater_montant(ecriture.montant) }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if ecriture.type_operation %}
+                                                <span class="badge bg-secondary">{{ ecriture.type_operation|title }}</span>
+                                            {% else %}
+                                                <span class="badge bg-light text-dark">Non spécifié</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('ecritures_edit', id=ecriture.id) }}" 
+                                                   class="btn btn-sm btn-outline-primary" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="confirmerSuppression({{ ecriture.id }})" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-secondary">
+                                    <tr>
+                                        <th colspan="5" class="text-end">Total du journal :</th>
+                                        <th>{{ formater_montant(total_montant) }}</th>
+                                        <th colspan="2"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                    <h4>Aucune écriture dans ce journal</h4>
+                    <p class="text-muted">Ce journal ne contient aucune écriture pour le moment.</p>
+                    <a href="{{ url_for('ecritures_add') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter une écriture
+                    </a>
+                </div>
+            {% endif %}
+
+            <!-- Actions rapides -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Actions rapides</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="btn-group me-2" role="group">
+                                <a href="{{ url_for('ecritures_add') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus"></i> Nouvelle écriture
+                                </a>
+                                <a href="{{ url_for('ecritures_index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-list"></i> Toutes les écritures
+                                </a>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-outline-success" onclick="exporterJournal('{{ journal.code }}')">
+                                    <i class="fas fa-download"></i> Exporter
+                                </button>
+                                <button class="btn btn-outline-info" onclick="imprimerJournal()">
+                                    <i class="fas fa-print"></i> Imprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmerSuppression(id) {
+    if (confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous absolument sûr de vouloir supprimer cette écriture comptable ?\n\nCette action est IRRÉVERSIBLE et peut affecter vos comptes.\n\nCliquez sur OK pour confirmer la suppression définitive.')) {
+        fetch(`/comptabilite/ecritures/${id}/supprimer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la suppression. Veuillez réessayer.');
+            }
+        }).catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur de connexion. Veuillez réessayer.');
+        });
+    }
+}
+
+function exporterJournal(code) {
+    alert('Fonctionnalité d\'export en cours de développement.');
+}
+
+function imprimerJournal() {
+    window.print();
+}
+</script>
+{% endblock %}

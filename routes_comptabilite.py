@@ -463,6 +463,125 @@ def register_comptabilite_routes(app):
         
         return jsonify({'success': True})
     
+    @app.route('/comptabilite/journaux')
+    def journaux_index():
+        """Liste des journaux comptables"""
+        # Définir les types de journaux avec leurs critères
+        journaux = [
+            {
+                'code': 'VT',
+                'nom': 'Journal des Ventes',
+                'description': 'Encaissements de loyers et ventes',
+                'types': ['loyer', 'vente']
+            },
+            {
+                'code': 'AC',
+                'nom': 'Journal des Achats',
+                'description': 'Achats et dépenses diverses',
+                'types': ['achat', 'depense']
+            },
+            {
+                'code': 'BQ',
+                'nom': 'Journal de Banque',
+                'description': 'Opérations bancaires et financières',
+                'types': ['virement', 'emprunt', 'remboursement']
+            },
+            {
+                'code': 'OD',
+                'nom': 'Journal des Opérations Diverses',
+                'description': 'Autres opérations comptables',
+                'types': ['autre', None]
+            }
+        ]
+        
+        # Calculer les totaux pour chaque journal
+        for journal in journaux:
+            if journal['types'][0] is None:
+                # Pour OD, prendre les écritures sans type ou avec type 'autre'
+                total = db.session.query(func.sum(EcritureComptable.montant)).filter(
+                    or_(
+                        EcritureComptable.type_operation.is_(None),
+                        EcritureComptable.type_operation == 'autre'
+                    )
+                ).scalar() or 0
+                count = db.session.query(func.count(EcritureComptable.id)).filter(
+                    or_(
+                        EcritureComptable.type_operation.is_(None),
+                        EcritureComptable.type_operation == 'autre'
+                    )
+                ).scalar() or 0
+            else:
+                total = db.session.query(func.sum(EcritureComptable.montant)).filter(
+                    EcritureComptable.type_operation.in_(journal['types'])
+                ).scalar() or 0
+                count = db.session.query(func.count(EcritureComptable.id)).filter(
+                    EcritureComptable.type_operation.in_(journal['types'])
+                ).scalar() or 0
+            
+            journal['total'] = float(total)
+            journal['count'] = count
+        
+        return render_template('comptabilite/journaux/index.html',
+                             journaux=journaux,
+                             formater_montant=formater_montant)
+    
+    @app.route('/comptabilite/journaux/<code>')
+    def journaux_detail(code):
+        """Détail d'un journal comptable"""
+        # Définir les journaux et leurs critères
+        journaux_config = {
+            'VT': {
+                'nom': 'Journal des Ventes',
+                'description': 'Encaissements de loyers et ventes',
+                'types': ['loyer', 'vente']
+            },
+            'AC': {
+                'nom': 'Journal des Achats', 
+                'description': 'Achats et dépenses diverses',
+                'types': ['achat', 'depense']
+            },
+            'BQ': {
+                'nom': 'Journal de Banque',
+                'description': 'Opérations bancaires et financières', 
+                'types': ['virement', 'emprunt', 'remboursement']
+            },
+            'OD': {
+                'nom': 'Journal des Opérations Diverses',
+                'description': 'Autres opérations comptables',
+                'types': ['autre', None]
+            }
+        }
+        
+        if code not in journaux_config:
+            flash('Journal non trouvé.', 'error')
+            return redirect(url_for('journaux_index'))
+        
+        journal = journaux_config[code]
+        journal['code'] = code
+        
+        # Récupérer les écritures correspondantes
+        if code == 'OD':
+            # Pour OD, prendre les écritures sans type ou avec type 'autre'
+            ecritures = EcritureComptable.query.filter(
+                or_(
+                    EcritureComptable.type_operation.is_(None),
+                    EcritureComptable.type_operation == 'autre'
+                )
+            ).order_by(EcritureComptable.date_ecriture.desc(), EcritureComptable.numero_piece.desc()).all()
+        else:
+            ecritures = EcritureComptable.query.filter(
+                EcritureComptable.type_operation.in_(journal['types'])
+            ).order_by(EcritureComptable.date_ecriture.desc(), EcritureComptable.numero_piece.desc()).all()
+        
+        # Calculer les totaux
+        total_montant = sum(float(e.montant) for e in ecritures)
+        
+        return render_template('comptabilite/journaux/detail.html',
+                             journal=journal,
+                             ecritures=ecritures,
+                             total_montant=total_montant,
+                             formater_montant=formater_montant)
+    
     @app.route('/comptabilite/budgets')
     def budgets_index():
         """Liste des budgets prévisionnels"""
