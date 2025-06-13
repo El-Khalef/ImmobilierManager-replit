@@ -463,6 +463,132 @@ def register_comptabilite_routes(app):
         
         return jsonify({'success': True})
     
+    @app.route('/comptabilite/comptes/<int:id>/detail')
+    def compte_detail(id):
+        """Consultation détaillée d'un compte comptable"""
+        compte = CompteComptable.query.get_or_404(id)
+        
+        # Récupérer les paramètres de filtre
+        date_debut = request.args.get('date_debut')
+        date_fin = request.args.get('date_fin')
+        
+        # Query de base pour les écritures
+        ecritures_debit = EcritureComptable.query.filter_by(compte_debit_id=id)
+        ecritures_credit = EcritureComptable.query.filter_by(compte_credit_id=id)
+        
+        # Appliquer les filtres de date si fournis
+        if date_debut:
+            try:
+                date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+                ecritures_debit = ecritures_debit.filter(EcritureComptable.date_ecriture >= date_debut_obj)
+                ecritures_credit = ecritures_credit.filter(EcritureComptable.date_ecriture >= date_debut_obj)
+            except ValueError:
+                flash('Format de date de début invalide', 'error')
+        
+        if date_fin:
+            try:
+                date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date()
+                ecritures_debit = ecritures_debit.filter(EcritureComptable.date_ecriture <= date_fin_obj)
+                ecritures_credit = ecritures_credit.filter(EcritureComptable.date_ecriture <= date_fin_obj)
+            except ValueError:
+                flash('Format de date de fin invalide', 'error')
+        
+        # Récupérer toutes les écritures
+        ecritures_debit_list = ecritures_debit.all()
+        ecritures_credit_list = ecritures_credit.all()
+        
+        # Créer une liste consolidée avec indication débit/crédit
+        mouvements = []
+        
+        for ecriture in ecritures_debit_list:
+            mouvements.append({
+                'ecriture': ecriture,
+                'date': ecriture.date_ecriture,
+                'numero_piece': ecriture.numero_piece,
+                'libelle': ecriture.libelle,
+                'debit': float(ecriture.montant),
+                'credit': 0,
+                'contrepartie': ecriture.compte_credit
+            })
+        
+        for ecriture in ecritures_credit_list:
+            mouvements.append({
+                'ecriture': ecriture,
+                'date': ecriture.date_ecriture,
+                'numero_piece': ecriture.numero_piece,
+                'libelle': ecriture.libelle,
+                'debit': 0,
+                'credit': float(ecriture.montant),
+                'contrepartie': ecriture.compte_debit
+            })
+        
+        # Trier par date croissante
+        mouvements.sort(key=lambda x: x['date'])
+        
+        # Calculer le solde progressif
+        solde_progressif = 0
+        for mouvement in mouvements:
+            solde_progressif += mouvement['debit'] - mouvement['credit']
+            mouvement['solde_progressif'] = solde_progressif
+        
+        # Calculer totaux
+        total_debit = sum(m['debit'] for m in mouvements)
+        total_credit = sum(m['credit'] for m in mouvements)
+        solde_final = total_debit - total_credit
+        
+        # Déterminer le sens du solde selon le type de compte
+        if compte.type_compte in ['actif', 'charge']:
+            # Comptes de nature débitrice
+            if solde_final >= 0:
+                solde_sens = 'débiteur'
+                solde_absolu = solde_final
+            else:
+                solde_sens = 'créditeur'
+                solde_absolu = -solde_final
+        else:
+            # Comptes de nature créditrice (passif, produit)
+            if solde_final <= 0:
+                solde_sens = 'créditeur'
+                solde_absolu = -solde_final
+            else:
+                solde_sens = 'débiteur'
+                solde_absolu = solde_final
+        
+        return render_template('comptabilite/comptes/detail.html',
+                             compte=compte,
+                             mouvements=mouvements,
+                             total_debit=total_debit,
+                             total_credit=total_credit,
+                             solde_final=solde_final,
+                             solde_sens=solde_sens,
+                             solde_absolu=solde_absolu,
+                             date_debut=date_debut,
+                             date_fin=date_fin,
+                             formater_montant=formater_montant)
+    
+    @app.route('/comptabilite/consultation-comptes')
+    def consultation_comptes():
+        """Page de sélection de compte pour consultation"""
+        # Récupérer tous les comptes actifs
+        comptes = CompteComptable.query.filter_by(actif=True).order_by(CompteComptable.numero_compte).all()
+        
+        # Recherche par terme
+        terme_recherche = request.args.get('q', '').strip()
+        if terme_recherche:
+            comptes = CompteComptable.query.filter(
+                and_(
+                    CompteComptable.actif == True,
+                    or_(
+                        CompteComptable.numero_compte.ilike(f'%{terme_recherche}%'),
+                        CompteComptable.nom_compte.ilike(f'%{terme_recherche}%')
+                    )
+                )
+            ).order_by(CompteComptable.numero_compte).all()
+        
+        return render_template('comptabilite/consultation/index.html',
+                             comptes=comptes,
+                             terme_recherche=terme_recherche)
+    
     @app.route('/comptabilite/journaux')
     def journaux_index():
         """Liste des journaux comptables"""

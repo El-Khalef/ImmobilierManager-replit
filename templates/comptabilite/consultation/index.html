@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Consultation des Comptes{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Consultation des Comptes</h2>
+                    <p class="text-muted">Recherchez et consultez le détail de vos comptes comptables</p>
+                </div>
+                <a href="{{ url_for('comptabilite_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <!-- Barre de recherche -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('consultation_comptes') }}">
+                        <div class="row align-items-end">
+                            <div class="col-md-8">
+                                <label for="recherche" class="form-label">Rechercher un compte</label>
+                                <input type="text" class="form-control" id="recherche" name="q" 
+                                       value="{{ terme_recherche or '' }}"
+                                       placeholder="Tapez le numéro ou le nom du compte (ex: 512, banque, client...)">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-search"></i> Rechercher
+                                </button>
+                                {% if terme_recherche %}
+                                <a href="{{ url_for('consultation_comptes') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Effacer
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Résultats de recherche ou liste complète -->
+            {% if comptes %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list"></i> 
+                            {% if terme_recherche %}
+                                Résultats de recherche pour "{{ terme_recherche }}" ({{ comptes|length }} comptes)
+                            {% else %}
+                                Tous les comptes actifs ({{ comptes|length }} comptes)
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>N° Compte</th>
+                                        <th>Nom du Compte</th>
+                                        <th>Type</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for compte in comptes %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary fs-6">{{ compte.numero_compte }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ compte.nom_compte }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if compte.type_compte == 'actif' %}
+                                                <span class="badge bg-success">Actif</span>
+                                            {% elif compte.type_compte == 'passif' %}
+                                                <span class="badge bg-warning">Passif</span>
+                                            {% elif compte.type_compte == 'charge' %}
+                                                <span class="badge bg-danger">Charge</span>
+                                            {% elif compte.type_compte == 'produit' %}
+                                                <span class="badge bg-info">Produit</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ compte.type_compte|title }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('compte_detail', id=compte.id) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i> Consulter le compte
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    {% if terme_recherche %}
+                        <h4>Aucun compte trouvé</h4>
+                        <p class="text-muted">Aucun compte ne correspond à votre recherche "{{ terme_recherche }}".</p>
+                        <p class="text-muted">Essayez avec un autre terme ou vérifiez l'orthographe.</p>
+                        <a href="{{ url_for('consultation_comptes') }}" class="btn btn-primary">
+                            Voir tous les comptes
+                        </a>
+                    {% else %}
+                        <h4>Aucun compte disponible</h4>
+                        <p class="text-muted">Aucun compte actif n'a été trouvé dans votre plan comptable.</p>
+                        <a href="{{ url_for('comptes_index') }}" class="btn btn-primary">
+                            Gérer le plan comptable
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Guide d'utilisation -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-lightbulb"></i> Guide d'utilisation</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Recherche par numéro</h6>
+                                    <p class="small text-muted">Tapez le numéro complet ou partiel du compte (ex: 512, 411, 701)</p>
+                                    
+                                    <h6>Recherche par nom</h6>
+                                    <p class="small text-muted">Tapez une partie du nom du compte (ex: banque, client, vente)</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Consultation détaillée</h6>
+                                    <p class="small text-muted">Cliquez sur "Consulter le compte" pour voir toutes les écritures et le solde</p>
+                                    
+                                    <h6>Filtrage par période</h6>
+                                    <p class="small text-muted">Dans le détail, vous pourrez filtrer les écritures par dates</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Focus automatique sur le champ de recherche
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('recherche').focus();
+});
+
+// Recherche en temps réel (optionnel)
+document.getElementById('recherche').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        this.closest('form').submit();
+    }
+});
+</script>
+{% endblock %}
