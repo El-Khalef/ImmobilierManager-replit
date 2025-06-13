@@ -397,13 +397,11 @@ def register_comptabilite_routes(app):
         form = CompteComptableForm()
         
         if form.validate_on_submit():
-            compte = CompteComptable(
-                numero_compte=form.numero_compte.data,
-                nom_compte=form.nom_compte.data,
-                type_compte=form.type_compte.data,
-                description=form.description.data,
-                actif=form.actif.data
-            )
+            compte = CompteComptable()
+            compte.numero_compte = form.numero_compte.data
+            compte.nom_compte = form.nom_compte.data
+            compte.type_compte = form.type_compte.data
+            compte.actif = form.actif.data
             
             try:
                 db.session.add(compte)
@@ -417,6 +415,53 @@ def register_comptabilite_routes(app):
         return render_template('comptabilite/comptes/form.html',
                              form=form,
                              title='Ajouter un compte comptable')
+    
+    @app.route('/comptabilite/comptes/<int:id>/modifier', methods=['GET', 'POST'])
+    def comptes_edit(id):
+        """Modifier un compte comptable"""
+        compte = CompteComptable.query.get_or_404(id)
+        form = CompteComptableForm(obj=compte)
+        
+        if form.validate_on_submit():
+            compte.numero_compte = form.numero_compte.data
+            compte.nom_compte = form.nom_compte.data
+            compte.type_compte = form.type_compte.data
+            compte.actif = form.actif.data
+            
+            try:
+                db.session.commit()
+                flash('Compte comptable modifié avec succès.', 'success')
+                return redirect(url_for('comptes_index'))
+            except Exception as e:
+                db.session.rollback()
+                flash('Erreur lors de la modification du compte.', 'danger')
+        
+        return render_template('comptabilite/comptes/form.html', 
+                             form=form, 
+                             title="Modifier le compte",
+                             compte=compte)
+    
+    @app.route('/comptabilite/comptes/<int:id>/supprimer', methods=['POST'])
+    def comptes_delete(id):
+        """Supprimer un compte comptable"""
+        compte = CompteComptable.query.get_or_404(id)
+        
+        # Vérifier s'il y a des écritures liées à ce compte
+        ecritures_debit = EcritureComptable.query.filter_by(compte_debit_id=id).count()
+        ecritures_credit = EcritureComptable.query.filter_by(compte_credit_id=id).count()
+        
+        if ecritures_debit > 0 or ecritures_credit > 0:
+            return jsonify({'error': 'Impossible de supprimer ce compte car il est utilisé dans des écritures comptables.'})
+        
+        try:
+            db.session.delete(compte)
+            db.session.commit()
+            flash('Compte comptable supprimé avec succès.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erreur lors de la suppression: {str(e)}', 'error')
+        
+        return jsonify({'success': True})
     
     @app.route('/comptabilite/budgets')
     def budgets_index():

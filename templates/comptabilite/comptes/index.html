@@ -65,7 +65,7 @@
                                         <a href="{{ url_for('comptes_edit', id=compte.id) }}" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmerSuppression({{ compte.id }})">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmerSuppressionCompte({{ compte.id }})">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -89,15 +89,27 @@
 </div>
 
 <script>
-function confirmerSuppression(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce compte ?')) {
+function confirmerSuppressionCompte(id) {
+    if (confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir supprimer ce compte comptable ?\n\nCette action peut être bloquée si le compte est utilisé dans des écritures.\n\nCliquez sur OK pour confirmer.')) {
         fetch(`/comptabilite/comptes/${id}/supprimer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             }
-        }).then(() => {
-            location.reload();
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Erreur réseau');
+        }).then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                location.reload();
+            }
+        }).catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression. Veuillez réessayer.');
         });
     }
 }
