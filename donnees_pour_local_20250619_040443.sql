@@ -20,7 +20,7 @@ INSERT INTO biens_immobiliers (titre, type_bien, adresse, ville, surface, prix_l
 -- 30 comptes comptables
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('10', 'CAPITAL ET RESERVES', 'passif', 'capitaux', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('101', 'Capital', 'passif', 'capitaux', True);
-INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('12', 'RESULTAT DE L'EXERCICE', 'resultat', 'capitaux', True);
+INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('12', 'RESULTAT DE L''EXERCICE', 'resultat', 'capitaux', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('21', 'IMMOBILISATIONS CORPORELLES', 'actif', 'immobilisation', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('213', 'Constructions', 'actif', 'immobilisation', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('2131', 'Immeubles de rapport', 'actif', 'immobilisation', True);
@@ -36,8 +36,8 @@ INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_typ
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('531', 'Caisse', 'actif', 'tresorerie', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('61', 'SERVICES EXTERIEURS', 'charge', 'exploitation', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('615', 'Entretien et réparations', 'charge', 'exploitation', True);
-INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('616', 'Primes d'assurance', 'charge', 'exploitation', True);
-INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('622', 'Rémunérations d'intermédiaires', 'charge', 'exploitation', True);
+INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('616', 'Primes d''assurance', 'charge', 'exploitation', True);
+INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('622', 'Rémunérations d''intermédiaires', 'charge', 'exploitation', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('63', 'IMPOTS ET TAXES', 'charge', 'exploitation', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('635', 'Impôts et taxes directs', 'charge', 'exploitation', True);
 INSERT INTO comptes_comptables (numero_compte, nom_compte, type_compte, sous_type, actif) VALUES ('70', 'VENTES', 'produit', 'exploitation', True);

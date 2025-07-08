@@ -13,16 +13,6 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-def formater_montant(montant):
-    """Formate un montant en MRU avec séparateurs de milliers"""
-    if montant is None:
-        return "0"
-    try:
-        montant_float = float(montant)
-        return f"{montant_float:,.0f}".replace(',', ' ')
-    except (ValueError, TypeError):
-        return "0"
-
 def create_app():
     # create the app
     app = Flask(__name__)
@@ -47,15 +37,6 @@ def create_app():
     
     # initialize the app with the extension
     db.init_app(app)
-
-    # CORRECTION POUR ENVIRONNEMENT LOCAL
-    # Enregistrer la fonction formater_montant comme filtre global Jinja2
-    app.jinja_env.globals['formater_montant'] = formater_montant
-    
-    # Enregistrer également comme filtre
-    @app.template_filter('formater_montant')
-    def formater_montant_filter(montant):
-        return formater_montant(montant)
 
     with app.app_context():
         # Import models to ensure tables are created
